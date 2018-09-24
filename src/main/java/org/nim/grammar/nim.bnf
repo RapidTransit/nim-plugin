@@ -1,0 +1,118 @@
+{
+  parserClass="org.nim.grammar.NimParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Nim"
+  psiImplClassSuffix="Impl"
+  psiPackage="org.nim.psi"
+  psiImplPackage="org.nim.psi.impl"
+
+  elementTypeHolderClass="org.nim.psi.NimTypes"
+  elementTypeClass="org.nim.psi.NimElementType"
+  tokenTypeClass="org.nim.psi.NimTokenType"
+
+  tokens = [
+    T_IF='if'
+    T_WHEN='when'
+    T_WHILE='while'
+    T_CASE='case'
+    T_FOR='for'
+    T_VAR='var'
+    T_LET='let'
+    T_CONST='const'
+    T_BLOCK='block'
+    T_TRY='try'
+    T_EXCEPT='except'
+    T_FINALLY='finally'
+    T_INCLUDE='include'
+    T_MIXIN='mixin'
+    T_DISCARD='discard'
+
+    OP_ASSIGN='='
+    OP_PLUS='+'
+    OP_MINUS='-'
+    OP_MULTIPLY='*'
+    OP_DIVIDE='/'
+    OP_EQ='=='
+    OP_NE='!='
+    OP_LT='<'
+    OP_LE='<='
+    OP_GT='>'
+    OP_GE='>='
+  ]
+}
+
+module ::= import_section ? ( var_init_block | let_init_block | const_init_block | proc | nonempty_block | TEMPLATE | COMMENT ) *
+
+import_section ::= T_IMPORT ident_list
+
+var_init_block ::= T_VAR var_init+
+var_init ::= ident_init
+
+let_init_block ::= T_LET let_init+
+let_init ::= ident_init
+
+const_init_block ::= T_CONST const_init+
+const_init ::= ident_init
+
+ident_init ::= ident_list ( ( ( COLON type )? OP_ASSIGN expr ) | COLON type )
+ident_list ::= IDENTIFIER ( COMMA IDENTIFIER ) *
+
+proc ::= T_PROC ( ( IDENTIFIER '*' ? ) | OPERATOR_IDENTIFIER ) params_list ( COLON type ) ? OP_ASSIGN ( var_init_block | let_init_block | nonempty_block | COMMENT ) * return_ ?
+params_list ::= OPEN_BRACKET ( ident_list COLON type ( COMMA ident_list COLON type ) * )? CLOSE_BRACKET
+return_ ::= T_RETURN expr ?
+
+stmt ::= ( ident_or_field OP_ASSIGN expr ) | invokation
+
+expr ::= operator ? expr_ ( operator expr_ ) *
+expr_ ::= addr_expr | field_expr | invokation_chain | NIL | paren_expr | ident_expr | literal_expr | invokation
+paren_expr ::= OPEN_BRACKET expr CLOSE_BRACKET
+operator ::= arithmetic_operator | boolean_operator | CUSTOM_OPERATOR
+arithmetic_operator ::= OP_PLUS | OP_MINUS | OP_MULTIPLY | OP_DIVIDE | OP_MOD | OP_AND | OP_XOR | OP_OR | OP_STRINGIFY
+field_expr ::= ( invokation_chain | paren_expr | IDENTIFIER ) ( T_DOT IDENTIFIER ) +
+invokation_chain ::= invokation_with_brackets ( T_DOT invokation_with_brackets ) *
+invokation ::= ( ident_or_field | KEYWORD ) OPEN_BRACKET ? expr ? ( COMMA expr ) * CLOSE_BRACKET ?
+invokation_with_brackets ::= ident_or_field OPEN_BRACKET expr ? ( COMMA expr ) * CLOSE_BRACKET
+literal_expr ::= literal
+literal ::= seq_literal | array_literal | STRING | CHAR | NUMBER | bool_literal
+seq_literal ::= T_AT array
+array_literal ::= array
+array ::= OPEN_SBRACKET ( expr ( COMMA expr ) * ) ? CLOSE_SBRACKET
+bool_literal ::= T_TRUE | T_FALSE
+boolean_operator ::= OP_EQ | OP_NE | OP_LT | OP_LE | OP_GT | OP_GE | OP_AND_FULL | OP_XOR_FULL | OP_OR_FULL
+| OP_LOGICAL_OR | OP_LOGICAL_AND
+
+addr_expr ::= OP_ADDR ( ( OPEN_BRACKET ident_expr CLOSE_BRACKET ) | ident_expr )
+
+ident_expr ::= ident_or_field
+
+type ::= seq | type_
+seq ::= T_SEQ OPEN_SBRACKET type_ CLOSE_SBRACKET
+type_ ::= 'string' | 'bool' | 'int' | IDENTIFIER
+
+if_block ::= T_IF expr COLON block ( elif_block ) * else_block ?
+elif_block ::= T_ELIF expr COLON block
+else_block ::= T_ELSE COLON block
+
+for_block ::= T_FOR ident_or_field T_IN range COLON
+range ::= int_range | char_range
+int_range ::= NUMBER T_RANGE NUMBER
+char_range ::= CHAR T_RANGE CHAR
+
+while_block ::= T_WHILE expr COLON block
+
+case_block ::= T_CASE ident_or_field of_block + else_block ?
+of_block ::= T_OF of_value_list COLON block
+of_value_list ::= of_value ( COMMA of_value ) *
+of_value ::= ident_or_field | range | literal
+
+nonempty_block ::= block_ +
+block ::= block_ *
+block_ ::= if_block | for_block | while_block | case_block | block_expr | break_expr | stmt | var_init_block
+| invokation | discard_expr
+block_expr ::= T_BLOCK IDENTIFIER COLON
+break_expr ::= T_BREAK IDENTIFIER ?
+discard_expr ::= T_DISCARD expr ?
+ident_or_field ::= IDENTIFIER ( T_DOT ( IDENTIFIER | invokation_with_brackets ) ) *
+
