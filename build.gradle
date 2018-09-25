@@ -86,4 +86,8 @@ task generateNimParser(type: GenerateParser) {
 
     // if set, plugin will remove a parser output file and psi output directory before generating new ones. Default: false
     purgeOldFiles = true
+    
+    doLast {
+        
+    }
 }

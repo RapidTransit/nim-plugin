@@ -16,8 +16,41 @@ import com.intellij.psi.TokenType;
 %eof{  return;
 %eof}
 
+// Digit Classes
+DEC_DIGIT = [0-9]
+OCTAL_DIGIT = [0-7]
+BINARY_DIGIT = [01]
+HEX_DIGIT = DEC_DIGIT | [a-fA-F]
+
+T_UNDERSCORE = '_'
+
+T_X= [xX]
+
+HEX_LITERAL =   '0' T_X HEX_DIGIT+ ( T_UNDERSCORE? HEX_DIGIT )*
+DEC_LITERAL =   DEC_DIGIT+ ( T_UNDERSCORE? HEX_DIGIT )*
+OCT_LIT =       '0' [ocC] OCTAL_DIGIT ( T_UNDERSCORE? OCTAL_DIGIT )*
+BIN_LIT =       '0' [bB] BINARY_DIGIT ( T_UNDERSCORE? BINARY_DIGIT )*
+
+INTEGER_LIT = HEX_LITERAL|DEC_LITERAL|OCT_LIT|BIN_LIT
+
+INT8_LIT = INT_LIT ['\'']? ('i' | 'I') '8'
+INT16_LIT = INT_LIT ['\'']? ('i' | 'I') '16'
+INT32_LIT = INT_LIT ['\'']? ('i' | 'I') '32'
+INT64_LIT = INT_LIT ['\'']? ('i' | 'I') '64'
+
+UINT_LIT = INT_LIT ['\'']? ('u' | 'U')
+UINT8_LIT = INT_LIT ['\'']? ('u' | 'U') '8'
+UINT16_LIT = INT_LIT ['\'']? ('u' | 'U') '16'
+UINT32_LIT = INT_LIT ['\'']? ('u' | 'U') '32'
+UINT64_LIT = INT_LIT ['\'']? ('u' | 'U') '64'
+
+
+
 CRLF=\n|\r|\r\n
 WHITE_SPACE=[\ \t\f]
+
+T_BLOCK_COMMENT_START="#["
+T_BLOCK_COMMENT_END="]#"
 END_OF_LINE_COMMENT="#"[^\r\n]*
 KEYWORD="echo"
 T_VAR="var"
@@ -35,6 +68,8 @@ T_WHILE="while"
 T_BLOCK="block"
 T_DISCARD="discard"
 T_RETURN="return"
+T_TEMPLATE="template"
+T_MACRO="macro"
 STRING=\"([^\"\\]|\\\\|\\\"|\\n|\\t)*\"
 CHAR='.'
 NUMBER=[0-9]+(\.[0-9]+)?
@@ -55,7 +90,7 @@ CLOSE_BRACKET=")"
 OPEN_SBRACKET="["
 CLOSE_SBRACKET="]"
 
-%state YYINITIAL
+%state IN_GLOBAL_SCOPE IN_BLOCK IN_STATEMENT IN_COMMENTS IN_STRING IN_CALL_PARAMETERS
 
 %%
 
@@ -78,6 +113,8 @@ CLOSE_SBRACKET="]"
     {T_IN}                { return NimTypes.T_IN; }
     {T_WHILE}             { return NimTypes.T_WHILE; }
     {T_AT}                { return NimTypes.T_AT; }
+    {T_MACRO}             { return NimTypes.T_MACRO; }
+    {T_TEMPLATE}          { return NimTypes.T_TEMPLATE; }
     "true"                { return NimTypes.T_TRUE; }
     "false"               { return NimTypes.T_FALSE; }
     "case"                { return NimTypes.T_CASE; }
@@ -132,4 +169,3 @@ CLOSE_SBRACKET="]"
     "mixin"               { return T_MIXIN; }
     .                     { return TokenType.WHITE_SPACE; }
 }
-

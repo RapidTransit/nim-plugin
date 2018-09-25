@@ -19,6 +19,7 @@ class NimTreeElement(val element: NavigatablePsiElement) : StructureViewTreeElem
         when(element){
             is NimProcImpl -> TODO("not implemented")
             is NimTypeImpl -> TODO("not implemented")
+            else -> TODO("not implemented")
         }
     }
 
