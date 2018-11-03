@@ -28,6 +28,8 @@
     T_INCLUDE='include'
     T_MIXIN='mixin'
     T_DISCARD='discard'
+    T_TEMPLATE='template'
+    T_MACRO='macro'
     T_COMMENT='#'
     OP_ASSIGN='='
     OP_PLUS='+'

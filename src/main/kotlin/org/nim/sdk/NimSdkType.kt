@@ -3,7 +3,6 @@ package org.nim.sdk
 import com.intellij.openapi.projectRoots.*
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
-import com.sun.tools.sjavac.server.SysInfo
 import org.jdom.Element
 import java.io.File
 
