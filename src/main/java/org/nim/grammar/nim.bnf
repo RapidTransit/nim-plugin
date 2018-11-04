@@ -13,122 +13,162 @@
   tokenTypeClass="org.nim.psi.NimTokenType"
 
   tokens = [
-    T_IF='if'
-    T_WHEN='when'
-    T_WHILE='while'
-    T_CASE='case'
-    T_FOR='for'
-    T_VAR='var'
-    T_LET='let'
-    T_CONST='const'
-    T_BLOCK='block'
-    T_TRY='try'
-    T_EXCEPT='except'
-    T_FINALLY='finally'
-    T_INCLUDE='include'
-    T_MIXIN='mixin'
-    T_DISCARD='discard'
-    T_TEMPLATE='template'
-    T_MACRO='macro'
-    T_COMMENT='#'
-    OP_ASSIGN='='
-    OP_PLUS='+'
+   COMMENT='regexp:(#.*)'
+   TK_INVALID
+   TK_EOF
+   TK_SYMBOL
+   ADDR = 'addr'
+   AND = 'and'
+   AS = 'as'
+   ASM = 'asm'
+   BIND = 'bind'
+   BLOCK = 'block'
+   BREAK = 'break'
+   CASE = 'case'
+   CAST = 'cast'
+   CONCEPT ='concept'
+   CONSY = 'const'
+   CONTINUE = 'continue'
+   CONVERTER='converter'
+   DEFER='defer'
+   DISCARD='discard'
+   DISTINCT='distinct'
+   DIV='div'
+   DO='do'
+   ELIF='elif'
+   ELSE='else'
+   END='end'
+   ENUM='enum'
+   EXCEPT='except'
+   EXPORT='export'
+   FINALLY='finally'
+   FOR='for'
+   FROM='from'
+   FUNC='func'
+   IF='if'
+   IMPORT='import'
+   IN='in'
+   INCLUDE='include'
+   INTERFACE='interface'
+   IS='is'
+   ISNOT='isnot'
+   ITERATOR='iterator'
+   LET='let'
+   MACRO='macro'
+   METHOD='method'
+   MIXIN='mixin'
+   MOD='mod'
+   NIL='nil'
+   NOT='not'
+   NOTIN='notin'
+   OBJECT='object'
+   OF='of'
+   OR='or'
+   OUT='out'
+   PROC='proc'
+   PTR='ptr'
+   RAISE='raise'
+   REF='ref'
+   RETURN='return'
+   SHL='shl'
+   SHR='shr'
+   STATIC='static'
+   TEMPLATE='template'
+   TRY='try'
+   TUPLE='tuple'
+   TYPE='type'
+   USING='using'
+   VAR='var'
+   WHEN='when'
+   WHILE='while'
+   XOR='xor'
+   YIELD='yield'
+   T_INT_LIT='regexp:\d+'
+   T_INT8_LIT
+   T_INT16_LIT
+   T_INT32_LIT
+   T_INT64_LIT
+   T_UINT_LIT
+   T_UINT8_LIT
+   T_UINT16_LIT
+   T_UINT32_LIT
+   T_UINT64_LIT
+   T_FLOAT_LIT
+   T_FLOAT32_LIT
+   T_FLOAT64_LIT
+   T_FLOAT128_LIT
+   T_STRING_LIT
+   T_R_STRING_LIT
+   T_TRIPLE_STRING_LIT
+   T_G_STRING_LIT
+   T_G_TRIPLE_STRING_LIT
+   T_CHAR
+   PARAN_DOT_OPEN ='(.'
+   PARAN_DOT_CLOSE='.)'
+   BRACKET_DOT_OPEN='[.'
+   BRACKET_DOT_CLOSE='.]'
+   CURLY_DOT_OPEN='{.'
+   CURLY_DOT_CLOSE='.}'
+   PARAN_OPEN='('
+   PARAN_CLOSE=')'
+   BRACKET_OPEN=']'
+   BRACKET_CLOSE='['
+   CURLY_OPEN='{'
+   CURLY_CLOSE='}'
+   COMMA=','
+   SEMI_COLON=';'
+   DOUBLE_COLON='::'
+   SINGLE_COLON=':'
+   EQUAL='='
+   DOUBLE_DOT='..'
+   DOT='.'
+   BRACKET_COLON='[:'
+   T_OPERATOR
+   T_COMMENT
+   TILDE='`'
+   SPACE=' '
+   T_INFIX_OPERATOR
+   T_PREFIX_OPERATOR
+   T_POSTFIX_OPERATOR
+   OP_PLUS='+'
     OP_MINUS='-'
     OP_MULTIPLY='*'
-    OP_DIVIDE='/'
-    OP_EQ='=='
-    OP_NE='!='
-    OP_LT='<'
-    OP_LE='<='
-    OP_GT='>'
-    OP_GE='>='
+    OP_FORWAR_SLASH='/'
+    OP_BACK_SLASH='\\'
+    OP_POINT_LEFT='<'
+    OP_POINT_RIGHT='>'
+    OP_EXCLAMATION = '!'
+    OP_QUSTION ='?'
+    OP_CARET='^'
+    OP_DOT='.'
+    OP_OR='|'
+    OP_EQ='='
+    OP_PERCENT='%'
+    OP_AMP='&'
+    OP_DOLLAR='$'
+    OP_AT='@'
+    OP_TILDE='~'
+    OP_COLON=':'
+    OP0
+    OP1
+    OP2
+    OP3
+    OP4
+    OP5
+    OP6
+    OP7
+    OP8
+    OP9
+    OP10
+    IDENTIFIER= 'regexp:[a-zA-Z][a-zA-Z0-9]*'
+    NOT_TILDE = 'regexp:[a-zA-Z\\*]+'
+    N='\n'
   ]
 }
 
-module ::= import_section ? ( var_init_block | let_init_block | const_init_block | proc | nonempty_block | TEMPLATE | type | comment1 ) *
+File ::= (COMMENT |CodeBlock)
 
-
-
-import_section ::= T_IMPORT ident_list
-
-var_init_block ::= T_VAR var_init+
-var_init ::= ident_init
-
-let_init_block ::= T_LET let_init+
-let_init ::= ident_init
-
-const_init_block ::= T_CONST const_init+
-const_init ::= ident_init
-
-ident_init ::= ident_list ( ( ( COLON type )? OP_ASSIGN CompoundExpression ) | COLON type )
-ident_list ::= IDENTIFIER ( COMMA IDENTIFIER ) *
-
-proc ::= T_PROC ( ( IDENTIFIER '*' ? ) | OPERATOR_IDENTIFIER ) params_list ( COLON type ) ? OP_ASSIGN ( var_init_block | let_init_block | nonempty_block | COMMENT ) * return_ ?
-params_list ::= OPEN_BRACKET ( ident_list COLON type ( COMMA ident_list COLON type ) * )? CLOSE_BRACKET
-return_ ::= T_RETURN CompoundExpression ?
-
-stmt ::= ( ident_or_field OP_ASSIGN CompoundExpression ) | invokation
-
-CompoundExpression ::= operator ? Expression ( operator Expression ) *
-Expression ::= addr_expr | field_expr | invokation_chain | NIL | EnclosedExpression | ident_expr | LiteralExpression | invokation
-EnclosedExpression ::= OPEN_BRACKET CompoundExpression CLOSE_BRACKET
-operator ::= arithmetic_operator | boolean_operator | CUSTOM_OPERATOR
-arithmetic_operator ::= OP_PLUS | OP_MINUS | OP_MULTIPLY | OP_DIVIDE | OP_MOD | OP_AND | OP_XOR | OP_OR | OP_STRINGIFY
-field_expr ::= ( invokation_chain | EnclosedExpression | IDENTIFIER ) ( T_DOT IDENTIFIER ) +
-invokation_chain ::= invokation_with_brackets ( T_DOT invokation_with_brackets ) *
-invokation ::= ( ident_or_field | KEYWORD ) OPEN_BRACKET ? CompoundExpression ? ( COMMA CompoundExpression ) * CLOSE_BRACKET ?
-invokation_with_brackets ::= ident_or_field OPEN_BRACKET CompoundExpression ? ( COMMA CompoundExpression ) * CLOSE_BRACKET
-LiteralExpression ::= Literal
-Literal ::= seq_literal | array_literal | STRING | CHAR | NUMBER | BooleanLiteral
-seq_literal ::= T_AT array
-array_literal ::= array
-array ::= OPEN_SBRACKET ( CompoundExpression ( COMMA CompoundExpression ) * ) ? CLOSE_SBRACKET
-
-//
-// Basic Literals
-//
-BooleanLiteral ::= T_TRUE | T_FALSE
-IntegerLiteral ::=
-
-
-boolean_operator ::= OP_EQ | OP_NE | OP_LT | OP_LE | OP_GT | OP_GE | OP_AND_FULL | OP_XOR_FULL | OP_OR_FULL
-| OP_LOGICAL_OR | OP_LOGICAL_AND
-
-addr_expr ::= OP_ADDR ( ( OPEN_BRACKET ident_expr CLOSE_BRACKET ) | ident_expr )
-
-ident_expr ::= ident_or_field
-
-type ::= seq | type_
-seq ::= T_SEQ OPEN_SBRACKET type_ CLOSE_SBRACKET
-type_ ::= 'string' | 'bool' | 'int' | IDENTIFIER
-
-IfBlock ::= T_IF CompoundExpression COLON block ( elif_block ) * else_block ?
-elif_block ::= T_ELIF CompoundExpression COLON block
-else_block ::= T_ELSE COLON block
-
-for_block ::= T_FOR ident_or_field T_IN Range COLON
-
-//
-// Ranges
-//
-Range ::= IntegerRange | CharacterRange
-IntegerRange ::= NUMBER T_RANGE NUMBER
-CharacterRange ::= CHAR T_RANGE CHAR
-
-while_block ::= T_WHILE CompoundExpression COLON block
-
-case_block ::= T_CASE ident_or_field of_block + else_block ?
-of_block ::= T_OF of_value_list COLON block
-of_value_list ::= of_value ( COMMA of_value ) *
-of_value ::= ident_or_field | Range | Literal
-
-nonempty_block ::= block_ +
-block ::= block_ *
-block_ ::= IfBlock | for_block | while_block | case_block | block_expr | break_expr | stmt | var_init_block
-| invokation | discard_expr
-block_expr ::= T_BLOCK IDENTIFIER COLON
-break_expr ::= T_BREAK IDENTIFIER ?
-discard_expr ::= T_DISCARD CompoundExpression ?
-ident_or_field ::= IDENTIFIER ( T_DOT ( IDENTIFIER | invokation_with_brackets ) ) *
-indent::=T_INDENT
-dedent::=T_DEDENT
+CodeBlock ::= (Template|Proc|TypeDeclaration)
+Template ::= TEMPLATE NOT_TILDE
+Proc ::= PROC IDENTIFIER '*'?('[T]')?
+TypeDeclaration ::= TYPE

@@ -90,7 +90,8 @@ CLOSE_BRACKET=")"
 OPEN_SBRACKET="["
 CLOSE_SBRACKET="]"
 
-%state IN_GLOBAL_SCOPE IN_BLOCK IN_STATEMENT IN_COMMENTS IN_STRING IN_CALL_PARAMETERS
+
+%state IN_BLOCK IN_STATEMENT IN_COMMENTS IN_STRING IN_CALL_PARAMETERS
 
 %%
 
@@ -98,8 +99,10 @@ CLOSE_SBRACKET="]"
     {END_OF_LINE_COMMENT} { return NimTypes.COMMENT; }
     {TEMPLATE}            { return NimTypes.COMMENT; }
     {KEYWORD}             { return NimTypes.KEYWORD; }
-    {CRLF}+               { return TokenType.WHITE_SPACE; }
-    {WHITE_SPACE}+        { return TokenType.WHITE_SPACE; }
+    [\n]                        { return PyTokenTypes.LINE_BREAK; }
+    [\ ]        { return NimTypes.SPACE; }
+      [\t]        { return NimTypes.TAB; }
+      [\f]                        { return NimTypes.FORMFEED; }
     {T_IMPORT}            { return NimTypes.T_IMPORT; }
     {T_VAR}               { return NimTypes.T_VAR; }
     {T_LET}               { return NimTypes.T_LET; }
@@ -167,5 +170,5 @@ CLOSE_SBRACKET="]"
     "finally"             { return T_FINALLY; }
     "include"             { return T_INCLUDE; }
     "mixin"               { return T_MIXIN; }
-    .                     { return TokenType.WHITE_SPACE; }
+//    .                     { return TokenType.WHITE_SPACE; }
 }
