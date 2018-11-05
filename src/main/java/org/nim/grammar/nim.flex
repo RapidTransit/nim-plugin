@@ -31,6 +31,7 @@ import com.intellij.psi.TokenType;
 
     INTEGER_LIT = HEX_LITERAL|DEC_LITERAL|OCT_LIT|BIN_LIT
 
+    // We could colapse these
     INT8_LIT = INT_LIT ['\'']? ('i' | 'I') '8'
     INT16_LIT = INT_LIT ['\'']? ('i' | 'I') '16'
     INT32_LIT = INT_LIT ['\'']? ('i' | 'I') '32'
@@ -41,9 +42,12 @@ import com.intellij.psi.TokenType;
     UINT16_LIT = INT_LIT ['\'']? ('u' | 'U') '16'
     UINT32_LIT = INT_LIT ['\'']? ('u' | 'U') '32'
     UINT64_LIT = INT_LIT ['\'']? ('u' | 'U') '64'
+
     RAW_STRING="r\""
     BLOCK_COMMENT_START="#["
     BLOCK_COMMENT_END="]#"
+    TRIPLE_QUOTE="\"\"\""
+    DOUBLE_QUOTE="\""
     HASH=#[^\n\r]*
     ADDR = "addr"
     AND = "and"
@@ -131,7 +135,7 @@ import com.intellij.psi.TokenType;
     COMPARISON=[>|<]=?
     DOUBLE_DOT=".."
     DOT="."
-    BRACKET_COLON="[\:"
+    BRACKET_COLON="[:"
     TILDE_IDENTIFIER='[^~]+'
     TILDE="`"
     STAR="*"
@@ -142,7 +146,7 @@ import com.intellij.psi.TokenType;
 
 
 
-%state CALLABLE CALLABLE_TILDE CALLABLE_ARGUMENTS COMMENT MULTILINE_COMMENT
+%state CALLABLE CALLABLE_TILDE CALLABLE_ARGUMENTS IN_STRING IN_TRIPLE_STRING COMMENT MULTILINE_COMMENT
 
 %%
    <YYINITIAL> {PROC} {yybegin(CALLABLE);return PROC;}
@@ -153,7 +157,7 @@ import com.intellij.psi.TokenType;
           {INT16_LIT} {return INT16_LIT;}
           {INT32_LIT} {return INT32_LIT;}
           {INT64_LIT} {return INT64_LIT;}
-       {STAR} {return STAR;}
+          {STAR} {return STAR;}
           {UINT_LIT} {return UINT_LIT;}
           {UINT8_LIT} {return UINT8_LIT;}
           {UINT16_LIT} {return UINT16_LIT;}
@@ -162,7 +166,7 @@ import com.intellij.psi.TokenType;
           {RAW_STRING} {return RAW_STRING;}
           {BLOCK_COMMENT_START} {return BLOCK_COMMENT_START;}
           {BLOCK_COMMENT_END} {return BLOCK_COMMENT_END;}
-            {COMPARISON} {return COMPARISON;}
+          {COMPARISON} {return COMPARISON;}
           {HASH} {return HASH;}
           {ADDR} {return ADDR;}
           {AND} {return AND;}

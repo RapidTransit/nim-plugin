@@ -136,10 +136,14 @@ Procedure ::= PROC (TILDE TILDE_IDENTIFIER TILDE | IDENTIFIER) STAR? GenericType
 Assignment ::= VAR IDENTIFIER EQUAL IdentifierOrLiteral
 ArrayAccess ::= IDENTIFIER BRACKET_OPEN IdentifierOrLiteral BRACKET_CLOSE
 IdentifierOrLiteral ::= ArrayAccess|IDENTIFIER|Literal
-Literal ::= Integer
+Literal ::= Integer | StringLiteral | TripleQuoteString
+
 Integer ::= (SignedInteger|UnsignedInteger)
 SignedInteger ::= INTEGER_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
+
+StringLiteral ::= (RAW_STRING | DOUBLE_QUOTE ) STRING_CONTENTS DOUBLE_QUOTE
+TripleQuoteString ::= DOUBLE_QUOTE{3} STRING_CONTENTS DOUBLE_QUOTE{3}
 QualifiedType ::= IDENTIFIER GenericType?
 GenericType ::= BRACKET_OPEN IDENTIFIER (COMMA IDENTIFIER)* BRACKET_CLOSE
 Arguments ::= Argument (COMMA Argument)*
