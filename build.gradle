@@ -57,7 +57,7 @@ intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
     version '2018.2.4'
-    plugins "maven"
+   
 }
 patchPluginXml {
     changeNotes """

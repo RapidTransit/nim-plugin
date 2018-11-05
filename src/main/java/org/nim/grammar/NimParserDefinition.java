@@ -15,14 +15,16 @@ import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.nim.NimFile;
 import org.nim.lang.NimLanguage;
-import org.nim.psi.NimTypes;
+import org.nim.psi.NimTokenType;
+import org.nim.psi.NimTokenTypes;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Reader;
 
 public class NimParserDefinition implements ParserDefinition {
-    public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
-    public static final TokenSet COMMENTS = TokenSet.create(NimTypes.COMMENT);
+    public static final TokenSet WHITE_SPACES = TokenSet.create(NimTokenTypes.WHITE_SPACE);
+    public static final TokenSet COMMENTS = TokenSet.create(NimTokenTypes.HASH);
 
     public static final IFileElementType FILE = new IFileElementType(Language.findInstance(NimLanguage.class));
 
@@ -67,6 +69,6 @@ public class NimParserDefinition implements ParserDefinition {
 
     @NotNull
     public PsiElement createElement(ASTNode node) {
-        return NimTypes.Factory.createElement(node);
+        return NimTokenTypes.Factory.createElement(node);
     }
 }

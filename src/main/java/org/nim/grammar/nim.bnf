@@ -8,15 +8,14 @@
   psiPackage="org.nim.psi"
   psiImplPackage="org.nim.psi.impl"
 
-  elementTypeHolderClass="org.nim.psi.NimTypes"
+  elementTypeHolderClass="org.nim.psi.NimTokenTypes"
   elementTypeClass="org.nim.psi.NimElementType"
   tokenTypeClass="org.nim.psi.NimTokenType"
 
   tokens = [
-   COMMENT='regexp:(#.*)'
-   TK_INVALID
-   TK_EOF
-   TK_SYMBOL
+    BLOCK_COMMENT_START="#["
+    BLOCK_COMMENT_END="]#"
+
    ADDR = 'addr'
    AND = 'and'
    AS = 'as'
@@ -83,26 +82,6 @@
    WHILE='while'
    XOR='xor'
    YIELD='yield'
-   T_INT_LIT='regexp:\d+'
-   T_INT8_LIT
-   T_INT16_LIT
-   T_INT32_LIT
-   T_INT64_LIT
-   T_UINT_LIT
-   T_UINT8_LIT
-   T_UINT16_LIT
-   T_UINT32_LIT
-   T_UINT64_LIT
-   T_FLOAT_LIT
-   T_FLOAT32_LIT
-   T_FLOAT64_LIT
-   T_FLOAT128_LIT
-   T_STRING_LIT
-   T_R_STRING_LIT
-   T_TRIPLE_STRING_LIT
-   T_G_STRING_LIT
-   T_G_TRIPLE_STRING_LIT
-   T_CHAR
    PARAN_DOT_OPEN ='(.'
    PARAN_DOT_CLOSE='.)'
    BRACKET_DOT_OPEN='[.'
@@ -111,8 +90,8 @@
    CURLY_DOT_CLOSE='.}'
    PARAN_OPEN='('
    PARAN_CLOSE=')'
-   BRACKET_OPEN=']'
-   BRACKET_CLOSE='['
+   BRACKET_OPEN='['
+   BRACKET_CLOSE=']'
    CURLY_OPEN='{'
    CURLY_CLOSE='}'
    COMMA=','
@@ -126,13 +105,10 @@
    T_OPERATOR
    T_COMMENT
    TILDE='`'
-   SPACE=' '
-   T_INFIX_OPERATOR
-   T_PREFIX_OPERATOR
-   T_POSTFIX_OPERATOR
-   OP_PLUS='+'
+   WHITE_SPACE=' '
+    OP_PLUS='+'
     OP_MINUS='-'
-    OP_MULTIPLY='*'
+    STAR='*'
     OP_FORWAR_SLASH='/'
     OP_BACK_SLASH='\\'
     OP_POINT_LEFT='<'
@@ -140,35 +116,34 @@
     OP_EXCLAMATION = '!'
     OP_QUSTION ='?'
     OP_CARET='^'
-    OP_DOT='.'
     OP_OR='|'
-    OP_EQ='='
     OP_PERCENT='%'
     OP_AMP='&'
     OP_DOLLAR='$'
     OP_AT='@'
     OP_TILDE='~'
     OP_COLON=':'
-    OP0
-    OP1
-    OP2
-    OP3
-    OP4
-    OP5
-    OP6
-    OP7
-    OP8
-    OP9
-    OP10
-    IDENTIFIER= 'regexp:[a-zA-Z][a-zA-Z0-9]*'
-    NOT_TILDE = 'regexp:[a-zA-Z\\*]+'
-    N='\n'
+    CRLF='<crlf>'
+    RAW_STRING='<raw_string>'
+    COMMENT = '<comment>'
   ]
 }
 
-File ::= (COMMENT |CodeBlock)
+File ::= (Procedure| Assignment| HASH | ComparisonStatement| MethodCall | CRLF? )* <<eof>>
+ComparisonStatement ::= (WHILE|WHEN|IF) ComparisonCondition SINGLE_COLON
+ComparisonCondition ::= (Literal|IDENTIFIER) COMPARISON (Literal|IDENTIFIER)
+Procedure ::= PROC (TILDE TILDE_IDENTIFIER TILDE | IDENTIFIER) STAR? GenericType? PARAN_OPEN Arguments PARAN_CLOSE QualifiedType? EQUAL
+Assignment ::= VAR IDENTIFIER EQUAL IdentifierOrLiteral
+ArrayAccess ::= IDENTIFIER BRACKET_OPEN IdentifierOrLiteral BRACKET_CLOSE
+IdentifierOrLiteral ::= ArrayAccess|IDENTIFIER|Literal
+Literal ::= Integer
+Integer ::= (SignedInteger|UnsignedInteger)
+SignedInteger ::= INTEGER_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
+UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
+QualifiedType ::= IDENTIFIER GenericType?
+GenericType ::= BRACKET_OPEN IDENTIFIER (COMMA IDENTIFIER)* BRACKET_CLOSE
+Arguments ::= Argument (COMMA Argument)*
+Argument ::= IDENTIFIER (COMMA IDENTIFIER)* SINGLE_COLON VAR? QualifiedType ( EQUAL Literal)?
 
-CodeBlock ::= (Template|Proc|TypeDeclaration)
-Template ::= TEMPLATE NOT_TILDE
-Proc ::= PROC IDENTIFIER '*'?('[T]')?
-TypeDeclaration ::= TYPE
+
+MethodCall ::= IDENTIFIER PARAN_OPEN IdentifierOrLiteral? (COMMA IdentifierOrLiteral)* PARAN_CLOSE
