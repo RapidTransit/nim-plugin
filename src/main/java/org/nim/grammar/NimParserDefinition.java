@@ -31,7 +31,7 @@ public class NimParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public Lexer createLexer(Project project) {
-        return new FlexAdapter(new NimLexer(null));
+        return new NimIndentationLexer(new NimLexer(null));
     }
 
     @NotNull

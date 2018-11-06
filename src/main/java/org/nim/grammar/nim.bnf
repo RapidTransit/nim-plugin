@@ -11,7 +11,7 @@
   elementTypeHolderClass="org.nim.psi.NimTokenTypes"
   elementTypeClass="org.nim.psi.NimElementType"
   tokenTypeClass="org.nim.psi.NimTokenType"
-
+    parserUtilClass="org.nim.grammar.NimParserUtil"
   tokens = [
     BLOCK_COMMENT_START="#["
     BLOCK_COMMENT_END="]#"
@@ -151,3 +151,4 @@ Argument ::= IDENTIFIER (COMMA IDENTIFIER)* SINGLE_COLON VAR? QualifiedType ( EQ
 
 
 MethodCall ::= IDENTIFIER PARAN_OPEN IdentifierOrLiteral? (COMMA IdentifierOrLiteral)* PARAN_CLOSE
+

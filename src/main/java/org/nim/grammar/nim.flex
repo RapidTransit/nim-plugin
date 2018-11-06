@@ -21,28 +21,36 @@ import com.intellij.psi.TokenType;
     OCTAL_DIGIT = [0-7]
     BINARY_DIGIT = [01]
     HEX_DIGIT = [0-9A-Fa-f]
-
+    LETTER = [a-zA-Z\u8000-\uFF00]
     UNDERSCORE = '_'
     WHITE_SPACE=" "
-    HEX_LITERAL =   '0' [xX] HEX_DIGIT+ ( UNDERSCORE? HEX_DIGIT )*
-    DEC_LITERAL =   DEC_DIGIT+ ( UNDERSCORE? HEX_DIGIT )*
-    OCT_LITERAL =   '0' [ocC] OCTAL_DIGIT ( T_UNDERSCORE? OCTAL_DIGIT )*
-    BIN_LITERAL =   '0' [bB] BINARY_DIGIT ( T_UNDERSCORE? BINARY_DIGIT )*
-
-    INTEGER_LIT = HEX_LITERAL|DEC_LITERAL|OCT_LIT|BIN_LIT
+    HEX_LIT =   '0' [xX] HEX_DIGIT+ ( {UNDERSCORE}? {HEX_DIGIT} )*
+    DEC_LIT =   {DEC_DIGIT}+ ( {UNDERSCORE}? {HEX_DIGIT} )*
+    OCT_LIT =   '0' [ocC] {OCTAL_DIGIT} ( {UNDERSCORE}? {OCTAL_DIGIT} )*
+    BIN_LIT =   '0' [bB] {BINARY_DIGIT} ( {UNDERSCORE}? {BINARY_DIGIT} )*
+    
+    INT_LIT = HEX_LIT|DEC_LIT|OCT_LIT|BIN_LIT
 
     // We could colapse these
-    INT8_LIT = INT_LIT ['\'']? ('i' | 'I') '8'
-    INT16_LIT = INT_LIT ['\'']? ('i' | 'I') '16'
-    INT32_LIT = INT_LIT ['\'']? ('i' | 'I') '32'
-    INT64_LIT = INT_LIT ['\'']? ('i' | 'I') '64'
+    INT8_LIT = {INT_LIT} ['\'']? ('i' | 'I') '8'
+    INT16_LIT = {INT_LIT} ['\'']? ('i' | 'I') '16'
+    INT32_LIT = {INT_LIT} ['\'']? ('i' | 'I') '32'
+    INT64_LIT = {INT_LIT} ['\'']? ('i' | 'I') '64'
 
-    UINT_LIT = INT_LIT ['\'']? ('u' | 'U')
-    UINT8_LIT = INT_LIT ['\'']? ('u' | 'U') '8'
-    UINT16_LIT = INT_LIT ['\'']? ('u' | 'U') '16'
-    UINT32_LIT = INT_LIT ['\'']? ('u' | 'U') '32'
-    UINT64_LIT = INT_LIT ['\'']? ('u' | 'U') '64'
+    UINT_LIT = {INT_LIT} ['\'']? ('u' | 'U')
+    UINT8_LIT = {INT_LIT} ['\'']? ('u' | 'U') '8'
+    UINT16_LIT = {INT_LIT} ['\'']? ('u' | 'U') '16'
+    UINT32_LIT = {INT_LIT} ['\'']? ('u' | 'U') '32'
+    UINT64_LIT = {INT_LIT} ['\'']? ('u' | 'U') '64'
+    EXPONENT = ('e' | 'E' ) ['+' | '-'] {DEC_DIGIT} ( ['_'] {DEC_DIGIT} )*
 
+    FLOAT_LIT = {DEC_DIGIT} (['_'] {DEC_DIGIT})* (('.' {DEC_DIGIT} (['_'] {DEC_DIGIT})* [{EXPONENT}]) |{EXPONENT})
+    FLOAT32_SUFFIX = ('f' | 'F') ['32']
+    FLOAT32_LIT = {HEX_LIT} '\'' {FLOAT32_SUFFIX}
+                | ({FLOAT_LIT} | {DEC_LIT} | {OCT_LIT} | {BIN_LIT}) ['\''] {FLOAT32_SUFFIX}
+    FLOAT64_SUFFIX = ( ('f' | 'F') '64' ) | 'd' | 'D'
+    FLOAT64_LIT = {HEX_LIT} '\'' {FLOAT64_SUFFIX}
+            | ({FLOAT_LIT} | {DEC_LIT} | {OCT_LIT} | {BIN_LIT}) ['\''] {FLOAT64_SUFFIX}
     RAW_STRING="r\""
     BLOCK_COMMENT_START="#["
     BLOCK_COMMENT_END="]#"
@@ -139,7 +147,7 @@ import com.intellij.psi.TokenType;
     TILDE_IDENTIFIER='[^~]+'
     TILDE="`"
     STAR="*"
-    IDENTIFIER=[a-zA-Z\u8000-\uFF00]([a-zA-Z0-9_\u8000-\uFF00])*
+    IDENTIFIER= {LETTER} ([_] {LETTER} | {DEC_DIGIT} )*
     CRLF=[\n|\r\n]
 
 
@@ -153,7 +161,12 @@ import com.intellij.psi.TokenType;
 <YYINITIAL> {
 
          {PROC} {yybegin(CALLABLE); return PROC;}
+         {FLOAT_LIT} {return FLOAT_LIT;}
+      {FLOAT32_LIT} {return FLOAT32_LIT;}
+      {FLOAT64_LIT} {return FLOAT64_LIT;}
+
          {INT8_LIT} {return INT8_LIT;}
+
           {INT16_LIT} {return INT16_LIT;}
           {INT32_LIT} {return INT32_LIT;}
           {INT64_LIT} {return INT64_LIT;}
