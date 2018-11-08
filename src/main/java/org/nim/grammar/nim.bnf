@@ -15,114 +15,111 @@
   tokens = [
     BLOCK_COMMENT_START="#["
     BLOCK_COMMENT_END="]#"
-
-   ADDR = 'addr'
-   AND = 'and'
-   AS = 'as'
-   ASM = 'asm'
-   BIND = 'bind'
-   BLOCK = 'block'
-   BREAK = 'break'
-   CASE = 'case'
-   CAST = 'cast'
-   CONCEPT ='concept'
-   CONSY = 'const'
-   CONTINUE = 'continue'
-   CONVERTER='converter'
-   DEFER='defer'
-   DISCARD='discard'
-   DISTINCT='distinct'
-   DIV='div'
-   DO='do'
-   ELIF='elif'
-   ELSE='else'
-   END='end'
-   ENUM='enum'
-   EXCEPT='except'
-   EXPORT='export'
-   FINALLY='finally'
-   FOR='for'
-   FROM='from'
-   FUNC='func'
-   IF='if'
-   IMPORT='import'
-   IN='in'
-   INCLUDE='include'
-   INTERFACE='interface'
-   IS='is'
-   ISNOT='isnot'
-   ITERATOR='iterator'
-   LET='let'
-   MACRO='macro'
-   METHOD='method'
-   MIXIN='mixin'
-   MOD='mod'
-   NIL='nil'
-   NOT='not'
-   NOTIN='notin'
-   OBJECT='object'
-   OF='of'
-   OR='or'
-   OUT='out'
-   PROC='proc'
-   PTR='ptr'
-   RAISE='raise'
-   REF='ref'
-   RETURN='return'
-   SHL='shl'
-   SHR='shr'
-   STATIC='static'
-   TEMPLATE='template'
-   TRY='try'
-   TUPLE='tuple'
-   TYPE='type'
-   USING='using'
-   VAR='var'
-   WHEN='when'
-   WHILE='while'
-   XOR='xor'
-   YIELD='yield'
-   PARAN_DOT_OPEN ='(.'
-   PARAN_DOT_CLOSE='.)'
-   BRACKET_DOT_OPEN='[.'
-   BRACKET_DOT_CLOSE='.]'
-   CURLY_DOT_OPEN='{.'
-   CURLY_DOT_CLOSE='.}'
-   PARAN_OPEN='('
-   PARAN_CLOSE=')'
-   BRACKET_OPEN='['
-   BRACKET_CLOSE=']'
-   CURLY_OPEN='{'
-   CURLY_CLOSE='}'
-   COMMA=','
-   SEMI_COLON=';'
-   DOUBLE_COLON='::'
-   SINGLE_COLON=':'
-   EQUAL='='
-   DOUBLE_DOT='..'
-   DOT='.'
-   BRACKET_COLON='[:'
-   T_OPERATOR
-   T_COMMENT
-   TILDE='`'
-   WHITE_SPACE=' '
-    OP_PLUS='+'
-    OP_MINUS='-'
+    ADDR = 'addr'
+    AND = 'and'
+    AS = 'as'
+    ASM = 'asm'
+    BIND = 'bind'
+    BLOCK = 'block'
+    BREAK = 'break'
+    CASE = 'case'
+    CAST = 'cast'
+    CONCEPT ='concept'
+    CONSY = 'const'
+    CONTINUE = 'continue'
+    CONVERTER='converter'
+    DEFER='defer'
+    DISCARD='discard'
+    DISTINCT='distinct'
+    DIV='div'
+    DO='do'
+    ELIF='elif'
+    ELSE='else'
+    END='end'
+    ENUM='enum'
+    EXCEPT='except'
+    EXPORT='export'
+    FINALLY='finally'
+    FOR='for'
+    FROM='from'
+    FUNC='func'
+    IF='if'
+    IMPORT='import'
+    IN='in'
+    INCLUDE='include'
+    INTERFACE='interface'
+    IS='is'
+    ISNOT='isnot'
+    ITERATOR='iterator'
+    LET='let'
+    MACRO='macro'
+    METHOD='method'
+    MIXIN='mixin'
+    MOD='mod'
+    NIL='nil'
+    NOT='not'
+    NOTIN='notin'
+    OBJECT='object'
+    OF='of'
+    OR='or'
+    OUT='out'
+    PROC='proc'
+    PTR='ptr'
+    RAISE='raise'
+    REF='ref'
+    RETURN='return'
+    SHL='shl'
+    SHR='shr'
+    STATIC='static'
+    TEMPLATE='template'
+    TRY='try'
+    TUPLE='tuple'
+    TYPE='type'
+    USING='using'
+    VAR='var'
+    WHEN='when'
+    WHILE='while'
+    XOR='xor'
+    YIELD='yield'
+    PARAN_DOT_OPEN ='(.'
+    PARAN_DOT_CLOSE='.)'
+    BRACKET_DOT_OPEN='[.'
+    BRACKET_DOT_CLOSE='.]'
+    CURLY_DOT_OPEN='{.'
+    CURLY_DOT_CLOSE='.}'
+    PARAN_OPEN='('
+    PARAN_CLOSE=')'
+    BRACKET_OPEN='['
+    BRACKET_CLOSE=']'
+    CURLY_OPEN='{'
+    CURLY_CLOSE='}'
+    COMMA=','
+    SEMI_COLON=';'
+    DOUBLE_COLON='::'
+    SINGLE_COLON=':'
+    EQUAL='='
+    DOUBLE_DOT='..'
+    DOT='.'
+    BRACKET_COLON='[:'
+    BACK_TICK='`'
+    WHITE_SPACE=' '
+    PLUS='+'
+    MINUS='-'
     STAR='*'
-    OP_FORWAR_SLASH='/'
-    OP_BACK_SLASH='\\'
-    OP_POINT_LEFT='<'
-    OP_POINT_RIGHT='>'
-    OP_EXCLAMATION = '!'
-    OP_QUSTION ='?'
-    OP_CARET='^'
+    FORWAR_SLASH='/'
+    BACK_SLASH='\\'
+    LESS_THAN='<'
+    GREATER_THAN='>'
+    EXCLAMATION = '!'
+    QUSTION ='?'
+    CARET='^'
     OP_OR='|'
-    OP_PERCENT='%'
-    OP_AMP='&'
-    OP_DOLLAR='$'
-    OP_AT='@'
-    OP_TILDE='~'
-    OP_COLON=':'
+    PERCENT='%'
+    AMP='&'
+    DOLLAR='$'
+    AT='@'
+    TILDE='~'
+
     CRLF='<crlf>'
     RAW_STRING='<raw_string>'
     COMMENT = '<comment>'
@@ -131,46 +128,110 @@
   ]
 }
 
-File ::= (RecursiveScopedCodeBlock | ScopableStatements|TypeDefinitions )* <<eof>>?
+File ::= (RecursiveScopedCodeBlock | ScopableStatements|TypeDefinitions | BodyStatement)* <<eof>>?
 
 
 //Represents Things that Can Be Indented and
-RecursiveScopedCodeBlock ::= CanStartScope (INDENT (RecursiveScopedCodeBlock|ScopableStatements)* (DEDENT|<<eof>>))
-
+RecursiveScopedCodeBlock ::= CanStartScope  (INDENT (RecursiveScopedCodeBlock|ScopableStatements)* (DEDENT|<<eof>>))
+BodyStatement ::= (PropertyPath|ReferenceEx) SINGLE_COLON
+(INDENT (RecursiveScopedCodeBlock|ScopableStatements)* (DEDENT|<<eof>>) | INDENT INDENT (RecursiveScopedCodeBlock|ScopableStatements)* (DEDENT DEDENT|<<eof>>))
 // Can start a scope ie:
 // while x > y:
 //   y++
-CanStartScope ::= (ComparisonStatement|Procedure)
+CanStartScope ::= ComparisonStatement|Procedure
 
-ScopableStatements ::= ComparisonStatement|Assignment|MethodCall|HASH
-
+ScopableStatements ::= BodyStatement|ComparisonStatement|Assignment|MethodCall|HASH|VarDeclaration
 TypeDefinitions ::= TYPE INDENT TypeDefinition* (DEDENT|<<eof>>)
 TypeDefinition ::= IDENTIFIER STAR? EQUAL EnumDefinition
-ComparisonStatement ::= (WHILE|WHEN|IF) ComparisonCondition SINGLE_COLON
-ComparisonCondition ::= (Literal|IDENTIFIER) COMPARISON (Literal|IDENTIFIER)
-Procedure ::= (PROC| TEMPLATE) (TILDE TILDE_IDENTIFIER TILDE | IDENTIFIER) STAR? GenericType? PARAN_OPEN Arguments PARAN_CLOSE SINGLE_COLON? QualifiedType? (CURLY_DOT_OPEN IDENTIFIER CURLY_DOT_CLOSE)? EQUAL
-Assignment ::= VAR IDENTIFIER EQUAL ComplexValue
-ComplexValue ::= Operation
+ComparisonStatement ::= (IDENTIFIER | (WHILE|WHEN|IF) ComparisonCondition) SINGLE_COLON
+ComparisonCondition ::= (Literal|IDENTIFIER) ComparisonOperator (Literal|IDENTIFIER)
+Procedure ::= (PROC | TEMPLATE) (TILDE TILDE_IDENTIFIER TILDE | IDENTIFIER) STAR? GenericType? PARAN_OPEN Arguments PARAN_CLOSE SINGLE_COLON? QualifiedType? (CURLY_DOT_OPEN IDENTIFIER CURLY_DOT_CLOSE)? EQUAL
+Assignment ::= VAR? ( ComplexValue| IdentifierOrLiteral |IDENTIFIER ) EQUAL ( ComplexValue| IdentifierOrLiteral |IDENTIFIER )
+VarDeclaration ::= VAR IDENTIFIER SINGLE_COLON QualifiedType
+ComplexValue ::=  (Operation | PARAN_OPEN Operation PARAN_CLOSE)  (Operator IdentifierOrLiteral)*
 ArrayAccess ::= IDENTIFIER BRACKET_OPEN IdentifierOrLiteral BRACKET_CLOSE
-IdentifierOrLiteral ::= ArrayAccess|PropertyPath|Literal
+IdentifierOrLiteral ::= PropertyPath|Literal|ArrayLiteral|ArrayAccess
 Literal ::=  Integer | StringLiteral | TripleQuoteString | Float
 EnumDefinition ::= ENUM INDENT IDENTIFIER (COMMA IDENTIFIER)* DEDENT
-Integer ::= (SignedInteger|UnsignedInteger) IDENTIFIER (COMMA IDENTIFIER)*
+Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
-SignedInteger ::= INTEGER_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
+SignedInteger ::= INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
-
+ArrayLiteral ::= BRACKET_OPEN IdentifierOrLiteral (COMMA IdentifierOrLiteral)* BRACKET_CLOSE
 StringLiteral ::= (RAW_STRING | DOUBLE_QUOTE ) STRING_CONTENTS DOUBLE_QUOTE
-
-PropertyPath ::= IDENTIFIER (DOT IDENTIFIER)*
+PropertyPath ::= ReferenceEx QualifiedReferenceExpression?
+left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=PropertyPath}
+ReferenceEx ::= IDENTIFIER
 
 TripleQuoteString ::= DOUBLE_QUOTE{3} STRING_CONTENTS DOUBLE_QUOTE{3}
-QualifiedType ::= IDENTIFIER GenericType?
+QualifiedType ::= IDENTIFIER (GenericType|ArrayType)?
+ArrayType ::= BRACKET_OPEN SignedInteger COMMA IDENTIFIER BRACKET_CLOSE
 GenericType ::= BRACKET_OPEN IDENTIFIER (COMMA IDENTIFIER)* BRACKET_CLOSE
 Arguments ::= Argument (COMMA Argument)*
 Argument ::= IDENTIFIER (COMMA IDENTIFIER)* SINGLE_COLON VAR? QualifiedType ( EQUAL Literal)?
 
-Operation ::= IdentifierOrLiteral (OP_MINUS|OP_PLUS) IdentifierOrLiteral
+Operation ::= IdentifierOrLiteral (Operator IdentifierOrLiteral)*
 
-MethodCall ::= IDENTIFIER PARAN_OPEN IdentifierOrLiteral? (COMMA IdentifierOrLiteral)* PARAN_CLOSE
+MethodCall ::= PropertyPath PARAN_OPEN? (MethodParameter)? (COMMA MethodParameter)* PARAN_CLOSE?
+
+private MethodParameter ::= Operation| ComplexValue|MethodCall
+
+
+ComparisonOperator ::= OP5
+
+Operator ::=
+    OP0
+    | OP1
+    | OP2
+    | OP3
+    | OP4
+    | OP5
+    | OP6
+    | OP7
+    | OP8
+
+private OP0 ::=
+    DOLLAR
+    | CARET
+
+private OP1 ::=
+    STAR
+    | FORWAR_SLASH
+    | DIV
+    | MOD
+    | SHL
+    | SHR
+
+private OP2 ::=
+    PLUS
+    | MINUS
+
+private OP3 ::= AMP
+
+private OP4 ::= DOUBLE_DOT
+
+private OP5 ::=
+    EQUALS
+    | LT_EQUAL
+    | LESS_THAN
+    | GREATER_THAN
+    | GT_EQUAL
+    | NOT_EQUAL
+    | IN
+    | NOTIN
+    | IS
+    | ISNOT
+    | OF
+    | NOT
+
+private OP6 ::= AND
+
+private OP7 ::=
+     OR
+     | XOR
+
+private OP8 ::=
+     AT
+     | SINGLE_COLON
+     | QUSTION
 

@@ -25,19 +25,19 @@ import com.intellij.psi.TokenType;
     UNDERSCORE = '_'
     WHITE_SPACE=" "
     HEX_LIT =   '0' [xX] HEX_DIGIT+ ( {UNDERSCORE}? {HEX_DIGIT} )*
-    DEC_LIT =   {DEC_DIGIT}+ ( {UNDERSCORE}? {HEX_DIGIT} )*
+    DEC_LIT =   {DEC_DIGIT}+ //( {UNDERSCORE}? {DEC_DIGIT} )*
     OCT_LIT =   '0' [ocC] {OCTAL_DIGIT} ( {UNDERSCORE}? {OCTAL_DIGIT} )*
     BIN_LIT =   '0' [bB] {BINARY_DIGIT} ( {UNDERSCORE}? {BINARY_DIGIT} )*
     
-    INT_LIT = HEX_LIT|DEC_LIT|OCT_LIT|BIN_LIT
+    INT_LIT = {DEC_LIT}|{OCT_LIT}|{BIN_LIT}|{HEX_LIT} ("'"? [iIuU] ("8"|"16"|"32"|"64"))?
 
     // We could colapse these
-    INT8_LIT = {INT_LIT} ['\'']? ('i' | 'I') '8'
+    INT8_LIT =  {INT_LIT} ['\'']? ('i' | 'I') '8'
     INT16_LIT = {INT_LIT} ['\'']? ('i' | 'I') '16'
     INT32_LIT = {INT_LIT} ['\'']? ('i' | 'I') '32'
     INT64_LIT = {INT_LIT} ['\'']? ('i' | 'I') '64'
 
-    UINT_LIT = {INT_LIT} ['\'']? ('u' | 'U')
+    UINT_LIT = {INT_LIT} ['\'']? 'u' | 'U'
     UINT8_LIT = {INT_LIT} ['\'']? ('u' | 'U') '8'
     UINT16_LIT = {INT_LIT} ['\'']? ('u' | 'U') '16'
     UINT32_LIT = {INT_LIT} ['\'']? ('u' | 'U') '32'
@@ -61,6 +61,7 @@ import com.intellij.psi.TokenType;
     AND = "and"
     AS = "as"
     ASM = "asm"
+
     BIND = "bind"
     BLOCK = "block"
     BREAK = "break"
@@ -147,7 +148,13 @@ import com.intellij.psi.TokenType;
     TILDE_IDENTIFIER=[^`]
     TILDE="`"
     STAR="*"
-
+    PLUS="+"
+    MINUS="-"
+    OP_OR="|"
+    PERCENT="%"
+    AMP="&"
+    DOLLAR="$"
+    AT="@"
     CRLF=[\n|\r\n]
 
 
@@ -161,22 +168,24 @@ import com.intellij.psi.TokenType;
  {WHITE_SPACE} {return WHITE_SPACE;}
     {PROC} {yybegin(CALLABLE); return PROC;}
     {FLOAT_LIT} {return FLOAT_LIT;}
+      {INT_LIT} {return INT_LIT; }
     {FLOAT32_LIT} {return FLOAT32_LIT;}
     {FLOAT64_LIT} {return FLOAT64_LIT;}
-    {INT8_LIT} {return INT8_LIT;}
-    {INT16_LIT} {return INT16_LIT;}
-    {INT32_LIT} {return INT32_LIT;}
-    {INT64_LIT} {return INT64_LIT;}
+//    {INT8_LIT} {return INT8_LIT;}
+//    {INT16_LIT} {return INT16_LIT;}
+//    {INT32_LIT} {return INT32_LIT;}
+//    {INT64_LIT} {return INT64_LIT;}
     {STAR} {return STAR;}
-    {UINT_LIT} {return UINT_LIT;}
-    {UINT8_LIT} {return UINT8_LIT;}
-    {UINT16_LIT} {return UINT16_LIT;}
-    {UINT32_LIT} {return UINT32_LIT;}
-    {UINT64_LIT} {return UINT64_LIT;}
+//    {UINT_LIT} {return UINT_LIT;}
+//    {UINT8_LIT} {return UINT8_LIT;}
+//    {UINT16_LIT} {return UINT16_LIT;}
+//    {UINT32_LIT} {return UINT32_LIT;}
+//    {UINT64_LIT} {return UINT64_LIT;}
     {RAW_STRING} {return RAW_STRING;}
     {BLOCK_COMMENT_START} {return BLOCK_COMMENT_START;}
     {BLOCK_COMMENT_END} {return BLOCK_COMMENT_END;}
-    {COMPARISON} {return COMPARISON;}
+     ">" {return GREATER_THAN;}
+        "<" {return LESS_THAN;}
     {HASH} {return HASH;}
     {ADDR} {return ADDR;}
     {AND} {return AND;}
@@ -265,7 +274,16 @@ import com.intellij.psi.TokenType;
     {BRACKET_COLON} {return BRACKET_COLON;}
     {TILDE} {return TILDE;}
     {CRLF} {return CRLF;}
+    {MINUS} {return MINUS;}
+      {PLUS} {return PLUS;}
+      {OP_OR} {return OP_OR;}
+      {AMP} {return AMP;}
+      {DOLLAR} {return DOLLAR;}
+       {AT} {return AT;}
 
+      "<=" {return LT_EQUAL;}
+      ">=" {return GT_EQUAL;}
+      "==" {return EQUALS; }
     {IDENTIFIER} {return IDENTIFIER;}
 
 }

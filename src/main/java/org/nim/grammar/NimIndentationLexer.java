@@ -11,6 +11,7 @@ import com.intellij.lexer.MergingLexerAdapter;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.coverage.gnu.trove.TIntStack;
 import org.nim.psi.NimTokenType;
 import org.nim.psi.NimTokenTypes;
 
@@ -28,9 +29,21 @@ import java.util.Queue;
 public class NimIndentationLexer extends LexerBase {
 
 
-
+    /**
+     *
+     * To deal with this little gem:
+     * proc reversed*[T](a: openArray[T]): seq[T] =
+     *   ## returns the reverse of the container ``a``.
+     *   runnableExamples:
+     *       let
+     *         a = [1, 2, 3, 4, 5, 6]
+     *         b = reversed(a)
+     *       doAssert b == @[6, 5, 4, 3, 2, 1]
+     */
+    private final TIntStack indentStack = new TIntStack();
     private final Deque<StackElement> elements = new ArrayDeque<>();
     private int indentLevel = 0;
+    private int spaces = 0;
 
     private final Lexer delegate;
     private StackElement token;
@@ -38,13 +51,14 @@ public class NimIndentationLexer extends LexerBase {
 
 
     private class StackElement {
-        private int state;
-        private IElementType type;
-        private int start;
-        private int end;
-        private CharSequence bufferSequence;
-        private int bufferEnd;
+        private final int state;
+        private final IElementType type;
+        private final int start;
+        private final int end;
+        private final CharSequence bufferSequence;
+        private final int bufferEnd;
 
+        //@todo: Eventually replace this
         public StackElement() {
             this.state = delegate.getState();
             this.type = delegate.getTokenType();
@@ -82,7 +96,6 @@ public class NimIndentationLexer extends LexerBase {
 
     private void tryToAddToStack() {
         if(delegate.getTokenType() == NimTokenTypes.CRLF){
-            String s = delegate.getTokenText();
             elements.offer(new StackElement());
             int state = delegate.getState();
             int start = delegate.getTokenStart();
@@ -99,7 +112,7 @@ public class NimIndentationLexer extends LexerBase {
             if((i & 1) == 1){ // Its odd
 
             } else {
-                int result = i /2;
+                int result = i / 2;
                 if(result < indentLevel){
                     int times = indentLevel - result;
                     for(int j = 0; j < times; j++){
@@ -113,13 +126,13 @@ public class NimIndentationLexer extends LexerBase {
                     int times = result - indentLevel;
                     for(int j = 0; j < times; j++){
                         indentLevel++;
-                       elements.offer(
+                        elements.offer(
                                 new StackElement(state,
                                        NimTokenTypes.INDENT, start, bufferEnd));
                     }
                 }
             }
-            internal.forEach(x-> elements.offer(x));
+            internal.forEach(elements::offer);
             elements.offer(new StackElement());
         }
     }
