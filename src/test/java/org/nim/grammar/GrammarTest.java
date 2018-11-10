@@ -22,6 +22,14 @@ public class GrammarTest extends ParsingTestCase {
     public void testReverse(){
         doTest(true);
     }
+
+    public void testTemplate(){
+        doTest(true);
+    }
+
+    public void testSimple(){
+        doTest(true);
+    }
     @Override
     protected void doTest(boolean checkResult) {
         super.doTest(checkResult);

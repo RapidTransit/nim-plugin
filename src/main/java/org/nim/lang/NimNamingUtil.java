@@ -1,6 +1,8 @@
 package org.nim.lang;
 
-import jdk.internal.jline.internal.Nullable;
+
+
+import org.jetbrains.annotations.Nullable;
 
 import static java.lang.Character.*;
 

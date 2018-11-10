@@ -28,20 +28,20 @@ import com.intellij.psi.TokenType;
     DEC_LIT =   {DEC_DIGIT}+ //( {UNDERSCORE}? {DEC_DIGIT} )*
     OCT_LIT =   '0' [ocC] {OCTAL_DIGIT} ( {UNDERSCORE}? {OCTAL_DIGIT} )*
     BIN_LIT =   '0' [bB] {BINARY_DIGIT} ( {UNDERSCORE}? {BINARY_DIGIT} )*
-    
-    INT_LIT = {DEC_LIT}|{OCT_LIT}|{BIN_LIT}|{HEX_LIT} ("'"? [iIuU] ("8"|"16"|"32"|"64"))?
+        // We could colapse these
 
-    // We could colapse these
-    INT8_LIT =  {INT_LIT} ['\'']? ('i' | 'I') '8'
-    INT16_LIT = {INT_LIT} ['\'']? ('i' | 'I') '16'
-    INT32_LIT = {INT_LIT} ['\'']? ('i' | 'I') '32'
-    INT64_LIT = {INT_LIT} ['\'']? ('i' | 'I') '64'
-
-    UINT_LIT = {INT_LIT} ['\'']? 'u' | 'U'
-    UINT8_LIT = {INT_LIT} ['\'']? ('u' | 'U') '8'
-    UINT16_LIT = {INT_LIT} ['\'']? ('u' | 'U') '16'
-    UINT32_LIT = {INT_LIT} ['\'']? ('u' | 'U') '32'
-    UINT64_LIT = {INT_LIT} ['\'']? ('u' | 'U') '64'
+    _INT_LIT = {DEC_LIT}|{OCT_LIT}|{BIN_LIT}|{HEX_LIT}
+    INT_LIT = {_INT_LIT}
+    _SIGNED = "'"?[iI]
+    INT8_LIT =  {_INT_LIT} {_SIGNED} "8"
+    INT16_LIT = {_INT_LIT}  {_SIGNED} "16"
+    INT32_LIT = {_INT_LIT}  {_SIGNED} "32"
+    INT64_LIT = {_INT_LIT} {_SIGNED} "64"
+    UINT_LIT = {_INT_LIT} ['\'']? 'u' | 'U'
+    UINT8_LIT = {_INT_LIT} ['\'']? ('u' | 'U') '8'
+    UINT16_LIT = {_INT_LIT} ['\'']? ('u' | 'U') '16'
+    UINT32_LIT = {_INT_LIT} ['\'']? ('u' | 'U') '32'
+    UINT64_LIT = {_INT_LIT} ['\'']? ('u' | 'U') '64'
     EXPONENT = ('e' | 'E' ) ['+' | '-'] {DEC_DIGIT} ( ['_'] {DEC_DIGIT} )*
 
     FLOAT_LIT = {DEC_DIGIT} (['_'] {DEC_DIGIT})* (('.' {DEC_DIGIT} (['_'] {DEC_DIGIT})* {EXPONENT}) |{EXPONENT})
@@ -168,13 +168,14 @@ import com.intellij.psi.TokenType;
  {WHITE_SPACE} {return WHITE_SPACE;}
     {PROC} {yybegin(CALLABLE); return PROC;}
     {FLOAT_LIT} {return FLOAT_LIT;}
-      {INT_LIT} {return INT_LIT; }
+
     {FLOAT32_LIT} {return FLOAT32_LIT;}
     {FLOAT64_LIT} {return FLOAT64_LIT;}
-//    {INT8_LIT} {return INT8_LIT;}
-//    {INT16_LIT} {return INT16_LIT;}
-//    {INT32_LIT} {return INT32_LIT;}
-//    {INT64_LIT} {return INT64_LIT;}
+    {INT8_LIT} {return INT8_LIT;}
+    {INT16_LIT} {return INT16_LIT;}
+    { INT32_LIT} {return INT32_LIT;}
+    {INT64_LIT} {return INT64_LIT;}
+          {INT_LIT} {return INT_LIT; }
     {STAR} {return STAR;}
 //    {UINT_LIT} {return UINT_LIT;}
 //    {UINT8_LIT} {return UINT8_LIT;}
