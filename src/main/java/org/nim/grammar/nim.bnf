@@ -11,6 +11,7 @@
   elementTypeHolderClass="org.nim.psi.NimTokenTypes"
   elementTypeClass="org.nim.psi.NimElementType"
   tokenTypeClass="org.nim.psi.NimTokenType"
+  psiImplUtilClass="org.nim.grammar.NimPsiImplUtil"
     parserUtilClass="org.nim.grammar.NimParserUtil"
   tokens = [
     BLOCK_COMMENT_START="#["
@@ -126,31 +127,34 @@
     INDENT= 'INDENT'
     DEDENT='DEDENT'
   ]
+
+    extends(".*(Expression|OperandName)")=Expression
+    extends(".*Statement")=Statement
 }
 
-File ::= (RecursiveScopedCodeBlock | ScopableStatements|TypeDefinitions | BodyStatement)* <<eof>>?
+File ::= (RecursiveScopedCodeBlock | Statement|TypeDefinitions | BodyStatement)* <<eof>>?
 
 
 //Represents Things that Can Be Indented and
-RecursiveScopedCodeBlock ::= CanStartScope  (INDENT (RecursiveScopedCodeBlock|ScopableStatements)* (DEDENT|<<eof>>))
-BodyStatement ::= (PropertyPath|ReferenceEx) SINGLE_COLON
-(INDENT (RecursiveScopedCodeBlock|ScopableStatements)* (DEDENT|<<eof>>) | INDENT INDENT (RecursiveScopedCodeBlock|ScopableStatements)* (DEDENT DEDENT|<<eof>>))
+RecursiveScopedCodeBlock ::= CanStartScope  (INDENT (RecursiveScopedCodeBlock|Statement)* (DEDENT|<<eof>>))
+BodyStatement ::= (OperandName|ReferenceExpression) SINGLE_COLON
+(INDENT (RecursiveScopedCodeBlock|Statement)* (DEDENT|<<eof>>) | INDENT INDENT (RecursiveScopedCodeBlock|Statement)* (DEDENT DEDENT|<<eof>>))
 // Can start a scope ie:
 // while x > y:
 //   y++
 CanStartScope ::= ComparisonStatement|Procedure
 
-ScopableStatements ::= BodyStatement|ComparisonStatement|Assignment|MethodCall|HASH|VarDeclaration
+Statement ::= SimpleStatement| BodyStatement|ComparisonStatement|Assignment|HASH|VarDeclaration
 TypeDefinitions ::= TYPE INDENT TypeDefinition* (DEDENT|<<eof>>)
 TypeDefinition ::= IDENTIFIER STAR? EQUAL EnumDefinition
-ComparisonStatement ::= (IDENTIFIER | (WHILE|WHEN|IF) ComparisonCondition) SINGLE_COLON
-ComparisonCondition ::= (Literal|IDENTIFIER) ComparisonOperator (Literal|IDENTIFIER)
+ComparisonStatement ::= (IDENTIFIER | (WHILE|WHEN|IF) Expression) SINGLE_COLON
+
 Procedure ::= (PROC | TEMPLATE) (TILDE TILDE_IDENTIFIER TILDE | IDENTIFIER) STAR? GenericType? PARAN_OPEN Arguments PARAN_CLOSE SINGLE_COLON? QualifiedType? (CURLY_DOT_OPEN IDENTIFIER CURLY_DOT_CLOSE)? EQUAL
 Assignment ::= VAR? ( ComplexValue| IdentifierOrLiteral |IDENTIFIER ) EQUAL ( ComplexValue| IdentifierOrLiteral |IDENTIFIER )
 VarDeclaration ::= VAR IDENTIFIER SINGLE_COLON QualifiedType
 ComplexValue ::=  (Operation | PARAN_OPEN Operation PARAN_CLOSE)  (Operator IdentifierOrLiteral)*
 ArrayAccess ::= IDENTIFIER BRACKET_OPEN IdentifierOrLiteral BRACKET_CLOSE
-IdentifierOrLiteral ::= PropertyPath|Literal|ArrayLiteral|ArrayAccess
+IdentifierOrLiteral ::= OperandName|Literal|ArrayLiteral|ArrayAccess
 Literal ::=  Integer | StringLiteral | TripleQuoteString | Float
 EnumDefinition ::= ENUM INDENT IDENTIFIER (COMMA IDENTIFIER)* DEDENT
 Integer ::= (SignedInteger|UnsignedInteger)
@@ -159,26 +163,58 @@ SignedInteger ::= INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
 ArrayLiteral ::= BRACKET_OPEN IdentifierOrLiteral (COMMA IdentifierOrLiteral)* BRACKET_CLOSE
 StringLiteral ::= (RAW_STRING | DOUBLE_QUOTE ) STRING_CONTENTS DOUBLE_QUOTE
-PropertyPath ::= ReferenceEx QualifiedReferenceExpression?
-left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=PropertyPath}
-ReferenceEx ::= IDENTIFIER
+OperandName ::= ReferenceExpression QualifiedReferenceExpression? {elementType=ReferenceExpression}
+left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=ReferenceExpression}
+ReferenceExpression::= IDENTIFIER { extends=Expression}
 
 TripleQuoteString ::= DOUBLE_QUOTE{3} STRING_CONTENTS DOUBLE_QUOTE{3}
 QualifiedType ::= IDENTIFIER (GenericType|ArrayType)?
 ArrayType ::= BRACKET_OPEN SignedInteger COMMA IDENTIFIER BRACKET_CLOSE
 GenericType ::= BRACKET_OPEN IDENTIFIER (COMMA IDENTIFIER)* BRACKET_CLOSE
+
 Arguments ::= Argument (COMMA Argument)*
 Argument ::= IDENTIFIER (COMMA IDENTIFIER)* SINGLE_COLON VAR? QualifiedType ( EQUAL Literal)?
 
 Operation ::= IdentifierOrLiteral (Operator IdentifierOrLiteral)*
 
-MethodCall ::= PropertyPath PARAN_OPEN? (MethodParameter)? (COMMA MethodParameter)* PARAN_CLOSE?
 
-private MethodParameter ::= Operation| ComplexValue|MethodCall
+SimpleStatement ::= (LeftHandExprList AssignmentStatement)
 
+left AssignmentStatement ::= EQUAL ExpressionList
+LeftHandExprList ::= ExpressionList
+
+private ExpressionArgList ::= Expression (COMMA (Expression|&PARAN_CLOSE))*
+private ExpressionList ::= Expression (COMMA (Expression|&PARAN_CLOSE))*
 
 ComparisonOperator ::= OP5
 
+Expression ::=
+    AndExpression
+    | OrExpression
+    | ConditionalExpression
+    | MultiplyExpression
+    | AddExpression
+    | MaxGroup
+    | ParanExpression
+    | Op7Expression
+
+private MaxGroup ::= OperandName
+| IndexOrSliceExpression
+| CallExpression
+//fake BinaryExpr ::= Expression+ {
+//  methods=[left="Expression[0]" right="Expression[1]" ]
+//}
+AndExpression ::= Expression AND Expression
+OrExpression ::= Expression OR Expression
+ConditionalExpression ::= Expression OP5 Expression
+MultiplyExpression ::= Expression OP1 Expression
+AddExpression ::= Expression OP2 Expression
+ParanExpression ::= PARAN_OPEN Expression PARAN_CLOSE
+Op7Expression ::= Expression OP7 Expression
+IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
+private IndexExprBody ::= Expression
+CallExpression ::= Expression ArgumentList
+ArgumentList ::= PARAN_OPEN [ExpressionArgList] PARAN_CLOSE
 Operator ::=
     OP0
     | OP1

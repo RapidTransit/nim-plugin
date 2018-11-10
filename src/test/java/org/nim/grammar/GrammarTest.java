@@ -19,6 +19,19 @@ public class GrammarTest extends ParsingTestCase {
     public void testAlgorithm(){
         doTest(true);
     }
+    public void testReverse(){
+        doTest(true);
+    }
+    @Override
+    protected void doTest(boolean checkResult) {
+        super.doTest(checkResult);
+        if (checkResult) {
+            assertFalse(
+                    "PsiFile contains error elements",
+                    toParseTreeText(myFile, skipSpaces(), includeRanges()).contains("PsiErrorElement")
+            );
+        }
+    }
 
     @Override
     protected String getTestDataPath() {
