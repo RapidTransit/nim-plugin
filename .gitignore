@@ -108,3 +108,4 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+/src/main/java/org/nim/nimble/NimblePackage.java

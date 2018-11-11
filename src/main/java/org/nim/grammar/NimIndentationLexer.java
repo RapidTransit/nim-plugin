@@ -42,6 +42,7 @@ public class NimIndentationLexer extends LexerBase {
      */
     private final TIntStack indentStack = new TIntStack();
     private final Deque<StackElement> elements = new ArrayDeque<>();
+    private final NimLexer original;
     private int indentLevel = 0;
     private int spaces = 0;
 
@@ -78,7 +79,8 @@ public class NimIndentationLexer extends LexerBase {
         }
     }
 
-    public NimIndentationLexer(FlexLexer original) {
+    public NimIndentationLexer(NimLexer original) {
+        this.original = original;
         delegate = new FlexAdapter(original);
     }
 

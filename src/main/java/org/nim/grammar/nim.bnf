@@ -136,7 +136,8 @@ File ::= (Statement)* <<eof>>?
 
 
 
-Statement ::= VarDeclaration|SimpleStatement|Assignment|HASH
+Statement ::= RunnableExample|VarDeclaration|SimpleStatement|HASH
+RunnableExample ::= EXAMPLE INDENT (DOC_RUNNABLE)* DEDENT
 
 VarDeclaration ::= VAR ( VarSpec | '(' VarSpecs? ')' )
 private VarSpecs ::= VarSpec
