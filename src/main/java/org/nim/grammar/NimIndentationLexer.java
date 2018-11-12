@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 
+import static org.nim.psi.NimTokenTypes.*;
+
 
 /**
  * Should I do this in a lexer? ANTLR is a lot more flexible in the lexing and parsing ASFAIK I can't rewrite tokens
@@ -51,7 +53,7 @@ public class NimIndentationLexer extends LexerBase {
 
 
 
-    private class StackElement {
+    private static class StackElement {
         private final int state;
         private final IElementType type;
         private final int start;
@@ -59,8 +61,8 @@ public class NimIndentationLexer extends LexerBase {
         private final CharSequence bufferSequence;
         private final int bufferEnd;
 
-        //@todo: Eventually replace this
-        public StackElement() {
+
+        public StackElement(Lexer delegate) {
             this.state = delegate.getState();
             this.type = delegate.getTokenType();
             this.start = delegate.getTokenStart();
@@ -99,8 +101,8 @@ public class NimIndentationLexer extends LexerBase {
     private void tryToAddToStack() {
 
 
-        if(delegate.getTokenType() == NimTokenTypes.CRLF){
-            elements.offer(new StackElement());
+        if(delegate.getTokenType() == CRLF){
+            elements.offer(new StackElement(delegate));
             int state = delegate.getState();
             int start = delegate.getTokenStart();
             int bufferEnd = delegate.getBufferEnd();
@@ -108,12 +110,12 @@ public class NimIndentationLexer extends LexerBase {
 
             List<StackElement> internal = new ArrayList<>();
             int i = 0;
-            while (delegate.getTokenType() == NimTokenTypes.WHITE_SPACE){
-                internal.add(new StackElement());
+            while (delegate.getTokenType() == WHITE_SPACE){
+                internal.add(new StackElement(delegate));
                 i++;
                 delegate.advance();
             }
-            if(delegate.getTokenType() == NimTokenTypes.CRLF){
+            if(delegate.getTokenType() == CRLF){
                 return;
             }
             if((i & 1) == 1) { // Its odd
@@ -124,7 +126,7 @@ public class NimIndentationLexer extends LexerBase {
                     indentLevel--;
                     elements.offer(
                             new StackElement(state,
-                                    NimTokenTypes.DEDENT, start, bufferEnd)
+                                    DEDENT, start, bufferEnd)
                     );
                 }
             } else {
@@ -135,7 +137,7 @@ public class NimIndentationLexer extends LexerBase {
                         indentLevel--;
                         elements.offer(
                                 new StackElement(state,
-                                NimTokenTypes.DEDENT, start, bufferEnd)
+                                DEDENT, start, bufferEnd)
                         );
                     }
                 } else {
@@ -144,12 +146,12 @@ public class NimIndentationLexer extends LexerBase {
                         indentLevel++;
                         elements.offer(
                                 new StackElement(state,
-                                       NimTokenTypes.INDENT, start, bufferEnd));
+                                       INDENT, start, bufferEnd));
                     }
                 }
             }
             internal.forEach(elements::offer);
-            elements.offer(new StackElement());
+            elements.offer(new StackElement(delegate));
         } else if(delegate.getTokenType() == null){
             for(int j = 0; indentLevel > 0; j++){
                 int state = delegate.getState();
@@ -158,10 +160,15 @@ public class NimIndentationLexer extends LexerBase {
                 indentLevel--;
                 elements.offer(
                         new StackElement(state,
-                                NimTokenTypes.DEDENT, start, bufferEnd)
+                                DEDENT, start, bufferEnd)
                 );
             }
         }
+    }
+
+
+    protected void findSignificantIndent(){
+
     }
 
     @Override
