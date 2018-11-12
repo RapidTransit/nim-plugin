@@ -26,14 +26,15 @@ import com.intellij.psi.TokenType;
 %}
 
     _LETTER = [a-zA-Z\u8000-\uFF00]
-//    ONE_NL = \R                                                        // NewLines
-//    _WHITE_SPACE = " " | \t | \f | \\ {ONE_NL}
-//    STRING_ESC = \\ [^] | \\ ({WHITE_SPACE})+ (\n|\r)
-//    DOUBLE_QUOTED_CONTENT = {STRING_ESC} | [^\"\\$\n\r]
-//    DOUBLE_QUOTED_LITERAL = \" {DOUBLE_QUOTED_CONTENT}* \"
-//    STRING_NL = {ONE_NL}
-//    TRIPLE_DOUBLE_QUOTED_CONTENT = {DOUBLE_QUOTED_CONTENT} | {STRING_NL} | \"(\")?[^\"\\$]
-//    TRIPLE_DOUBLE_QUOTED_LITERAL = \"\"\" {TRIPLE_DOUBLE_QUOTED_CONTENT}* \"\"\"
+    ONE_NL = \R                                                        // NewLines
+    _WHITE_SPACE = " " | \t | \f | \\ {ONE_NL}
+    STRING_ESC = \\ [^] | \\ ({WHITE_SPACE})+ (\n|\r)
+    DOUBLE_QUOTED_CONTENT = {STRING_ESC} | [^\"\\$\n\r]
+    DOUBLE_QUOTED_LITERAL = \" {DOUBLE_QUOTED_CONTENT}* \"
+    STRING_NL = {ONE_NL}
+    TRIPLE_DOUBLE_QUOTED_CONTENT = {DOUBLE_QUOTED_CONTENT} | {STRING_NL} | \"(\")?[^\"\\$]
+    TRIPLE_DOUBLE_QUOTED_LITERAL = \"\"\" {TRIPLE_DOUBLE_QUOTED_CONTENT}* ~"\"\"\""
+    RAW_STRING = "r\"" ({DOUBLE_QUOTED_CONTENT}|"\\"| "\"\"")* ~"\""
     IDENTIFIER= {_LETTER} ( _? {_LETTER} | {DEC_DIGIT} )*
 
 // Eventually push the number stuff to the parser so we can add error inspections
@@ -90,7 +91,7 @@ import com.intellij.psi.TokenType;
     FLOAT64_SUFFIX = ({_FLOAT} "64") | {_DOUBLE}
     FLOAT64_LIT = ( {_HEX_FLOAT} | {_NON_HEX_FLOAT} ) {FLOAT64_SUFFIX}
 
-    RAW_STRING="r\""
+
     BLOCK_COMMENT_START="#["
     BLOCK_COMMENT_END="]#"
     TRIPLE_QUOTE="\"\"\""
@@ -267,7 +268,7 @@ import com.intellij.psi.TokenType;
     {BLOCK_COMMENT_END} {return BLOCK_COMMENT_END;}
     ">" {return GREATER_THAN;}
     "<" {return LESS_THAN;}
-    {SINGLE_LINE_COMMENT} {return HASH;}
+    {SINGLE_LINE_COMMENT} {return SINGLE_LINE_COMMENT;}
     "addr" {return ADDR;}
     "and" {return AND;}
     "as" {return AS;}
@@ -354,7 +355,7 @@ import com.intellij.psi.TokenType;
     "." {return DOT;}
     "[:" {return BRACKET_COLON;}
     "~" {return TILDE;}
-
+{TRIPLE_DOUBLE_QUOTED_LITERAL} {return TRIPLE_DOUBLE_STR; }
     "-" {return MINUS;}
     "+" {return PLUS;}
     "|" {return OP_OR;}

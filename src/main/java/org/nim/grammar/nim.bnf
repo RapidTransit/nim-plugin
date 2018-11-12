@@ -132,24 +132,42 @@
     extends(".*Statement")=Statement
 }
 
-File ::= (Statement)* <<eof>>?
+File ::= <<beginParsing>> (!<<eof>> (TopDeclaration|&<<isNotInType>>Statement))* <<eof>>?
 
+private Indentations ::= INDENT <<increaseIndent>>
+private Dedentations ::= DEDENT <<decreaseIndent>>
+Statement ::= <<isNotInType>>( RunnableExample|VarDeclaration|SimpleStatement|SINGLE_LINE_COMMENT)
+RunnableExample ::= EXAMPLE Indentations (DOC_RUNNABLE)* Dedentations
 
+VarDeclaration ::= VAR ( VarSpec |  VarSpecs?  )
 
-Statement ::= RunnableExample|VarDeclaration|SimpleStatement|HASH
-RunnableExample ::= EXAMPLE INDENT (DOC_RUNNABLE)* DEDENT
-
-VarDeclaration ::= VAR ( VarSpec | '(' VarSpecs? ')' )
 private VarSpecs ::= VarSpec
+
 VarSpec ::= VarDefinitionList ( IDENTIFIER [ '=' ExpressionList ] | '=' ExpressionList )
+
 private VarDefinitionList ::= VarDefinition ( ',' VarDefinition )*
+
 VarDefinition ::= IDENTIFIER
 
+DedentOrEOF ::= (Dedentations )*  <<eof>>?
+
 //VarDeclaration ::= VAR IDENTIFIER SINGLE_COLON QualifiedType
-ComplexValue ::=  (Operation | PARAN_OPEN Operation PARAN_CLOSE)  (Operator IdentifierOrLiteral)*
-ArrayAccess ::= IDENTIFIER BRACKET_OPEN IdentifierOrLiteral BRACKET_CLOSE
-IdentifierOrLiteral ::= OperandName|Literal|ArrayLiteral|ArrayAccess
-Literal ::=  ArrayLiteral | Integer | StringLiteral | TripleQuoteString | Float
+
+Literal ::=  ArrayLiteral | Integer | RawStringLiteral| StringLiteral | TripleQuoteString | Float
+TopDeclaration ::= TypeDeclaration
+
+TypeDeclaration ::=  TYPE <<beginTypeBlock>> OptionalComment Indentations TypeStart+ Dedentations
+
+TypeStart ::=  <<isInType>> OperandName STAR? EQUAL Types
+
+private Types ::= EnumDeclaration | ObjectType
+
+ObjectType ::= REF? (OBJECT | OperandName) OptionalComment Indentations ObjectFields+ Dedentations
+
+ObjectField ::= IDENTIFIER STAR?
+ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName OptionalComment
+
+EnumDeclaration ::= ENUM Indentations OperandName (COMMA OperandName)* Dedentations
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
@@ -157,25 +175,19 @@ SignedInteger ::= INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
 
 ArrayLiteral ::= BRACKET_OPEN Expression (COMMA Expression)* BRACKET_CLOSE
-StringLiteral ::= (RAW_STRING | DOUBLE_QUOTE ) STRING_CONTENTS DOUBLE_QUOTE
+StringLiteral ::= (DOUBLE_QUOTE ) STRING_CONTENTS DOUBLE_QUOTE
 OperandName ::= ReferenceExpression QualifiedReferenceExpression? {elementType=ReferenceExpression}
 left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=ReferenceExpression}
 ReferenceExpression::= IDENTIFIER { extends=Expression}
+RawStringLiteral ::= RAW_STRING
+TripleQuoteString ::= TRIPLE_DOUBLE_STR
 
-TripleQuoteString ::= DOUBLE_QUOTE{3} STRING_CONTENTS DOUBLE_QUOTE{3}
-QualifiedType ::= IDENTIFIER (GenericType|ArrayType)?
-ArrayType ::= BRACKET_OPEN SignedInteger COMMA IDENTIFIER BRACKET_CLOSE
-GenericType ::= BRACKET_OPEN IDENTIFIER (COMMA IDENTIFIER)* BRACKET_CLOSE
 
-Arguments ::= Argument (COMMA Argument)*
-Argument ::= IDENTIFIER (COMMA IDENTIFIER)* SINGLE_COLON VAR? QualifiedType ( EQUAL Literal)?
-
-Operation ::= IdentifierOrLiteral (Operator IdentifierOrLiteral)*
 fake BinaryExpression ::= Expression+ {
   methods=[left="Expression[0]" right="Expression[1]" ]
 }
 
-SimpleStatement ::= UMethodExpression| (LeftHandExprList [AssignmentStatement])
+SimpleStatement ::=  <<isNotInType>> (UMethodExpression| (LeftHandExprList [AssignmentStatement]))
 
 
 
@@ -269,3 +281,4 @@ private OP8 ::=
      | SINGLE_COLON
      | QUSTION
 
+OptionalComment ::= SINGLE_LINE_COMMENT?

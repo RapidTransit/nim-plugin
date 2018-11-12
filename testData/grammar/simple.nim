@@ -1,3 +1,4 @@
+var a = r"aaaa\b\n\r""\t\n\m\w"""
 #Single Line Comment
 var a = 10
 var b = 10'i32
@@ -17,3 +18,4 @@ var a = 10_100u32
 var a = 10_100u8
 var a = 10100u16
 var a = 10100u64
+var a = """"long string within quotes""""

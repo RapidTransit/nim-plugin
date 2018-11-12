@@ -30,6 +30,16 @@ public class GrammarTest extends ParsingTestCase {
     public void testSimple(){
         doTest(true);
     }
+
+
+    public void testTypes(){
+        doTest(true);
+    }
+
+    public void testType(){
+        doTest(true);
+    }
+
     @Override
     protected void doTest(boolean checkResult) {
         super.doTest(checkResult);

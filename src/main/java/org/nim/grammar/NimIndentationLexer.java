@@ -97,6 +97,8 @@ public class NimIndentationLexer extends LexerBase {
     }
 
     private void tryToAddToStack() {
+
+
         if(delegate.getTokenType() == NimTokenTypes.CRLF){
             elements.offer(new StackElement());
             int state = delegate.getState();
@@ -111,8 +113,20 @@ public class NimIndentationLexer extends LexerBase {
                 i++;
                 delegate.advance();
             }
-            if((i & 1) == 1){ // Its odd
+            if(delegate.getTokenType() == NimTokenTypes.CRLF){
+                return;
+            }
+            if((i & 1) == 1) { // Its odd
 
+            } else if(i == 0){
+
+                for(int j = 0; indentLevel > 0; j++){
+                    indentLevel--;
+                    elements.offer(
+                            new StackElement(state,
+                                    NimTokenTypes.DEDENT, start, bufferEnd)
+                    );
+                }
             } else {
                 int result = i / 2;
                 if(result < indentLevel){
@@ -136,6 +150,17 @@ public class NimIndentationLexer extends LexerBase {
             }
             internal.forEach(elements::offer);
             elements.offer(new StackElement());
+        } else if(delegate.getTokenType() == null){
+            for(int j = 0; indentLevel > 0; j++){
+                int state = delegate.getState();
+                int start = delegate.getTokenStart();
+                int bufferEnd = delegate.getBufferEnd();
+                indentLevel--;
+                elements.offer(
+                        new StackElement(state,
+                                NimTokenTypes.DEDENT, start, bufferEnd)
+                );
+            }
         }
     }
 
