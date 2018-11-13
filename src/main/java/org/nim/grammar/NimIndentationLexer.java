@@ -1,26 +1,17 @@
 package org.nim.grammar;
 
-import com.intellij.lang.ForeignLeafType;
-import com.intellij.lexer.DelegateLexer;
 import com.intellij.lexer.FlexAdapter;
-import com.intellij.lexer.FlexLexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerBase;
-import com.intellij.lexer.LexerPosition;
-import com.intellij.lexer.MergingLexerAdapter;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.coverage.gnu.trove.TIntStack;
-import org.nim.psi.NimTokenType;
-import org.nim.psi.NimTokenTypes;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 
 import static org.nim.psi.NimTokenTypes.*;
 
@@ -52,35 +43,6 @@ public class NimIndentationLexer extends LexerBase {
     private StackElement token;
 
 
-
-    private static class StackElement {
-        private final int state;
-        private final IElementType type;
-        private final int start;
-        private final int end;
-        private final CharSequence bufferSequence;
-        private final int bufferEnd;
-
-
-        public StackElement(Lexer delegate) {
-            this.state = delegate.getState();
-            this.type = delegate.getTokenType();
-            this.start = delegate.getTokenStart();
-            this.end = delegate.getTokenEnd();
-            this.bufferSequence = delegate.getBufferSequence();
-            this.bufferEnd = delegate.getBufferEnd();
-        }
-
-        public StackElement(int state, IElementType type, int start,  int bufferEnd) {
-            this.state = state;
-            this.type = type;
-            this.start = start;
-            this.end = start;
-            this.bufferSequence = " ";
-            this.bufferEnd = bufferEnd;
-        }
-    }
-
     public NimIndentationLexer(NimLexer original) {
         this.original = original;
         delegate = new FlexAdapter(original);
@@ -94,29 +56,34 @@ public class NimIndentationLexer extends LexerBase {
             tryToAddToStack();
             this.token = elements.poll();
         }
-
-
     }
 
     private void tryToAddToStack() {
 
 
         if(delegate.getTokenType() == CRLF){
-            elements.offer(new StackElement(delegate));
+            List<StackElement> internal = new ArrayList<>();
+            internal.add(new StackElement(delegate));
             int state = delegate.getState();
             int start = delegate.getTokenStart();
             int bufferEnd = delegate.getBufferEnd();
             delegate.advance();
 
-            List<StackElement> internal = new ArrayList<>();
+
             int i = 0;
             while (delegate.getTokenType() == WHITE_SPACE){
                 internal.add(new StackElement(delegate));
                 i++;
                 delegate.advance();
             }
-            if(delegate.getTokenType() == CRLF){
+            if(NimParserDefinition.COMMENTS.contains(delegate.getTokenType())
+                || CRLF == delegate.getTokenType()){
+                internal.forEach(elements::offer);
+                delegate.advance();
+                elements.offer(new StackElement(delegate));
                 return;
+            } else {
+//                elements.offer(new StackElement(delegate));
             }
             if((i & 1) == 1) { // Its odd
 
@@ -167,8 +134,10 @@ public class NimIndentationLexer extends LexerBase {
     }
 
 
-    protected void findSignificantIndent(){
-
+    protected void skipInsignificant(){
+        while (NimParserDefinition.COMMENTS.contains(delegate.getTokenType())){
+            delegate.advance();
+        }
     }
 
     @Override
@@ -178,30 +147,32 @@ public class NimIndentationLexer extends LexerBase {
 
     @Override
     public int getState() {
-        return token == null ? delegate.getState() : token.state;
+        return token == null ? delegate.getState() : token.getState();
     }
 
     @Override
     public IElementType getTokenType() {
-        return token == null ? delegate.getTokenType() : Objects.requireNonNull(token.type);
+        return token == null ? delegate.getTokenType() : Objects.requireNonNull(token.getType());
     }
 
     @Override
     public int getTokenStart() {
 
-        return token == null ? delegate.getTokenStart() : token.start;
+        return token == null ? delegate.getTokenStart() : token.getStart();
     }
 
     @Override
     public int getTokenEnd() {
-        return token == null ? delegate.getTokenEnd() : token.end;
+        return token == null ? delegate.getTokenEnd() : token.getEnd();
     }
 
 
     @NotNull
     @Override
     public CharSequence getTokenSequence() {
-        return token == null ? delegate.getBufferSequence().subSequence(delegate.getTokenStart(), delegate.getTokenEnd()) : token.bufferSequence.subSequence(token.start, token.end);
+        return token == null ?
+                delegate.getBufferSequence().subSequence(delegate.getTokenStart(), delegate.getTokenEnd())
+                : token.getBufferSequence().subSequence(token.getStart(), token.getEnd());
     }
 
 
@@ -209,12 +180,12 @@ public class NimIndentationLexer extends LexerBase {
     @NotNull
     @Override
     public CharSequence getBufferSequence() {
-        return token == null ? delegate.getBufferSequence() : token.bufferSequence;
+        return token == null ? delegate.getBufferSequence() : token.getBufferSequence();
     }
 
     @Override
     public int getBufferEnd() {
-        return token == null ? delegate.getBufferEnd() : token.bufferEnd;
+        return token == null ? delegate.getBufferEnd() : token.getBufferEnd();
     }
 
 }

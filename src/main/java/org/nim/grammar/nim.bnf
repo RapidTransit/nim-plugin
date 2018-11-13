@@ -126,6 +126,7 @@
     COMMENT = '<comment>'
     INDENT= 'INDENT'
     DEDENT='DEDENT'
+    SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
   extends("(Or|And|Add|Conversion|Mul|Selector|Paran|Conditional)Expression")=BinaryExpression
     extends(".*(Expression|OperandName|Literal)")=Expression
@@ -134,9 +135,9 @@
 
 File ::= <<beginParsing>> (!<<eof>> (TopDeclaration|&<<isNotInType>>Statement))* <<eof>>?
 
-private Indentations ::= INDENT <<increaseIndent>>
-private Dedentations ::= DEDENT <<decreaseIndent>>
-Statement ::= <<isNotInType>>( RunnableExample|VarDeclaration|SimpleStatement|SINGLE_LINE_COMMENT)
+Indentations ::= INDENT <<increaseIndent>>
+Dedentations ::= DEDENT <<decreaseIndent>>
+Statement ::= <<isNotInType>>( RunnableExample|VarDeclaration|SimpleStatement)
 RunnableExample ::= EXAMPLE Indentations (DOC_RUNNABLE)* Dedentations
 
 VarDeclaration ::= VAR ( VarSpec |  VarSpecs?  )
@@ -156,16 +157,16 @@ DedentOrEOF ::= (Dedentations )*  <<eof>>?
 Literal ::=  ArrayLiteral | Integer | RawStringLiteral| StringLiteral | TripleQuoteString | Float
 TopDeclaration ::= TypeDeclaration
 
-TypeDeclaration ::=  TYPE <<beginTypeBlock>> OptionalComment Indentations TypeStart+ Dedentations
+TypeDeclaration ::=  TYPE <<beginTypeBlock>>  Indentations TypeStart+ Dedentations
 
 TypeStart ::=  <<isInType>> OperandName STAR? EQUAL Types
 
 private Types ::= EnumDeclaration | ObjectType
 
-ObjectType ::= REF? (OBJECT | OperandName) OptionalComment Indentations ObjectFields+ Dedentations
+ObjectType ::= REF? (OBJECT | OperandName)  Indentations? ObjectFields+
 
 ObjectField ::= IDENTIFIER STAR?
-ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName OptionalComment
+ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName
 
 EnumDeclaration ::= ENUM Indentations OperandName (COMMA OperandName)* Dedentations
 
@@ -280,5 +281,3 @@ private OP8 ::=
      AT
      | SINGLE_COLON
      | QUSTION
-
-OptionalComment ::= SINGLE_LINE_COMMENT?

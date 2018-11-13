@@ -47,6 +47,28 @@ dependencies {
 
 }
 
+
+//
+//task pathingJar(type: Jar) {
+//    dependsOn configurations.compile
+//    appendix = 'pathing'
+//    configurations.all {
+//        println(it.name)
+//        if(it.name != 'apiElements' && it.name != 'asciidoctor' && it.name != 'implementation' && it.name != 'runtimeElements' && it.name != 'runtimeOnly') {
+//            println(it.files)
+//        }
+//    }
+//    List<File> files = new ArrayList<>()
+//    files.addAll(configurations.compile.files)
+//    files.addAll(configurations.provided.files)
+//    doFirst {
+//        manifest {
+//            attributes "Class-Path": files.collect {
+//                it.toURL().toString().replaceFirst("file:/+", '/')
+//            }.join(' ')
+//        }
+//    }
+//}
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
@@ -57,6 +79,10 @@ intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
     version '2018.2.4'
+   
+    if(System.getProperty('os.name').startsWith('Windows')){
+        ideaDependencyCachePath = 'C:\\idea'
+    }
    
 }
 patchPluginXml {
@@ -73,6 +99,7 @@ tasks.withType(Test) {
 
 task generateNimLexer(type: GenerateLexer) {
     // source flex file
+    println(System.getProperty('os.name'))
     File rootSrc = project.sourceSets.main.java.srcDirs[0];
     source = new File(rootSrc, "org/nim/grammar/nim.flex").path
 
@@ -90,6 +117,10 @@ task generateNimLexer(type: GenerateLexer) {
 }
 
 task generateNimParser(type: GenerateParser) {
+//    dependsOn pathingJar
+//    doFirst {
+//        classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath)
+//    }
     // source bnf file
     File rootSrc = project.sourceSets.main.java.srcDirs[0];
     source =  new File(rootSrc, "org/nim/grammar/nim.bnf").path
