@@ -1,8 +1,10 @@
 package org.nim.grammar;
 
+import com.intellij.lang.TokenWrapper;
 import com.intellij.lexer.FlexAdapter;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerBase;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.coverage.gnu.trove.TIntStack;
@@ -11,7 +13,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.Objects;
 
 import static org.nim.psi.NimTokenTypes.*;
 
@@ -21,6 +22,7 @@ import static org.nim.psi.NimTokenTypes.*;
  */
 public class NimIndentationLexer extends LexerBase {
 
+    private static final Logger logger = Logger.getInstance(NimIndentationLexer.class);
 
     /**
      *
@@ -36,9 +38,7 @@ public class NimIndentationLexer extends LexerBase {
     private final TIntStack indentStack = new TIntStack();
     private final Deque<StackElement> elements = new ArrayDeque<>();
     private final NimLexer original;
-    private int indentLevel = 0;
-    private int spaces = 0;
-
+    private int previousSignificantSpace = 0;
     private final Lexer delegate;
     private StackElement token;
 
@@ -50,95 +50,96 @@ public class NimIndentationLexer extends LexerBase {
 
     @Override
     public void advance() {
-        this.token = elements.poll();
-        if(this.token == null){
-            delegate.advance();
+        if(elements.isEmpty()){
             tryToAddToStack();
-            this.token = elements.poll();
         }
+        this.token = elements.poll();
     }
+
+
+
 
     private void tryToAddToStack() {
+        delegate.advance();
+        if(delegate.getTokenType() == CRLF) {
+            StackElement holder = new StackElement(delegate);
+            List<List<StackElement>> spaces = new ArrayList<>();
+            List<StackElement> newLines = new ArrayList<>();
 
-
-        if(delegate.getTokenType() == CRLF){
-            List<StackElement> internal = new ArrayList<>();
-            internal.add(new StackElement(delegate));
-            int state = delegate.getState();
-            int start = delegate.getTokenStart();
-            int bufferEnd = delegate.getBufferEnd();
-            delegate.advance();
-
-
-            int i = 0;
-            while (delegate.getTokenType() == WHITE_SPACE){
-                internal.add(new StackElement(delegate));
-                i++;
+            while (delegate.getTokenType() == CRLF){
+                holder = new StackElement(delegate);
+                newLines.add(holder);
+                List<StackElement> stack = new ArrayList<>();
+                spaces.add(stack);
                 delegate.advance();
-            }
-            if(NimParserDefinition.COMMENTS.contains(delegate.getTokenType())
-                || CRLF == delegate.getTokenType()){
-                internal.forEach(elements::offer);
-                delegate.advance();
-                elements.offer(new StackElement(delegate));
-                return;
-            } else {
-//                elements.offer(new StackElement(delegate));
-            }
-            if((i & 1) == 1) { // Its odd
-
-            } else if(i == 0){
-
-                for(int j = 0; indentLevel > 0; j++){
-                    indentLevel--;
-                    elements.offer(
-                            new StackElement(state,
-                                    DEDENT, start, bufferEnd)
-                    );
+                while (delegate.getTokenType() == WHITE_SPACE){
+                    stack.add(new StackElement(delegate));
+                    delegate.advance();
                 }
-            } else {
-                int result = i / 2;
-                if(result < indentLevel){
-                    int times = indentLevel - result;
-                    for(int j = 0; j < times; j++){
-                        indentLevel--;
-                        elements.offer(
-                                new StackElement(state,
-                                DEDENT, start, bufferEnd)
-                        );
+
+            }
+            StackElement lastLine = newLines.get(newLines.size() - 1);
+            List<StackElement> spaceElements = spaces.get(newLines.size() - 1);
+            int whiteSpaceCount = spaceElements.size();
+            if (delegate.getTokenType() == null) {
+                while (indentStack.size() > 0) {
+                    indentStack.pop();
+                    elements.offer(new StackElement(holder.getState(), DEDENT, holder.getStart(), holder.getEnd()));
+                }
+            } else { // Need to Add Last Token
+                if (previousSignificantSpace == whiteSpaceCount) {
+                    dumpTokens(spaces, newLines);
+                    elements.offer(new StackElement(delegate));
+                } else if (previousSignificantSpace > whiteSpaceCount) {
+                    if(newLines.size() > 1){
+                        dumpAllButLastTokens(spaces, newLines);
                     }
+                    int previous = previousSignificantSpace;
+                    while (previous > whiteSpaceCount) {
+                        previous = previous - indentStack.pop();
+
+                            elements.offer(new StackElement(holder.getState(), DEDENT, holder.getStart(), holder.getEnd()));
+
+                    }
+                    elements.offer(new StackElement(delegate));
+                    this.previousSignificantSpace = previous;
                 } else {
-                    int times = result - indentLevel;
-                    for(int j = 0; j < times; j++){
-                        indentLevel++;
-                        elements.offer(
-                                new StackElement(state,
-                                       INDENT, start, bufferEnd));
+                    if(newLines.size() > 1){
+                        dumpAllButLastTokens(spaces, newLines);
                     }
+                    elements.offer(
+                            new StackElement(lastLine.getState(), INDENT, lastLine.getStart(), spaceElements.get(spaceElements.size() -1).getEnd())
+                    );
+                    elements.offer(new StackElement(delegate));
+                    this.indentStack.push(whiteSpaceCount - previousSignificantSpace);
+                    this.previousSignificantSpace = whiteSpaceCount;
                 }
+
+
             }
-            internal.forEach(elements::offer);
-            elements.offer(new StackElement(delegate));
+
         } else if(delegate.getTokenType() == null){
-            for(int j = 0; indentLevel > 0; j++){
-                int state = delegate.getState();
-                int start = delegate.getTokenStart();
-                int bufferEnd = delegate.getBufferEnd();
-                indentLevel--;
-                elements.offer(
-                        new StackElement(state,
-                                DEDENT, start, bufferEnd)
-                );
-            }
+                while(indentStack.size() > 0) {
+                    indentStack.pop();
+                    elements.offer(new StackElement(0, DEDENT, getTokenEnd(), getTokenEnd()));
+                }
+        } else {
+            elements.offer(new StackElement(delegate));
         }
     }
 
-
-    protected void skipInsignificant(){
-        while (NimParserDefinition.COMMENTS.contains(delegate.getTokenType())){
-            delegate.advance();
+    private void dumpTokens(List<List<StackElement>> spaces, List<StackElement> newLines) {
+        int i = 0;
+        for(List<StackElement> _spaces : spaces){
+            elements.offer(newLines.get(i++));
+            _spaces.forEach(elements::offer);
         }
     }
+
+    private void dumpAllButLastTokens(List<List<StackElement>> spaces, List<StackElement> newLines) {
+        dumpTokens(spaces.subList(0, spaces.size() - 1), newLines.subList(0, newLines.size()- 1));
+    }
+
 
     @Override
     public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
@@ -147,32 +148,38 @@ public class NimIndentationLexer extends LexerBase {
 
     @Override
     public int getState() {
-        return token == null ? delegate.getState() : token.getState();
+        return token.getState();
     }
 
     @Override
     public IElementType getTokenType() {
-        return token == null ? delegate.getTokenType() : Objects.requireNonNull(token.getType());
+        if(token != null){
+            return token.getType();
+        } else {
+            final IElementType tokenType = delegate.getTokenType();
+            if(tokenType != null){
+                token = new StackElement(delegate);
+                return tokenType;
+            }
+            return null;
+        }
     }
 
     @Override
     public int getTokenStart() {
-
-        return token == null ? delegate.getTokenStart() : token.getStart();
+        return  token.getStart();
     }
 
     @Override
     public int getTokenEnd() {
-        return token == null ? delegate.getTokenEnd() : token.getEnd();
+        return token.getEnd();
     }
 
 
     @NotNull
     @Override
     public CharSequence getTokenSequence() {
-        return token == null ?
-                delegate.getBufferSequence().subSequence(delegate.getTokenStart(), delegate.getTokenEnd())
-                : token.getBufferSequence().subSequence(token.getStart(), token.getEnd());
+        return delegate.getBufferSequence().subSequence(token.getStart(), token.getEnd());
     }
 
 
@@ -180,12 +187,12 @@ public class NimIndentationLexer extends LexerBase {
     @NotNull
     @Override
     public CharSequence getBufferSequence() {
-        return token == null ? delegate.getBufferSequence() : token.getBufferSequence();
+        return delegate.getBufferSequence();
     }
 
     @Override
     public int getBufferEnd() {
-        return token == null ? delegate.getBufferEnd() : token.getBufferEnd();
+        return delegate.getBufferEnd();
     }
 
 }

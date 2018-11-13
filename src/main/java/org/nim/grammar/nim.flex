@@ -204,19 +204,6 @@ import com.intellij.psi.TokenType;
 
 %%
 //Reset Spaces
-<YYINITIAL, START, CALLABLE, RUNNABLE_EXAMPLE> {
-
-    {CRLF} {
-          this.spaces = 0;
-          if(YYINITIAL != yystate()){
-              //We want to be able to pop back to the previous state
-            this.previousState = yystate();
-          }
-          yybegin(YYINITIAL);
-          return CRLF;
-      }
-}
- //For Indent Couting
 <YYINITIAL>{
     " " {
             this.spaces++;
@@ -232,6 +219,20 @@ import com.intellij.psi.TokenType;
   }
 
 }
+<YYINITIAL, START, CALLABLE, RUNNABLE_EXAMPLE> {
+
+    {CRLF} {
+          this.spaces = 0;
+          if(YYINITIAL != yystate()){
+              //We want to be able to pop back to the previous state
+            this.previousState = yystate();
+          }
+          yybegin(YYINITIAL);
+          return CRLF;
+      }
+}
+ //For Indent Couting
+
 
 <START> {
 //  {CRLF} {

@@ -125,7 +125,7 @@
     RAW_STRING='<raw_string>'
     COMMENT = '<comment>'
     INDENT= 'INDENT'
-    DEDENT='DEDENT'
+
     SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
   extends("(Or|And|Add|Conversion|Mul|Selector|Paran|Conditional)Expression")=BinaryExpression
@@ -155,11 +155,11 @@ DedentOrEOF ::= (Dedentations )*  <<eof>>?
 //VarDeclaration ::= VAR IDENTIFIER SINGLE_COLON QualifiedType
 
 Literal ::=  ArrayLiteral | Integer | RawStringLiteral| StringLiteral | TripleQuoteString | Float
-TopDeclaration ::= TypeDeclaration
+TopDeclaration ::= TypeBlock
 
-TypeDeclaration ::=  TYPE <<beginTypeBlock>>  Indentations TypeStart+ Dedentations
+TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentations TypeDeclaration+ Dedentations
 
-TypeStart ::=  <<isInType>> OperandName STAR? EQUAL Types
+TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentations?
 
 private Types ::= EnumDeclaration | ObjectType
 
