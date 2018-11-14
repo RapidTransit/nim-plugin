@@ -2,9 +2,7 @@ package org.nim.grammar;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import org.nim.psi.NimTokenType;
 import static org.nim.psi.NimTokenTypes.*;
-import com.intellij.psi.TokenType;
 
 %%
 
@@ -184,8 +182,8 @@ import com.intellij.psi.TokenType;
     DOUBLE_DOT=".."
     DOT="."
     BRACKET_COLON="[:"
-    TILDE_IDENTIFIER=[^`]
-    TILDE="`"
+    BACK_TICK_IDENTIFIER=[^`]
+    BACK_TICK="`"
     STAR="*"
     PLUS="+"
     MINUS="-"
@@ -200,7 +198,7 @@ import com.intellij.psi.TokenType;
 
 
 
-%state START CALLABLE RUNNABLE_EXAMPLE CALLABLE_TILDE CALLABLE_ARGUMENTS IN_STRING IN_TRIPLE_STRING COMMENT MULTILINE_COMMENT
+%state START CALLABLE RUNNABLE_EXAMPLE CALLABLE_BACK_TICK CALLABLE_ARGUMENTS IN_STRING IN_TRIPLE_STRING COMMENT MULTILINE_COMMENT
 
 %%
 //Reset Spaces
@@ -373,7 +371,7 @@ import com.intellij.psi.TokenType;
 
 <CALLABLE>{
     {PROC} {return PROC;}
-    {TILDE} {yybegin(CALLABLE_TILDE); return TILDE;}
+    {BACK_TICK} {yybegin(CALLABLE_BACK_TICK); return BACK_TICK;}
     {IDENTIFIER} {return IDENTIFIER;}
     {BRACKET_OPEN} {return BRACKET_OPEN;}
     {BRACKET_CLOSE} {return BRACKET_CLOSE;}
@@ -400,9 +398,9 @@ import com.intellij.psi.TokenType;
     {IDENTIFIER} {return IDENTIFIER;}
 }
 
-<CALLABLE_TILDE> {
-    {TILDE_IDENTIFIER} { return TILDE_IDENTIFIER; }
-    {TILDE} { yybegin(CALLABLE);return TILDE; }
+<CALLABLE_BACK_TICK> {
+    {BACK_TICK_IDENTIFIER} { return BACK_TICK_IDENTIFIER; }
+    {BACK_TICK} { yybegin(CALLABLE);return BACK_TICK; }
 }
 
 //Worry about this crap later

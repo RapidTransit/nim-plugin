@@ -37,7 +37,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean isNotInType(@NotNull PsiBuilder builder, int _level){
         final ParserData parserData = getParserData(builder);
-        if(parserData.blocks.isEmpty()) return false;
+        if(parserData.blocks.isEmpty()) return true;
         final Block peek = parserData.blocks.peek();
         boolean notIn =  parserData.indent > peek.indent && peek.blockType == BlockType.TYPE;
         return notIn;

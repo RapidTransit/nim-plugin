@@ -133,7 +133,7 @@
     extends(".*Statement")=Statement
 }
 
-File ::= <<beginParsing>> (!<<eof>> (TopDeclaration|&<<isNotInType>>Statement))* <<eof>>?
+File ::= <<beginParsing>> (!<<eof>> (TopDeclaration|<<isNotInType>>Statement))* <<eof>>?
 
 Indentations ::= INDENT <<increaseIndent>>
 Dedentations ::= DEDENT <<decreaseIndent>>
@@ -152,14 +152,36 @@ VarDefinition ::= IDENTIFIER
 
 DedentOrEOF ::= (Dedentations )*  <<eof>>?
 
-//VarDeclaration ::= VAR IDENTIFIER SINGLE_COLON QualifiedType
+WhileStatement ::= WHILE Expression SINGLE_COLON Indentations Statement* Dedentations
 
 Literal ::=  ArrayLiteral | Integer | RawStringLiteral| StringLiteral | TripleQuoteString | Float
-TopDeclaration ::= TypeBlock
+TopDeclaration ::= TypeBlock | MethodTypes
 
 TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentations TypeDeclaration+ Dedentations
 
+MethodBody ::= Indentations (Statement|WhileStatement)* Dedentations
+
 TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentations?
+
+Parameters ::= PARAN_OPEN (Parameter (COMMA Parameter)*)? PARAN_CLOSE
+
+ReturnType ::= SINGLE_COLON IDENTIFIER
+Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
+
+ParamterNames ::= IDENTIFIER (COMMA IDENTIFIER)*
+Parameter ::=ParamterNames SINGLE_COLON VAR? IDENTIFIER Generics?
+
+private MethodTypes ::=
+    ProcedureMethod
+    | TemplateMethod
+
+ProcedureMethod ::= PROC IdentifierOrOperator STAR? Generics? Parameters ReturnType? Pragma? EQUAL MethodBody
+
+TemplateMethod ::= TEMPLATE IdentifierOrOperator STAR? Generics? Parameters ReturnType? Pragma? EQUAL MethodBody
+
+Generics ::= BRACKET_OPEN IDENTIFIER (COMMA IDENTIFIER)* BRACKET_CLOSE
+
+IdentifierOrOperator ::= IDENTIFIER | (BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK)
 
 private Types ::= EnumDeclaration | ObjectType
 
@@ -168,7 +190,7 @@ ObjectType ::= REF? (OBJECT | OperandName)  Indentations? ObjectFields+
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName
 
-EnumDeclaration ::= ENUM Indentations OperandName (COMMA OperandName)* Dedentations
+EnumDeclaration ::= ENUM Indentations OperandName (COMMA OperandName)*
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
@@ -188,9 +210,9 @@ fake BinaryExpression ::= Expression+ {
   methods=[left="Expression[0]" right="Expression[1]" ]
 }
 
-SimpleStatement ::=  <<isNotInType>> (UMethodExpression| (LeftHandExprList [AssignmentStatement]))
+SimpleStatement ::= UMethodExpressionOrLeftHand
 
-
+private UMethodExpressionOrLeftHand ::= LeftHandExprList [AssignmentStatement | SimpleStatement]
 
 left AssignmentStatement ::= EQUAL ExpressionList
 LeftHandExprList ::= ExpressionList
@@ -214,7 +236,9 @@ private MaxGroup ::= OperandName
 | CallExpression
 | Literal
 
-UMethodExpression ::= ReferenceExpression Expression (COMMA Expression)*
+UMethodExpression ::= ReferenceExpression !Operator UReference
+UReference ::= Expression UReferenceExpression?
+left UReferenceExpression ::= COMMA Expression
 AndExpression ::= Expression AND Expression
 OrExpression ::= Expression OR Expression
 ConditionalExpression ::= Expression OP5 Expression

@@ -19,6 +19,9 @@ public class GrammarTest extends ParsingTestCase {
     public void testAlgorithm(){
         doTest(true);
     }
+    public void testAlgorithm1(){
+        doTest(true);
+    }
     public void testReverse(){
         doTest(true);
     }
