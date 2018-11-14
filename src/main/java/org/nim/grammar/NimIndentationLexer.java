@@ -84,7 +84,7 @@ public class NimIndentationLexer extends LexerBase {
             if (delegate.getTokenType() == null) {
                 while (indentStack.size() > 0) {
                     indentStack.pop();
-                    elements.offer(new StackElement(holder.getState(), DEDENT, holder.getStart(), holder.getEnd()));
+                    elements.offer(new StackElement(holder.getState(), DEDENT, holder.getStart(), holder.getStart()));
                 }
             } else { // Need to Add Last Token
                 if (previousSignificantSpace == whiteSpaceCount) {
@@ -92,13 +92,14 @@ public class NimIndentationLexer extends LexerBase {
                     elements.offer(new StackElement(delegate));
                 } else if (previousSignificantSpace > whiteSpaceCount) {
                     if(newLines.size() > 1){
-                        dumpAllButLastTokens(spaces, newLines);
+                        dumpTokens(spaces, newLines);
                     }
                     int previous = previousSignificantSpace;
+                    elements.offer(holder);
                     while (previous > whiteSpaceCount) {
                         previous = previous - indentStack.pop();
 
-                            elements.offer(new StackElement(holder.getState(), DEDENT, holder.getStart(), holder.getEnd()));
+                            elements.offer(new StackElement(holder.getState(), DEDENT, holder.getEnd(), holder.getEnd()));
 
                     }
                     elements.offer(new StackElement(delegate));
