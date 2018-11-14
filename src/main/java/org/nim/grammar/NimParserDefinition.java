@@ -25,7 +25,8 @@ import java.io.Reader;
 public class NimParserDefinition implements ParserDefinition {
     public static final TokenSet WHITE_SPACES = TokenSet.create(NimTokenTypes.WHITE_SPACE, NimTokenTypes.CRLF);
     public static final TokenSet COMMENTS = TokenSet.create(NimTokenTypes.SINGLE_LINE_COMMENT,
-            NimTokenTypes.RUNNABLE_EXAMPLE, NimTokenTypes.DOC_RUNNABLE);
+            NimTokenTypes.EXAMPLE,
+            NimTokenTypes.DOC_RUNNABLE);
 
     public static final IFileElementType FILE = new IFileElementType(Language.findInstance(NimLanguage.class));
 

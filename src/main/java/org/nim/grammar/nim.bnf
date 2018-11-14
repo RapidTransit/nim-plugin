@@ -125,7 +125,8 @@
     RAW_STRING='<raw_string>'
     COMMENT = '<comment>'
     INDENT= 'INDENT'
-
+    DOC_RUNNABLE = '<doc_runnable>'
+    EXAMPLE = '<example>'
     SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
   extends("(Or|And|Add|Conversion|Mul|Selector|Paran|Conditional)Expression")=BinaryExpression
@@ -137,8 +138,8 @@ File ::= <<beginParsing>> (!<<eof>> (TopDeclaration|<<isNotInType>>Statement))* 
 
 Indentations ::= INDENT <<increaseIndent>>
 Dedentations ::= DEDENT <<decreaseIndent>>
-Statement ::= <<isNotInType>>( RunnableExample|VarDeclaration|SimpleStatement)
-RunnableExample ::= EXAMPLE Indentations (DOC_RUNNABLE)* Dedentations
+Statement ::= <<isNotInType>>( VarDeclaration|SimpleStatement)
+//RunnableExample ::= EXAMPLE Indentations (DOC_RUNNABLE)* Dedentations
 
 VarDeclaration ::= VAR ( VarSpec |  VarSpecs?  )
 
@@ -165,12 +166,16 @@ TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentations?
 
 Parameters ::= PARAN_OPEN (Parameter (COMMA Parameter)*)? PARAN_CLOSE
 
-ReturnType ::= SINGLE_COLON IDENTIFIER
+ReturnType ::= SINGLE_COLON IDENTIFIER Generics?
+
 Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
 
 ParamterNames ::= IDENTIFIER (COMMA IDENTIFIER)*
-Parameter ::=ParamterNames SINGLE_COLON VAR? IDENTIFIER Generics?
+Parameter ::=ParamterNames SINGLE_COLON VAR? ParameterType Generics? Pragma?
 
+private ParameterType ::= Closure | IDENTIFIER
+
+Closure ::= PROC Parameters SINGLE_COLON ReturnType? Pragma?
 private MethodTypes ::=
     ProcedureMethod
     | TemplateMethod
@@ -179,8 +184,8 @@ ProcedureMethod ::= PROC IdentifierOrOperator STAR? Generics? Parameters ReturnT
 
 TemplateMethod ::= TEMPLATE IdentifierOrOperator STAR? Generics? Parameters ReturnType? Pragma? EQUAL MethodBody
 
-Generics ::= BRACKET_OPEN IDENTIFIER (COMMA IDENTIFIER)* BRACKET_CLOSE
-
+Generics ::= BRACKET_OPEN IDENTIFIER GenericsAdditional? BRACKET_CLOSE
+left GenericsAdditional ::= COMMA IDENTIFIER
 IdentifierOrOperator ::= IDENTIFIER | (BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK)
 
 private Types ::= EnumDeclaration | ObjectType
@@ -217,6 +222,7 @@ private UMethodExpressionOrLeftHand ::= LeftHandExprList [AssignmentStatement | 
 left AssignmentStatement ::= EQUAL ExpressionList
 LeftHandExprList ::= ExpressionList
 
+
 private ExpressionArgList ::= Expression (COMMA Expression)*
 private ExpressionList ::= Expression (COMMA (Expression))*
 
@@ -248,7 +254,7 @@ ParanExpression ::= PARAN_OPEN Expression PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
-CallExpression ::= Expression ArgumentList
+CallExpression ::= Expression Generics? ArgumentList
 ArgumentList ::= PARAN_OPEN [ExpressionArgList] PARAN_CLOSE
 Operator ::=
     OP0

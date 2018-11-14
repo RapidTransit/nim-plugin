@@ -72,7 +72,9 @@ public class NimIndentationLexer extends LexerBase {
                 List<StackElement> stack = new ArrayList<>();
                 spaces.add(stack);
                 delegate.advance();
-                while (delegate.getTokenType() == WHITE_SPACE){
+                while (delegate.getTokenType() == WHITE_SPACE
+                        || delegate.getTokenType() == DOC_RUNNABLE
+                        || delegate.getTokenType() == EXAMPLE){
                     stack.add(new StackElement(delegate));
                     delegate.advance();
                 }

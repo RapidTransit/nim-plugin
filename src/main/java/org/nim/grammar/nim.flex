@@ -217,7 +217,7 @@ import static org.nim.psi.NimTokenTypes.*;
   }
 
 }
-<YYINITIAL, START, CALLABLE, RUNNABLE_EXAMPLE> {
+<YYINITIAL, START, CALLABLE, RUNNABLE_EXAMPLE, CALLABLE_ARGUMENTS> {
 
     {CRLF} {
           this.spaces = 0;
@@ -378,6 +378,7 @@ import static org.nim.psi.NimTokenTypes.*;
     {PARAN_OPEN} {yybegin(CALLABLE_ARGUMENTS); return PARAN_OPEN; }
     {PARAN_CLOSE} {return PARAN_CLOSE; }
     {SINGLE_COLON} {return SINGLE_COLON;}
+      "," {return COMMA;}
     {STAR} {return STAR;}
     {CURLY_DOT_OPEN} {return CURLY_DOT_OPEN; }
     {CURLY_DOT_CLOSE} {return CURLY_DOT_CLOSE; }
