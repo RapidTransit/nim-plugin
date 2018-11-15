@@ -388,6 +388,20 @@ import static org.nim.psi.NimTokenTypes.*;
     {WHITE_SPACE} {return WHITE_SPACE;}
 }
 <CALLABLE_ARGUMENTS>{
+    {FLOAT_LIT} {return FLOAT_LIT;}
+    {FLOAT32_LIT} {return FLOAT32_LIT;}
+    {FLOAT64_LIT} {return FLOAT64_LIT;}
+    {INT8_LIT} {return INT8_LIT;}
+    {INT16_LIT} {return INT16_LIT;}
+    {INT32_LIT} {return INT32_LIT;}
+    {INT64_LIT} {return INT64_LIT;}
+    {STAR} {return STAR;}
+    {UINT_LIT} {return UINT_LIT;}
+    {UINT8_LIT} {return UINT8_LIT;}
+    {UINT16_LIT} {return UINT16_LIT;}
+    {UINT32_LIT} {return UINT32_LIT;}
+    {UINT64_LIT} {return UINT64_LIT;}
+    {INT_LIT} {return INT_LIT; }
     {WHITE_SPACE} {return WHITE_SPACE;}
     {PROC} {return PROC;}
     {BRACKET_OPEN} {return BRACKET_OPEN;}
