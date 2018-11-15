@@ -61,7 +61,7 @@ public class NimIndentationLexer extends LexerBase {
 
     private void tryToAddToStack() {
         delegate.advance();
-        if(delegate.getTokenType() == CRLF) {
+        if(delegate.getTokenType() == CRLF && delegate.getState() != NimLexer.CALLABLE_ARGUMENTS) {
             StackElement holder = new StackElement(delegate);
             List<List<StackElement>> spaces = new ArrayList<>();
             List<StackElement> newLines = new ArrayList<>();
@@ -74,6 +74,7 @@ public class NimIndentationLexer extends LexerBase {
                 delegate.advance();
                 while (delegate.getTokenType() == WHITE_SPACE
                         || delegate.getTokenType() == DOC_RUNNABLE
+                        || delegate.getTokenType() == SINGLE_LINE_COMMENT
                         || delegate.getTokenType() == EXAMPLE){
                     stack.add(new StackElement(delegate));
                     delegate.advance();

@@ -13,6 +13,7 @@ import static org.nim.psi.NimTokenTypes.*;
 %type IElementType
 %{
 
+    protected int parenthesisBalance = 0;
     protected int previousState = START;
     protected int runnableSpaces = 0;
     protected int spaces = 0;
@@ -182,7 +183,7 @@ import static org.nim.psi.NimTokenTypes.*;
     DOUBLE_DOT=".."
     DOT="."
     BRACKET_COLON="[:"
-    BACK_TICK_IDENTIFIER=[^`]
+    BACK_TICK_IDENTIFIER=[^`]*
     BACK_TICK="`"
     STAR="*"
     PLUS="+"
@@ -268,7 +269,7 @@ import static org.nim.psi.NimTokenTypes.*;
     ">" {return GREATER_THAN;}
     "<" {return LESS_THAN;}
     {SINGLE_LINE_COMMENT} {return SINGLE_LINE_COMMENT;}
-    "addr" {return ADDR;}
+    //"addr" {return ADDR;}
     "and" {return AND;}
     "as" {return AS;}
     "asm" {return ASM;}
@@ -278,7 +279,7 @@ import static org.nim.psi.NimTokenTypes.*;
     "case" {return CASE;}
     "cast" {return CAST;}
     "concept" {return CONCEPT;}
-    "consy" {return CONSY;}
+    "const" {return CONST;}
     "continue" {return CONTINUE;}
     "converter" {return CONVERTER;}
     "defer" {return DEFER;}
@@ -295,7 +296,7 @@ import static org.nim.psi.NimTokenTypes.*;
     "finally" {return FINALLY;}
     "for" {return FOR;}
     "from" {return FROM;}
-    "func" {return FUNC;}
+    "func" {yybegin(CALLABLE); return FUNC;}
     "if" {return IF;}
     "import" {return IMPORT;}
     "in" {return IN;}
@@ -323,7 +324,7 @@ import static org.nim.psi.NimTokenTypes.*;
     "shl" {return SHL;}
     "shr" {return SHR;}
     "static" {return STATIC;}
-    "template" {return TEMPLATE;}
+    "template" {yybegin(CALLABLE); return TEMPLATE;}
     "try" {return TRY;}
     "tuple" {return TUPLE;}
     "type" {return TYPE;}
@@ -333,6 +334,7 @@ import static org.nim.psi.NimTokenTypes.*;
     "while" {return WHILE;}
     "xor" {return XOR;}
     "yield" {return YIELD;}
+      "!=" {return NOT_EQUAL;}
     "(." {return PARAN_DOT_OPEN;}
     ".)" {return PARAN_DOT_CLOSE;}
     "[." {return BRACKET_DOT_OPEN;}
@@ -373,9 +375,9 @@ import static org.nim.psi.NimTokenTypes.*;
     {PROC} {return PROC;}
     {BACK_TICK} {yybegin(CALLABLE_BACK_TICK); return BACK_TICK;}
     {IDENTIFIER} {return IDENTIFIER;}
-    {BRACKET_OPEN} {return BRACKET_OPEN;}
+    {BRACKET_OPEN} {  return BRACKET_OPEN;}
     {BRACKET_CLOSE} {return BRACKET_CLOSE;}
-    {PARAN_OPEN} {yybegin(CALLABLE_ARGUMENTS); return PARAN_OPEN; }
+    {PARAN_OPEN} {parenthesisBalance++; yybegin(CALLABLE_ARGUMENTS); return PARAN_OPEN; }
     {PARAN_CLOSE} {return PARAN_CLOSE; }
     {SINGLE_COLON} {return SINGLE_COLON;}
       "," {return COMMA;}
@@ -391,9 +393,18 @@ import static org.nim.psi.NimTokenTypes.*;
     {BRACKET_OPEN} {return BRACKET_OPEN;}
     {BRACKET_CLOSE} {return BRACKET_CLOSE;}
     {COMMA} {return COMMA; }
-    {PARAN_OPEN} {return PARAN_OPEN; }
-    {PARAN_CLOSE} {yybegin(CALLABLE); return PARAN_CLOSE;}
+    {PARAN_OPEN} { parenthesisBalance++; return PARAN_OPEN; }
+          {CURLY_DOT_OPEN} {return CURLY_DOT_OPEN; }
+          {CURLY_DOT_CLOSE} {return CURLY_DOT_CLOSE; }
+    {PARAN_CLOSE} {
+          --parenthesisBalance;
+          if(parenthesisBalance == 0){
+          yybegin(CALLABLE);
+          }
+          return PARAN_CLOSE;
+      }
     {SINGLE_COLON} {return SINGLE_COLON;}
+      "." {return DOT;}
     {VAR} {return VAR; }
     {EQUAL} {return EQUAL; }
     {IDENTIFIER} {return IDENTIFIER;}

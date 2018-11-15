@@ -16,6 +16,7 @@ public class NimParserWrapper extends NimParser {
 
     @Override
     public ASTNode parse(IElementType root_, PsiBuilder builder_) {
+        builder_.setDebugMode(true);
         builder_.setTokenTypeRemapper(remapper);
 
             ASTNode node = super.parse(root_, builder_);

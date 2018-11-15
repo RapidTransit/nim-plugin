@@ -129,73 +129,87 @@
     EXAMPLE = '<example>'
     SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
-  extends("(Or|And|Add|Conversion|Mul|Selector|Paran|Conditional)Expression")=BinaryExpression
+  extends("(Or|And|Add|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(Expression|OperandName|Literal)")=Expression
     extends(".*Statement")=Statement
 }
 
-File ::= <<beginParsing>> (!<<eof>> (TopDeclaration|<<isNotInType>>Statement))* <<eof>>?
+File ::= <<beginParsing>> (!<<eof>> TopLevel)* <<eof>>?
 
-Indentations ::= INDENT <<increaseIndent>>
-Dedentations ::= DEDENT <<decreaseIndent>>
-Statement ::= <<isNotInType>>( VarDeclaration|SimpleStatement)
-//RunnableExample ::= EXAMPLE Indentations (DOC_RUNNABLE)* Dedentations
+private TopLevel ::= TopDeclaration|<<isNotInType>>Statement
 
-VarDeclaration ::= VAR ( VarSpec |  VarSpecs?  )
+Indentation ::= INDENT <<increaseIndent>>
+Dedentation ::= DEDENT <<decreaseIndent>>
+Statement ::= <<isNotInType>>( VarDeclaration| SimpleStatement| ReturnStatement | WhileStatement| IfStatement)
+
+ReturnStatement ::= RETURN SimpleStatement?
+VarDeclaration ::= (VAR|LET|CONST) Indentation? ( VarSpec |  VarSpecs?  ) Dedentation?
 
 private VarSpecs ::= VarSpec
 
-VarSpec ::= VarDefinitionList ( IDENTIFIER [ '=' ExpressionList ] | '=' ExpressionList )
+VarSpec ::= VarDefinitionList  VarDec
+
+private VarDec ::= (SINGLE_COLON IDENTIFIER) | (SINGLE_COLON IDENTIFIER)? ('=' ExpressionList )
 
 private VarDefinitionList ::= VarDefinition ( ',' VarDefinition )*
 
 VarDefinition ::= IDENTIFIER
 
-DedentOrEOF ::= (Dedentations )*  <<eof>>?
 
-WhileStatement ::= WHILE Expression SINGLE_COLON Indentations Statement* Dedentations
 
+WhileStatement ::= (WHILE|FOR) Expression SINGLE_COLON Indentation Statement* Dedentation
+
+IfStatement ::= Ifs
+private Ifs ::= IfBlockStatement
+
+IfBlockStatement ::= (WHEN|IF) ConditionalBlock ElseIfStatement* ElseStatement?
+ConditionalBlock ::= Expression SINGLE_COLON Indentation Statement* Dedentation
+ElseIfStatement ::= ELIF ConditionalBlock
+ElseStatement ::= ELSE SINGLE_COLON Indentation Statement* Dedentation
 Literal ::=  ArrayLiteral | Integer | RawStringLiteral| StringLiteral | TripleQuoteString | Float
-TopDeclaration ::= TypeBlock | MethodTypes
+TopDeclaration ::= TypeBlock | <<isNotInType>> MethodTypes
 
-TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentations TypeDeclaration+ Dedentations
+TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
 
-MethodBody ::= Indentations (Statement|WhileStatement)* Dedentations
+private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement)* Dedentation)
 
-TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentations?
+TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentation?
 
 Parameters ::= PARAN_OPEN (Parameter (COMMA Parameter)*)? PARAN_CLOSE
+
+ParameterDefault ::= EQUAL? Expression
 
 ReturnType ::= SINGLE_COLON IDENTIFIER Generics?
 
 Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
 
 ParamterNames ::= IDENTIFIER (COMMA IDENTIFIER)*
-Parameter ::=ParamterNames SINGLE_COLON VAR? ParameterType Generics? Pragma?
+Parameter ::=ParamterNames (SINGLE_COLON? VAR? ParameterType? Generics? Pragma? ParameterDefault?)?
 
 private ParameterType ::= Closure | IDENTIFIER
 
-Closure ::= PROC Parameters SINGLE_COLON ReturnType? Pragma?
+Closure ::= PROC Parameters  ReturnType? Pragma?
 private MethodTypes ::=
     ProcedureMethod
     | TemplateMethod
 
-ProcedureMethod ::= PROC IdentifierOrOperator STAR? Generics? Parameters ReturnType? Pragma? EQUAL MethodBody
+ProcedureMethod ::= (PROC|FUNC) IdentifierOrOperator? STAR? Generics? Parameters ReturnType? Pragma? EQUAL MethodBody
 
 TemplateMethod ::= TEMPLATE IdentifierOrOperator STAR? Generics? Parameters ReturnType? Pragma? EQUAL MethodBody
 
 Generics ::= BRACKET_OPEN IDENTIFIER GenericsAdditional? BRACKET_CLOSE
-left GenericsAdditional ::= COMMA IDENTIFIER
-IdentifierOrOperator ::= IDENTIFIER | (BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK)
+GenericsAdditional ::= COMMA IDENTIFIER
+
+private IdentifierOrOperator ::= IDENTIFIER | (BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK)
 
 private Types ::= EnumDeclaration | ObjectType
 
-ObjectType ::= REF? (OBJECT | OperandName)  Indentations? ObjectFields+
+ObjectType ::= REF? (OBJECT | OperandName)  Indentation? ObjectFields+
 
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName
 
-EnumDeclaration ::= ENUM Indentations OperandName (COMMA OperandName)*
+EnumDeclaration ::= ENUM Indentation OperandName (COMMA OperandName)*
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
@@ -214,7 +228,8 @@ TripleQuoteString ::= TRIPLE_DOUBLE_STR
 fake BinaryExpression ::= Expression+ {
   methods=[left="Expression[0]" right="Expression[1]" ]
 }
-
+UnaryExpression ::= UnaryOp Expression
+UnaryOp ::= MINUS
 SimpleStatement ::= UMethodExpressionOrLeftHand
 
 private UMethodExpressionOrLeftHand ::= LeftHandExprList [AssignmentStatement | SimpleStatement]
@@ -233,29 +248,37 @@ Expression ::=
     | ConditionalExpression
     | MultiplyExpression
     | AddExpression
+    | SpreadExpression
+    | UnaryExpression
     | MaxGroup
-    | ParanExpression
     | Op7Expression
+    | IfExpression
+    | ProcExpression
+   // | KWExpression
+    | ParanExpression
 
+ProcExpression ::= ProcedureMethod
+IfExpression ::= IF ConditionalExpression SINGLE_COLON  (RETURN | Expression)
+private KWExpression ::= RETURN
 private MaxGroup ::= OperandName
 | IndexOrSliceExpression
 | CallExpression
+
 | Literal
 
-UMethodExpression ::= ReferenceExpression !Operator UReference
-UReference ::= Expression UReferenceExpression?
-left UReferenceExpression ::= COMMA Expression
-AndExpression ::= Expression AND Expression
+
+AndExpression ::= Expression OP6 Expression
+SpreadExpression ::= Expression OP4 Expression
 OrExpression ::= Expression OR Expression
 ConditionalExpression ::= Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
 AddExpression ::= Expression OP2 Expression
-ParanExpression ::= PARAN_OPEN Expression PARAN_CLOSE
+ParanExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
 CallExpression ::= Expression Generics? ArgumentList
-ArgumentList ::= PARAN_OPEN [ExpressionArgList] PARAN_CLOSE
+ArgumentList ::= PARAN_OPEN ExpressionArgList? PARAN_CLOSE
 Operator ::=
     OP0
     | OP1
@@ -304,7 +327,8 @@ private OP5 ::=
 private OP6 ::= AND
 
 private OP7 ::=
-     OR
+      OR
+     | AND
      | XOR
 
 private OP8 ::=

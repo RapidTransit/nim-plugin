@@ -3,6 +3,7 @@ package org.nim.grammar;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.parser.GeneratedParserUtilBase;
 import com.intellij.openapi.util.Key;
+import gnu.trove.TObjectIntHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -25,6 +26,15 @@ public class NimParserUtil extends GeneratedParserUtilBase {
     public static boolean beginTypeBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
         parserData.blocks.push(new Block(BlockType.TYPE, parserData.indent));
+        return true;
+    }
+
+    public static boolean endTypeBlock(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        final Block peek = parserData.blocks.peek();
+        if(peek != null && peek.blockType == BlockType.TYPE){
+            parserData.blocks.poll();
+        }
         return true;
     }
 
@@ -55,6 +65,29 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return true;
     }
 
+    public static boolean enterMode(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode) {
+        TObjectIntHashMap<String> flags = getParserData(builder_).flags;
+        if (!flags.increment(mode)) flags.put(mode, 1);
+        return true;
+    }
+
+    private static boolean exitMode(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode, boolean safe) {
+        TObjectIntHashMap<String> flags = getParserData(builder_).flags;
+        int count = flags.get(mode);
+        if (count == 1) flags.remove(mode);
+        else if (count > 1) flags.put(mode, count - 1);
+        else if (!safe) builder_.error("Could not exit inactive '" + mode + "' mode at offset " + builder_.getCurrentOffset());
+        return true;
+    }
+
+    public static boolean exitMode(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode) {
+        return exitMode(builder_, level,mode, false);
+    }
+
+    public static boolean exitModeSafe(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode) {
+        return exitMode(builder_, level,mode, true);
+    }
+
     protected static ParserData getParserData(PsiBuilder builder){
         return builder.getUserData(PARSER_DATA_KEY);
     }
@@ -63,7 +96,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
     protected static class ParserData implements Serializable {
         private int indent;
         private Deque<Block> blocks = new ArrayDeque<>();
-
+        TObjectIntHashMap<String> flags = new TObjectIntHashMap<>();
 
     }
 
