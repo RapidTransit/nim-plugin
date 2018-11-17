@@ -71,6 +71,11 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return true;
     }
 
+//    public static boolean braceMatchEnter(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level) {
+//        builder_.
+//        return true;
+//    }
+
     private static boolean exitMode(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode, boolean safe) {
         TObjectIntHashMap<String> flags = getParserData(builder_).flags;
         int count = flags.get(mode);

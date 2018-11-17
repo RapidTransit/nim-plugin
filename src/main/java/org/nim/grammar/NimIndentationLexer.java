@@ -37,14 +37,12 @@ public class NimIndentationLexer extends LexerBase {
      */
     private final TIntStack indentStack = new TIntStack();
     private final Deque<StackElement> elements = new ArrayDeque<>();
-    private final NimLexer original;
     private int previousSignificantSpace = 0;
     private final Lexer delegate;
     private StackElement token;
 
 
     public NimIndentationLexer(NimLexer original) {
-        this.original = original;
         delegate = new FlexAdapter(original);
     }
 
@@ -72,8 +70,7 @@ public class NimIndentationLexer extends LexerBase {
                 List<StackElement> stack = new ArrayList<>();
                 spaces.add(stack);
                 delegate.advance();
-                while (delegate.getTokenType() == WHITE_SPACE
-                        || delegate.getTokenType() == DOC_RUNNABLE
+                while (delegate.getTokenType() == DOC_RUNNABLE
                         || delegate.getTokenType() == SINGLE_LINE_COMMENT
                         || delegate.getTokenType() == EXAMPLE){
                     stack.add(new StackElement(delegate));
@@ -83,7 +80,7 @@ public class NimIndentationLexer extends LexerBase {
             }
             StackElement lastLine = newLines.get(newLines.size() - 1);
             List<StackElement> spaceElements = spaces.get(newLines.size() - 1);
-            int whiteSpaceCount = spaceElements.size();
+            int whiteSpaceCount = lastLine.getBufferSequence().length() - 1;
             if (delegate.getTokenType() == null) {
                 while (indentStack.size() > 0) {
                     indentStack.pop();
@@ -114,7 +111,7 @@ public class NimIndentationLexer extends LexerBase {
                         dumpAllButLastTokens(spaces, newLines);
                     }
                     elements.offer(
-                            new StackElement(lastLine.getState(), INDENT, lastLine.getStart(), spaceElements.get(spaceElements.size() -1).getEnd())
+                            new StackElement(lastLine.getState(), INDENT, lastLine.getStart(), lastLine.getStart())
                     );
                     elements.offer(new StackElement(delegate));
                     this.indentStack.push(whiteSpaceCount - previousSignificantSpace);

@@ -129,7 +129,7 @@
     EXAMPLE = '<example>'
     SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
-  extends("(Or|And|Add|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
+  extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(Expression|OperandName|Literal)")=Expression
     extends(".*Statement")=Statement
 }
@@ -140,7 +140,7 @@ private TopLevel ::= TopDeclaration|<<isNotInType>>Statement
 
 Indentation ::= INDENT <<increaseIndent>>
 Dedentation ::= DEDENT <<decreaseIndent>>
-Statement ::= <<isNotInType>>( VarDeclaration| SimpleStatement| ReturnStatement | WhileStatement| IfStatement)
+Statement ::= <<isNotInType>>( VarDeclaration| SimpleStatement| ReturnStatement | WhileStatement| IfStatement|ForStatement)
 
 ReturnStatement ::= RETURN SimpleStatement?
 VarDeclaration ::= (VAR|LET|CONST) Indentation? ( VarSpec |  VarSpecs?  ) Dedentation?
@@ -157,8 +157,8 @@ VarDefinition ::= IDENTIFIER Pragma?
 
 
 
-WhileStatement ::= (WHILE|FOR) Expression SINGLE_COLON Indentation Statement* Dedentation
-
+WhileStatement ::= WHILE Expression SINGLE_COLON Indentation Statement* Dedentation
+ForStatement ::= FOR (Expression COMMA)? Expression SINGLE_COLON Indentation Statement* Dedentation
 IfStatement ::= Ifs
 private Ifs ::= IfBlockStatement
 
@@ -171,11 +171,11 @@ TopDeclaration ::= TypeBlock | <<isNotInType>> MethodTypes
 
 TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
 
-private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement)* Dedentation)
+private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement)* Dedentation?)
 
 TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentation?
 
-Parameters ::= PARAN_OPEN (Parameter (COMMA Parameter)*)? PARAN_CLOSE
+Parameters ::= PARAN_OPEN (Parameter (COMMA Parameter | &PARAN_CLOSE)*)? PARAN_CLOSE
 
 ParameterDefault ::= EQUAL? Expression
 
@@ -183,10 +183,12 @@ ReturnType ::= SINGLE_COLON IDENTIFIER Generics?
 
 Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
 
-ParamterNames ::= IDENTIFIER (COMMA IDENTIFIER)*
-Parameter ::=ParamterNames (SINGLE_COLON? VAR? ParameterType? Generics? Pragma? ParameterDefault?)?
+// For this: template sortedByIt*(seq1, op: untyped)
+ParameterNames ::= IDENTIFIER (COMMA IDENTIFIER)*
 
-private ParameterType ::= Closure | IDENTIFIER
+Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? Pragma? ParameterDefault?)?
+
+private ParameterType ::= Closure | Expression |  IDENTIFIER
 
 Closure ::= PROC Parameters  ReturnType? Pragma?
 private MethodTypes ::=
@@ -243,23 +245,23 @@ private ExpressionList ::= Expression (COMMA (Expression))*
 
 
 Expression ::=
-    AndExpression
+    AtExpression
+    | AndExpression
     | OrExpression
     | ConditionalExpression
     | MultiplyExpression
     | AddExpression
     | SpreadExpression
     | UnaryExpression
+    | ProcExpression
     | MaxGroup
     | Op7Expression
     | IfExpression
-    | ProcExpression
-   // | KWExpression
+
     | ParanExpression
 
-ProcExpression ::= ProcedureMethod
+ProcExpression ::= ProcedureMethod { extends=Expression}
 IfExpression ::= IF ConditionalExpression SINGLE_COLON  (RETURN | Expression)
-private KWExpression ::= RETURN
 private MaxGroup ::= OperandName
 | IndexOrSliceExpression
 | CallExpression
@@ -268,12 +270,13 @@ private MaxGroup ::= OperandName
 
 
 AndExpression ::= Expression OP6 Expression
+AtExpression ::= AT Expression
 SpreadExpression ::= Expression OP4 Expression
 OrExpression ::= Expression OR Expression
 ConditionalExpression ::= Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
 AddExpression ::= Expression OP2 Expression
-ParanExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
+ParanExpression ::= !Expression PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression

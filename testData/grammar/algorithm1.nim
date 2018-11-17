@@ -1,2 +1,5 @@
-proc sort*[T](a: var openArray[T], order = SortOrder.Ascending) = sort[T](a, system.cmp[T], order)
-  ## Shortcut version of ``sort`` that uses ``system.cmp[T]`` as the comparison function.
+
+template sortedByIt*(seq1, op: untyped): untyped =
+  var result = sorted(seq1, proc(x, y: type(seq1[0])): int =
+    result = cmp(a, b))
+  result
