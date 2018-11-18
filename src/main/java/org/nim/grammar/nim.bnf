@@ -171,7 +171,7 @@ TopDeclaration ::= TypeBlock | <<isNotInType>> MethodTypes
 
 TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
 
-private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement)* Dedentation?)
+private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement)* Dedentation)
 
 TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentation?
 
@@ -236,7 +236,7 @@ SimpleStatement ::= UMethodExpressionOrLeftHand
 
 private UMethodExpressionOrLeftHand ::= LeftHandExprList [AssignmentStatement | SimpleStatement]
 
-left AssignmentStatement ::= EQUAL ExpressionList
+left AssignmentStatement ::= MINUS? EQUAL ExpressionList
 LeftHandExprList ::= ExpressionList
 
 
@@ -275,7 +275,7 @@ SpreadExpression ::= Expression OP4 Expression
 OrExpression ::= Expression OR Expression
 ConditionalExpression ::= Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
-AddExpression ::= Expression OP2 Expression
+AddExpression ::= Expression OP2 EQUAL? Expression
 ParanExpression ::= !Expression PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE

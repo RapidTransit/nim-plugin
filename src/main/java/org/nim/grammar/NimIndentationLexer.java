@@ -40,15 +40,16 @@ public class NimIndentationLexer extends LexerBase {
     private int previousSignificantSpace = 0;
     private final Lexer delegate;
     private StackElement token;
-
-
+    private boolean first = true;
+    private boolean end = false;
     public NimIndentationLexer(NimLexer original) {
         delegate = new FlexAdapter(original);
     }
 
     @Override
     public void advance() {
-        if(elements.isEmpty()){
+
+        if(elements.isEmpty() && !end){
             tryToAddToStack();
         }
         this.token = elements.poll();
@@ -61,57 +62,64 @@ public class NimIndentationLexer extends LexerBase {
         delegate.advance();
         if(delegate.getTokenType() == CRLF && delegate.getState() != NimLexer.CALLABLE_ARGUMENTS) {
             StackElement holder = new StackElement(delegate);
-            List<List<StackElement>> spaces = new ArrayList<>();
-            List<StackElement> newLines = new ArrayList<>();
 
+            List<StackElement> nonSignificantTokens = new ArrayList<>();
+            int ws = 0;
             while (delegate.getTokenType() == CRLF){
                 holder = new StackElement(delegate);
-                newLines.add(holder);
-                List<StackElement> stack = new ArrayList<>();
-                spaces.add(stack);
+                nonSignificantTokens.add(holder);
+
                 delegate.advance();
-                while (delegate.getTokenType() == DOC_RUNNABLE
+                ws = 0;
+                while ( delegate.getTokenType() == WHITE_SPACE
+                        || delegate.getTokenType() == DOC_RUNNABLE
                         || delegate.getTokenType() == SINGLE_LINE_COMMENT
                         || delegate.getTokenType() == EXAMPLE){
-                    stack.add(new StackElement(delegate));
+                    if(delegate.getTokenType() == WHITE_SPACE){
+                        ws = delegate.getTokenEnd() - delegate.getTokenStart();
+                    }
+                    nonSignificantTokens.add(new StackElement(delegate));
                     delegate.advance();
                 }
 
             }
-            StackElement lastLine = newLines.get(newLines.size() - 1);
-            List<StackElement> spaceElements = spaces.get(newLines.size() - 1);
-            int whiteSpaceCount = lastLine.getBufferSequence().length() - 1;
+            StackElement lastToken = nonSignificantTokens.get(nonSignificantTokens.size() - 1);
+
+            int whiteSpaceCount = ws;
+            logger.info("White Space Count: " + ws);
             if (delegate.getTokenType() == null) {
+                logger.info("Reached the end");
+                logger.info("Stack Size: " + indentStack.size());
                 while (indentStack.size() > 0) {
+
                     indentStack.pop();
-                    elements.offer(new StackElement(holder.getState(), DEDENT, holder.getEnd(), holder.getEnd()));
+                    logger.info("Stack Size: " + indentStack.size());
+                    elements.offer(new StackElement(lastToken.getState(), DEDENT, lastToken.getStart()));
                 }
             } else { // Need to Add Last Token
                 if (previousSignificantSpace == whiteSpaceCount) {
-                    dumpTokens(spaces, newLines);
+                    dumpTokens(nonSignificantTokens);
                     elements.offer(new StackElement(delegate));
                 } else if (previousSignificantSpace > whiteSpaceCount) {
-                    if(newLines.size() > 1){
-                        dumpTokens(spaces, newLines);
+                    logger.info("More Previous Significant Space, previous: " + previousSignificantSpace);
+                    if(nonSignificantTokens.size() > 1){
+                        dumpTokens(nonSignificantTokens);
                     }
-                    if(spaceElements.isEmpty()){
-                        holder = lastLine;
-                    } else {
-                        holder = spaceElements.get(spaceElements.size() - 1);
-                    }
+
                     int previous = previousSignificantSpace;
                     while (previous > whiteSpaceCount) {
+                        logger.info("Adding Dedent, previous: "+ previous);
                         previous = previous - indentStack.pop();
-                        elements.offer(new StackElement(holder.getState(), DEDENT, holder.getEnd(), holder.getEnd()));
+                        elements.offer(new StackElement(lastToken.getState(), DEDENT, lastToken.getEnd()));
                     }
                     elements.offer(new StackElement(delegate));
                     this.previousSignificantSpace = previous;
                 } else {
-                    if(newLines.size() > 1){
-                        dumpAllButLastTokens(spaces, newLines);
+                    if(nonSignificantTokens.size() > 1){
+                        dumpTokens(nonSignificantTokens);
                     }
                     elements.offer(
-                            new StackElement(lastLine.getState(), INDENT, lastLine.getStart(), lastLine.getStart())
+                            new StackElement(lastToken.getState(), INDENT, lastToken.getEnd())
                     );
                     elements.offer(new StackElement(delegate));
                     this.indentStack.push(whiteSpaceCount - previousSignificantSpace);
@@ -122,67 +130,64 @@ public class NimIndentationLexer extends LexerBase {
             }
 
         } else if(delegate.getTokenType() == null){
+            end = true;
+            logger.info("Reached the end");
+            logger.info("Stack Size: " + indentStack.size());
                 while(indentStack.size() > 0) {
+
                     indentStack.pop();
-                    elements.offer(new StackElement(0, DEDENT, getTokenEnd(), getTokenEnd()));
+                    logger.info("Stack Size: " + indentStack.size());
+                    elements.offer(new StackElement(0, DEDENT, getTokenEnd()));
                 }
         } else {
             elements.offer(new StackElement(delegate));
         }
     }
 
-    private void dumpTokens(List<List<StackElement>> spaces, List<StackElement> newLines) {
-        int i = 0;
-        for(List<StackElement> _spaces : spaces){
-            elements.offer(newLines.get(i++));
-            _spaces.forEach(elements::offer);
-        }
-    }
-
-    private void dumpAllButLastTokens(List<List<StackElement>> spaces, List<StackElement> newLines) {
-        dumpTokens(spaces.subList(0, spaces.size() - 1), newLines.subList(0, newLines.size()- 1));
+    private void dumpTokens(List<StackElement> newLines) {
+        elements.addAll(newLines);
     }
 
 
     @Override
     public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
         delegate.start(buffer, startOffset, endOffset, initialState);
+
     }
 
     @Override
     public int getState() {
-        return token.getState();
+
+        return  /** token == null ? delegate.getState() :*/ token.getState();
     }
 
     @Override
     public IElementType getTokenType() {
+
         if(token != null){
             return token.getType();
         } else {
-            final IElementType tokenType = delegate.getTokenType();
-            if(tokenType != null){
-                token = new StackElement(delegate);
-                return tokenType;
-            }
-            return null;
-        }
+        return delegate.getTokenType();
+    }
     }
 
     @Override
     public int getTokenStart() {
-        return  token.getStart();
+        return token == null ? delegate.getTokenStart() :  token.getStart();
     }
 
     @Override
     public int getTokenEnd() {
-        return token.getEnd();
+        return token == null ? delegate.getTokenEnd() : token.getEnd();
     }
 
 
     @NotNull
     @Override
     public CharSequence getTokenSequence() {
-        return delegate.getBufferSequence().subSequence(token.getStart(), token.getEnd());
+        return token == null ?
+                delegate.getBufferSequence().subSequence(delegate.getTokenStart(), delegate.getTokenEnd())
+                : delegate.getBufferSequence().subSequence(token.getStart(), token.getEnd());
     }
 
 

@@ -14,7 +14,7 @@ import static org.nim.psi.NimTokenTypes.*;
 %{
 
     protected int parenthesisBalance = 0;
-    protected int previousState = YYINITIAL;
+    protected int previousState = START;
     protected int runnableSpaces = 0;
     protected int spaces = 0;
 
@@ -132,8 +132,8 @@ import static org.nim.psi.NimTokenTypes.*;
     IS="is"
     ISNOT="isnot"
     ITERATOR="iterator"
-    LET="let"
-    MACRO="macro"
+
+
     METHOD="method"
     MIXIN="mixin"
     MOD="mod"
@@ -154,12 +154,12 @@ import static org.nim.psi.NimTokenTypes.*;
     STATIC="static"
     TEMPLATE="template"
     TRY="try"
-    TUPLE="tuple"
+
     TYPE="type"
     USING="using"
     VAR="var"
     WHEN="when"
-    WHILE="while"
+
     XOR="xor"
     YIELD="yield"
     PARAN_DOT_OPEN ="(."
@@ -177,12 +177,12 @@ import static org.nim.psi.NimTokenTypes.*;
     COMMA=","
     SEMI_COLON=";"
     DOUBLE_COLON="::"
-    SINGLE_COLON=":"
+    SINGLE_COLON=":"        LOG.
     EQUAL="="
     COMPARISON=[>|<]=?
     DOUBLE_DOT=".."
     DOT="."
-    BRACKET_COLON="[:"
+
     BACK_TICK_IDENTIFIER=[^`]*
     BACK_TICK="`"
     STAR="*"
@@ -199,38 +199,47 @@ import static org.nim.psi.NimTokenTypes.*;
 
 
 
-%state SHOULD_PUSHBACK  CALLABLE RUNNABLE_EXAMPLE CALLABLE_BACK_TICK CALLABLE_ARGUMENTS IN_STRING IN_TRIPLE_STRING COMMENT MULTILINE_COMMENT
+%state START SHOULD_PUSHBACK  CALLABLE RUNNABLE_EXAMPLE CALLABLE_BACK_TICK CALLABLE_ARGUMENTS IN_STRING IN_TRIPLE_STRING COMMENT MULTILINE_COMMENT
 
 %%
 //Reset Spaces
 
-//<YYINITIAL>{
-//      . {
-//     if(!zzAtEOF){
-//           yybegin(this.previousState);
-//           yypushback(1);
-//       }
-//    }
-//}
 
 
-<YYINITIAL,  CALLABLE, RUNNABLE_EXAMPLE, CALLABLE_ARGUMENTS> {
 
-    {CRLF} " "*  {
-//          if(YYINITIAL != yystate()){
-//              //We want to be able to pop back to the previous state
-//            this.previousState = yystate();
-//          }
-          this.spaces = yylength() - 1;
+
+<YYINITIAL, START, CALLABLE, RUNNABLE_EXAMPLE, CALLABLE_ARGUMENTS> {
+
+    {CRLF} {
+          this.spaces = 0;
+          if(YYINITIAL != yystate()){
+              //We want to be able to pop back to the previous state
+            this.previousState = yystate();
+          }
           yybegin(YYINITIAL);
           return CRLF;
       }
-
 }
+
+
  //For Indent Couting
 
+<YYINITIAL>{
+    " "+ {
+            this.spaces = yylength();
+            return WHITE_SPACE;
+        }
+    . {
 
-<YYINITIAL> {
+     if(!zzAtEOF){
+           yybegin(this.previousState);
+           yypushback(1);
+       }
+
+
+  }
+  }
+<START> {
     "runnableExamples:" {
           yybegin(RUNNABLE_EXAMPLE);
           this.runnableSpaces = this.spaces;
@@ -340,6 +349,7 @@ import static org.nim.psi.NimTokenTypes.*;
     ";" {return SEMI_COLON;}
     "::" {return DOUBLE_COLON;}
     ":" {return SINGLE_COLON;}
+         "==" {return EQUALS; }
     "=" {return EQUAL;}
     ".." {return DOUBLE_DOT;}
     "." {return DOT;}
@@ -355,7 +365,7 @@ import static org.nim.psi.NimTokenTypes.*;
 
     "<=" {return LT_EQUAL;}
     ">=" {return GT_EQUAL;}
-    "==" {return EQUALS; }
+
     {IDENTIFIER} {return IDENTIFIER;}
 
 }
@@ -373,7 +383,7 @@ import static org.nim.psi.NimTokenTypes.*;
     {STAR} {return STAR;}
     {CURLY_DOT_OPEN} {return CURLY_DOT_OPEN; }
     {CURLY_DOT_CLOSE} {return CURLY_DOT_CLOSE; }
-    {EQUAL} { yybegin(YYINITIAL); return EQUAL;}
+    {EQUAL} { yybegin(START); return EQUAL;}
     {WHITE_SPACE} {return WHITE_SPACE;}
 }
 <CALLABLE_ARGUMENTS>{
@@ -422,7 +432,7 @@ import static org.nim.psi.NimTokenTypes.*;
 <RUNNABLE_EXAMPLE> {
     [^\n]* {
           if(spaces <= this.runnableSpaces){
-              this.previousState = YYINITIAL;
+              this.previousState = START;
               yybegin(YYINITIAL);
               yypushback(yylength());
           } else {

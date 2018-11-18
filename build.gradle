@@ -99,7 +99,6 @@ tasks.withType(Test) {
 
 task generateNimLexer(type: GenerateLexer) {
     // source flex file
-    println(System.getProperty('os.name'))
     File rootSrc = project.sourceSets.main.java.srcDirs[0];
     source = new File(rootSrc, "org/nim/grammar/nim.flex").path
 
