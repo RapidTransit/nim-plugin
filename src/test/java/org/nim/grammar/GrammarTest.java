@@ -30,7 +30,13 @@ public class GrammarTest extends ParsingTestCase {
     public void testReverse(){
         doTest(true);
     }
+    public void testLogging(){
+        doTest(true);
+    }
 
+    public void testMarshal(){
+        doTest(true);
+    }
     public void testTemplate(){
         doTest(true);
     }

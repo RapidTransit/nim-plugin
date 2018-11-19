@@ -23,11 +23,30 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return true;
     }
 
+
+
     public static boolean beginTypeBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
         parserData.blocks.push(new Block(BlockType.TYPE, parserData.indent));
         return true;
     }
+
+    public static boolean startProcExpression(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        parserData.inProcExpression = true;
+        return true;
+    }
+
+    public static boolean endProcExpression(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        parserData.inProcExpression = false;
+        return true;
+    }
+    public static boolean inProcExpression(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        return parserData.inProcExpression;
+    }
+
 
     public static boolean endTypeBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
@@ -102,7 +121,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         private int indent;
         private Deque<Block> blocks = new ArrayDeque<>();
         TObjectIntHashMap<String> flags = new TObjectIntHashMap<>();
-
+        private boolean inProcExpression;
     }
 
     protected static class Block implements Serializable {

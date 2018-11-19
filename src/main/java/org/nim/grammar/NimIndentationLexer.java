@@ -158,7 +158,7 @@ public class NimIndentationLexer extends LexerBase {
     @Override
     public int getState() {
 
-        return  /** token == null ? delegate.getState() :*/ token.getState();
+        return   token == null ? delegate.getState() : token.getState();
     }
 
     @Override

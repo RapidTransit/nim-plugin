@@ -79,7 +79,7 @@ import static org.nim.psi.NimTokenTypes.*;
 
     _READABLE_DEC = {DEC_DIGIT} ("_"? {DEC_DIGIT})*
 
-    FLOAT_LIT = {_READABLE_DEC} ("." {_READABLE_DEC}*) {EXPONENT}
+    FLOAT_LIT = {_READABLE_DEC} ("."  {_READABLE_DEC}+) {EXPONENT}?
 
     _HEX_FLOAT = {HEX_LIT} "'"
     _NON_HEX_FLOAT = ({FLOAT_LIT} | {DEC_LIT} | {OCT_LIT} | {BIN_LIT}) "'"?
@@ -261,6 +261,7 @@ import static org.nim.psi.NimTokenTypes.*;
     {UINT32_LIT} {return UINT32_LIT;}
     {UINT64_LIT} {return UINT64_LIT;}
     {INT_LIT} {return INT_LIT; }
+      {DOUBLE_QUOTED_LITERAL} {return DOUBLE_QUOTED_LITERAL;}
     {RAW_STRING} {return RAW_STRING;}
     {BLOCK_COMMENT_START} {return BLOCK_COMMENT_START;}
     {BLOCK_COMMENT_END} {return BLOCK_COMMENT_END;}
@@ -349,7 +350,9 @@ import static org.nim.psi.NimTokenTypes.*;
     ";" {return SEMI_COLON;}
     "::" {return DOUBLE_COLON;}
     ":" {return SINGLE_COLON;}
-         "==" {return EQUALS; }
+      "-=" {return MINUS_ASSIGN; }
+      "+=" {return PLUS_ASSIGN; }
+    "==" {return EQUALS; }
     "=" {return EQUAL;}
     ".." {return DOUBLE_DOT;}
     "." {return DOT;}
@@ -378,7 +381,7 @@ import static org.nim.psi.NimTokenTypes.*;
     {BRACKET_CLOSE} {return BRACKET_CLOSE;}
     {PARAN_OPEN} {parenthesisBalance++; yybegin(CALLABLE_ARGUMENTS); return PARAN_OPEN; }
     {PARAN_CLOSE} {return PARAN_CLOSE; }
-    {SINGLE_COLON} {return SINGLE_COLON;}
+    ":" {return SINGLE_COLON;}
       "," {return COMMA;}
     {STAR} {return STAR;}
     {CURLY_DOT_OPEN} {return CURLY_DOT_OPEN; }
@@ -403,9 +406,10 @@ import static org.nim.psi.NimTokenTypes.*;
     {INT_LIT} {return INT_LIT; }
     {WHITE_SPACE} {return WHITE_SPACE;}
     {PROC} {return PROC;}
-    {BRACKET_OPEN} {return BRACKET_OPEN;}
-    {BRACKET_CLOSE} {return BRACKET_CLOSE;}
-    {COMMA} {return COMMA; }
+    "[" {return BRACKET_OPEN;}
+    "]" {return BRACKET_CLOSE;}
+    ";" {return SEMI_COLON;}
+    "," {return COMMA; }
     {PARAN_OPEN} { parenthesisBalance++; return PARAN_OPEN; }
           {CURLY_DOT_OPEN} {return CURLY_DOT_OPEN; }
           {CURLY_DOT_CLOSE} {return CURLY_DOT_CLOSE; }
@@ -416,9 +420,9 @@ import static org.nim.psi.NimTokenTypes.*;
           }
           return PARAN_CLOSE;
       }
-    {SINGLE_COLON} {return SINGLE_COLON;}
+    ":" {return SINGLE_COLON;}
       "." {return DOT;}
-    {VAR} {return VAR; }
+    "var" {return VAR; }
     {EQUAL} {return EQUAL; }
     {IDENTIFIER} {return IDENTIFIER;}
 }
