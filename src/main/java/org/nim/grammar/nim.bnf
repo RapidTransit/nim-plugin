@@ -132,17 +132,38 @@
   extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(Expression|OperandName|Literal)")=Expression
     extends(".*Statement")=Statement
+    generateTokenAccessors=true
+
+        consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
 }
 
 File ::= <<beginParsing>> (!<<eof>> TopLevel)* <<eof>>?
 
 private TopLevel ::= ImportSection|TopDeclaration|<<isNotInType>>Statement
 
-ImportSection ::= IMPORT IDENTIFIER (COMMA IDENTIFIER)*
+private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
+
+Symbol ::=
+    BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK
+    | IDENTIFIER
+
+
+
+
+private ImportSymbol ::=
+    Symbol (PathSeparator Symbol)*
+    | StringLiteral
+
+private ImportOrImportAs ::= ImportSymbol [AS IDENTIFIER]
+
+ImportSection ::=
+    IMPORT ImportOrImportAs (COMMA ImportOrImportAs)*
+    | IMPORT ImportOrImportAs EXCEPT ImportSymbol (COMMA ImportSymbol)*
+    | FROM ImportOrImportAs IMPORT ImportSymbol (COMMA ImportSymbol)*
 
 Indentation ::= INDENT <<increaseIndent>>
 Dedentation ::= DEDENT <<decreaseIndent>>
-Statement ::= <<isNotInType>>( ImportSection | VarDeclaration| SimpleStatement| ReturnStatement | WhileStatement | IfStatement|ForStatement)
+Statement ::= <<isNotInType>> (ImportSection | VarDeclaration| SimpleStatement| ReturnStatement | WhileStatement | IfStatement|ForStatement)
 
 ReturnStatement ::= RETURN SimpleStatement?
 VarDeclaration ::=
@@ -151,21 +172,23 @@ VarDeclaration ::=
     | CONST Vars
 
 private Vars ::=
-    (Indentation  VarSpec+   Dedentation)
-    | ( VarSpec+  )
+    (Indentation  VarAssignment+   Dedentation)
+    | ( VarAssignment+  )
 
 
 
-VarSpec ::= VarDefinitionList  VarDec
+VarAssignment ::= VarDefinitionList  VarDec
+
 
 private VarDec ::=
-    (SINGLE_COLON IDENTIFIER)
+
+     (SINGLE_COLON IDENTIFIER BRACKET_OPEN ExpressionList BRACKET_CLOSE EQUAL ExpressionList)
     | (SINGLE_COLON IDENTIFIER EQUAL ExpressionList )
+    | (SINGLE_COLON IDENTIFIER)
     | EQUAL ExpressionList
 
-private VarDefinitionList ::= VarDefinition ( COMMA VarDefinition )*
-
-VarDefinition ::= IDENTIFIER Pragma?
+private VarDefinitionList ::= <<Commas VarDefinition >>
+VarDefinition ::= IDENTIFIER Pragma? STAR?
 
 WhileStatement ::= WHILE Expression SINGLE_COLON Indentation Statement* Dedentation
 ForStatement ::= FOR Expression [COMMA Expression] SINGLE_COLON Indentation Statement* Dedentation
@@ -191,22 +214,24 @@ Parameters ::= PParameters
 
 private PParameters ::=
 (PARAN_OPEN PARAN_CLOSE)
-| PARAN_OPEN (Parameter ((SEMI_COLON|COMMA) Parameter | &PARAN_CLOSE)*) PARAN_CLOSE
+| PARAN_OPEN (Parameter (S_or_C Parameter | &PARAN_CLOSE)*) PARAN_CLOSE
 
 ParameterDefault ::= EQUAL? Expression
 
-ReturnType ::= SINGLE_COLON IDENTIFIER Generics?
+MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
 
+private OptionalPragma ::= Pragma?
 Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
 
 // For this: template sortedByIt*(seq1, op: untyped)
-ParameterNames ::= IDENTIFIER (COMMA IDENTIFIER)*
+ParameterNames ::= <<Commas IDENTIFIER>>
 
-Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? Pragma? ParameterDefault?)?
+Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? OptionalPragma ParameterDefault?)?
+
 
 private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
 
-Closure ::= PROC Parameters  ReturnType? Pragma?
+Closure ::= PROC Parameters  MemberTypeAssignment? Pragma?
 private MethodTypes ::=
     ProcedureMethod
     | TemplateMethod
@@ -214,7 +239,7 @@ private MethodTypes ::=
 
 
 
-private Signature ::= IdentifierOrOperator? STAR? Generics? Parameters ReturnType? Pragma? EQUAL
+private Signature ::= IdentifierOrOperator? STAR? Generics? Parameters MemberTypeAssignment? Pragma? EQUAL
 
 ProcedureMethod ::= PROC Signature MethodBody
 FuncMethod ::= FUNC Signature MethodBody
@@ -227,7 +252,7 @@ private IdentifierOrOperator ::= IDENTIFIER | (BACK_TICK BACK_TICK_IDENTIFIER BA
 
 private Types ::= EnumDeclaration | ObjectType
 
-ObjectType ::= REF? (OBJECT | OperandName)  Indentation? ObjectFields+
+ObjectType ::= REF? (OBJECT  OF? OperandName | OperandName)  Indentation? ObjectFields+
 
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName
@@ -239,11 +264,11 @@ Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
 SignedInteger ::= INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
 
-ArrayLiteral ::= BRACKET_OPEN (Expression (COMMA Expression)*)? BRACKET_CLOSE
+ArrayLiteral ::= BRACKET_OPEN << OptionalIndent (Expression (COMMA Expression)*) >>? BRACKET_CLOSE
 
 OperandName ::= ReferenceExpression QualifiedReferenceExpression? {elementType=ReferenceExpression}
 left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=ReferenceExpression}
-ReferenceExpression::= IDENTIFIER { extends=Expression}
+ReferenceExpression ::= IDENTIFIER { extends=Expression}
 
 StringLiteral ::= DoubleQuotedStringLiteral | RawStringLiteral | TripleQuoteStringLiteral
 
@@ -276,6 +301,7 @@ Expression ::=
     AtExpression
     | AndExpression
     | OrExpression
+    | UranaryConditionalExpression
     | ConditionalExpression
     | MultiplyExpression
     | AddExpression
@@ -296,8 +322,8 @@ private MaxGroup ::= OperandName
 | Literal
 
 
-private ConditionalsExpression ::=
-    
+
+
 
 AndExpression ::= Expression OP6 Expression
 AtExpression ::= AT Expression
@@ -313,6 +339,11 @@ IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
 CallExpression ::= Expression Generics? ArgumentList
 ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionArgList? <<exitModeSafe "CALL">> PARAN_CLOSE
+
+meta OptionalIndent ::= (INDENT <<p>> DEDENT) | <<p>>
+meta Commas ::= <<p>> (COMMA <<p>>)*
+private S_or_C ::= SEMI_COLON | COMMA
+
 Operator ::=
     OP0
     | OP1

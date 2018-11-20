@@ -24,11 +24,31 @@ import static org.nim.psi.NimTokenTypes.*;
 
 %}
 
+    /**
+    Nim allows user defined operators. An operator is any combination of the following characters:
+
+    =     +     -     *     /     <     >
+    @     $     ~     &     %     |
+    !     ?     ^     .     :     \
+     */
+    OP_SYMBOLS =  [\+\-\*\<\>\@\$\~\&\%\|\!\?\^\.\:\\\=]
+
+    /**
+    Operators ending in either ->, ~> or => are called arrow like, and have the lowest precedence of all operators.
+     */
+    ARROW_LIKE = {OP_SYMBOLS}* [\-\~\=] ">" // Lowest Precedence
+
+    /**
+    If the operator ends with = and its first character is none of <, >, !, =, ~, ?, it is an assignment operator which
+    has the second lowest precedence.
+     */
+    ASSIGNMENT_LIKE = ([[\+\-\*\<\>\@\$\~\&\%\|\!\?\^\.\:\\\=] -- [\>\<\!\=\~\?]])? "="
+
     _LETTER = [a-zA-Z\u8000-\uFF00]
     ONE_NL = \R                                                        // NewLines
-    _WHITE_SPACE = " " | \t | \f | \\ {ONE_NL}
-    STRING_ESC = \\ [^] | \\ ({WHITE_SPACE})+ (\n|\r)
-    DOUBLE_QUOTED_CONTENT = {STRING_ESC} | [^\"\\$\n\r]
+
+    STRING_ESC = \\ [^] | \\(\n|\r)
+    DOUBLE_QUOTED_CONTENT = {STRING_ESC} | [^\"\n\r]
     DOUBLE_QUOTED_LITERAL = \" {DOUBLE_QUOTED_CONTENT}* \"
     STRING_NL = {ONE_NL}
     TRIPLE_DOUBLE_QUOTED_CONTENT = {DOUBLE_QUOTED_CONTENT} | {STRING_NL} | \"(\")?[^\"\\$]
@@ -177,7 +197,7 @@ import static org.nim.psi.NimTokenTypes.*;
     COMMA=","
     SEMI_COLON=";"
     DOUBLE_COLON="::"
-    SINGLE_COLON=":"        LOG.
+    SINGLE_COLON=":"
     EQUAL="="
     COMPARISON=[>|<]=?
     DOUBLE_DOT=".."
@@ -199,7 +219,7 @@ import static org.nim.psi.NimTokenTypes.*;
 
 
 
-%state START SHOULD_PUSHBACK  CALLABLE RUNNABLE_EXAMPLE CALLABLE_BACK_TICK CALLABLE_ARGUMENTS IN_STRING IN_TRIPLE_STRING COMMENT MULTILINE_COMMENT
+%state START SHOULD_PUSHBACK  CALLABLE RUNNABLE_EXAMPLE NON_CALLABLE_BACK_TICK CALLABLE_BACK_TICK CALLABLE_ARGUMENTS IN_STRING IN_TRIPLE_STRING COMMENT MULTILINE_COMMENT
 
 %%
 //Reset Spaces
@@ -246,7 +266,8 @@ import static org.nim.psi.NimTokenTypes.*;
           return EXAMPLE;
       }
     {WHITE_SPACE} {return WHITE_SPACE;}
-    "proc" {yybegin(CALLABLE); return PROC;}
+
+    //Numbers
     {FLOAT_LIT} {return FLOAT_LIT;}
     {FLOAT32_LIT} {return FLOAT32_LIT;}
     {FLOAT64_LIT} {return FLOAT64_LIT;}
@@ -254,21 +275,21 @@ import static org.nim.psi.NimTokenTypes.*;
     {INT16_LIT} {return INT16_LIT;}
     {INT32_LIT} {return INT32_LIT;}
     {INT64_LIT} {return INT64_LIT;}
-    {STAR} {return STAR;}
+
     {UINT_LIT} {return UINT_LIT;}
     {UINT8_LIT} {return UINT8_LIT;}
     {UINT16_LIT} {return UINT16_LIT;}
     {UINT32_LIT} {return UINT32_LIT;}
     {UINT64_LIT} {return UINT64_LIT;}
     {INT_LIT} {return INT_LIT; }
-      {DOUBLE_QUOTED_LITERAL} {return DOUBLE_QUOTED_LITERAL;}
-    {RAW_STRING} {return RAW_STRING;}
-    {BLOCK_COMMENT_START} {return BLOCK_COMMENT_START;}
-    {BLOCK_COMMENT_END} {return BLOCK_COMMENT_END;}
-    ">" {return GREATER_THAN;}
-    "<" {return LESS_THAN;}
+
+    // Comments
+    "[#" {return BLOCK_COMMENT_START;}
+    "#]" {return BLOCK_COMMENT_END;}
     {SINGLE_LINE_COMMENT} {return SINGLE_LINE_COMMENT;}
-    //"addr" {return ADDR;}
+
+    //Keywords
+    "addr" {return IDENTIFIER;}
     "and" {return AND;}
     "as" {return AS;}
     "asm" {return ASM;}
@@ -316,6 +337,7 @@ import static org.nim.psi.NimTokenTypes.*;
     "of" {return OF;}
     "or" {return OR;}
     "out" {return OUT;}
+    "proc" {yybegin(CALLABLE); return PROC;}
     "ptr" {return PTR;}
     "raise" {return RAISE;}
     "ref" {return REF;}
@@ -333,6 +355,8 @@ import static org.nim.psi.NimTokenTypes.*;
     "while" {return WHILE;}
     "xor" {return XOR;}
     "yield" {return YIELD;}
+    ">" {return GREATER_THAN;}
+    "<" {return LESS_THAN;}
      "!=" {return NOT_EQUAL;}
     "(." {return PARAN_DOT_OPEN;}
     ".)" {return PARAN_DOT_CLOSE;}
@@ -350,43 +374,49 @@ import static org.nim.psi.NimTokenTypes.*;
     ";" {return SEMI_COLON;}
     "::" {return DOUBLE_COLON;}
     ":" {return SINGLE_COLON;}
-      "-=" {return MINUS_ASSIGN; }
-      "+=" {return PLUS_ASSIGN; }
+    "-=" {return MINUS_ASSIGN; }
+    "+=" {return PLUS_ASSIGN; }
     "==" {return EQUALS; }
     "=" {return EQUAL;}
     ".." {return DOUBLE_DOT;}
     "." {return DOT;}
     "[:" {return BRACKET_COLON;}
     "~" {return TILDE;}
-{TRIPLE_DOUBLE_QUOTED_LITERAL} {return TRIPLE_DOUBLE_STR; }
+    "*" {return STAR;}
+
     "-" {return MINUS;}
     "+" {return PLUS;}
     "|" {return OP_OR;}
     "&" {return AMP;}
     "$" {return DOLLAR;}
     "@" {return AT;}
-
+    "`" {yybegin(NON_CALLABLE_BACK_TICK); return BACK_TICK;}
     "<=" {return LT_EQUAL;}
     ">=" {return GT_EQUAL;}
+
+    // String literals
+    {DOUBLE_QUOTED_LITERAL} {return DOUBLE_QUOTED_LITERAL;}
+    {RAW_STRING} {return RAW_STRING;}
+    {TRIPLE_DOUBLE_QUOTED_LITERAL} {return TRIPLE_DOUBLE_STR; }
 
     {IDENTIFIER} {return IDENTIFIER;}
 
 }
 
 <CALLABLE>{
-    {PROC} {return PROC;}
-    {BACK_TICK} {yybegin(CALLABLE_BACK_TICK); return BACK_TICK;}
+    "proc" {return PROC;}
+    "`" {yybegin(CALLABLE_BACK_TICK); return BACK_TICK;}
     {IDENTIFIER} {return IDENTIFIER;}
-    {BRACKET_OPEN} {  return BRACKET_OPEN;}
-    {BRACKET_CLOSE} {return BRACKET_CLOSE;}
-    {PARAN_OPEN} {parenthesisBalance++; yybegin(CALLABLE_ARGUMENTS); return PARAN_OPEN; }
-    {PARAN_CLOSE} {return PARAN_CLOSE; }
+    "[" {  return BRACKET_OPEN;}
+    "]" {return BRACKET_CLOSE;}
+    "(" {parenthesisBalance++; yybegin(CALLABLE_ARGUMENTS); return PARAN_OPEN; }
+    ")" {return PARAN_CLOSE; }
     ":" {return SINGLE_COLON;}
       "," {return COMMA;}
-    {STAR} {return STAR;}
-    {CURLY_DOT_OPEN} {return CURLY_DOT_OPEN; }
-    {CURLY_DOT_CLOSE} {return CURLY_DOT_CLOSE; }
-    {EQUAL} { yybegin(START); return EQUAL;}
+    "*" {return STAR;}
+    "{." {return CURLY_DOT_OPEN; }
+    ".}" {return CURLY_DOT_CLOSE; }
+    "=" { yybegin(START); return EQUAL;}
     {WHITE_SPACE} {return WHITE_SPACE;}
 }
 <CALLABLE_ARGUMENTS>{
@@ -405,15 +435,15 @@ import static org.nim.psi.NimTokenTypes.*;
     {UINT64_LIT} {return UINT64_LIT;}
     {INT_LIT} {return INT_LIT; }
     {WHITE_SPACE} {return WHITE_SPACE;}
-    {PROC} {return PROC;}
+    "proc" {return PROC;}
     "[" {return BRACKET_OPEN;}
     "]" {return BRACKET_CLOSE;}
     ";" {return SEMI_COLON;}
     "," {return COMMA; }
-    {PARAN_OPEN} { parenthesisBalance++; return PARAN_OPEN; }
+    "(" { parenthesisBalance++; return PARAN_OPEN; }
           {CURLY_DOT_OPEN} {return CURLY_DOT_OPEN; }
           {CURLY_DOT_CLOSE} {return CURLY_DOT_CLOSE; }
-    {PARAN_CLOSE} {
+    ")" {
           --parenthesisBalance;
           if(parenthesisBalance == 0){
           yybegin(CALLABLE);
@@ -421,7 +451,7 @@ import static org.nim.psi.NimTokenTypes.*;
           return PARAN_CLOSE;
       }
     ":" {return SINGLE_COLON;}
-      "." {return DOT;}
+    "." {return DOT;}
     "var" {return VAR; }
     {EQUAL} {return EQUAL; }
     {IDENTIFIER} {return IDENTIFIER;}
@@ -430,6 +460,10 @@ import static org.nim.psi.NimTokenTypes.*;
 <CALLABLE_BACK_TICK> {
     {BACK_TICK_IDENTIFIER} { return BACK_TICK_IDENTIFIER; }
     {BACK_TICK} { yybegin(CALLABLE);return BACK_TICK; }
+}
+<NON_CALLABLE_BACK_TICK> {
+    {BACK_TICK_IDENTIFIER} { return BACK_TICK_IDENTIFIER; }
+    {BACK_TICK} { yybegin(START);return BACK_TICK; }
 }
 
 //Worry about this crap later
