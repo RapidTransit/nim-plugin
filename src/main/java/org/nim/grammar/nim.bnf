@@ -137,9 +137,21 @@
         consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
 }
 
-File ::= <<beginParsing>> (!<<eof>> TopLevel)* <<eof>>?
+File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
 
-private TopLevel ::= ImportSection|TopDeclaration|<<isNotInType>>Statement
+Statement ::=
+    ImportSection
+    | VarDeclaration
+    | SimpleStatement
+    | ReturnStatement
+    | WhileStatement
+    | IfStatement
+    | ForStatement
+    | CaseStatement
+    | TypeBlock
+    | MethodTypes
+    | WhenDeclaration
+
 
 private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
 
@@ -163,7 +175,7 @@ ImportSection ::=
 
 Indentation ::= INDENT <<increaseIndent>>
 Dedentation ::= DEDENT <<decreaseIndent>>
-Statement ::= <<isNotInType>> (ImportSection | VarDeclaration| SimpleStatement| ReturnStatement | WhileStatement | IfStatement|ForStatement)
+
 
 ReturnStatement ::= RETURN SimpleStatement?
 VarDeclaration ::=
@@ -188,6 +200,11 @@ private VarDec ::=
     | EQUAL ExpressionList
 
 private VarDefinitionList ::= <<Commas VarDefinition >>
+
+
+
+
+
 VarDefinition ::= IDENTIFIER Pragma? STAR?
 
 WhileStatement ::= WHILE Expression SINGLE_COLON Indentation Statement* Dedentation
@@ -195,16 +212,27 @@ ForStatement ::= FOR Expression [COMMA Expression] SINGLE_COLON Indentation Stat
 IfStatement ::= Ifs
 private Ifs ::= IfBlockStatement
 
+
+meta ConditionalLike ::= <<kw>> Expression
+
+CaseStatement ::= CASE Expression SINGLE_COLON? OfBranch+ ElseBranch?
+
+OfBranch ::=  OF <<Commas Expression>> SINGLE_COLON OfBranchBlock
+
+OfBranchBlock ::= Statement |  (Indentation Statement* Dedentation)
+ElseBranch::= ELSE SINGLE_COLON OfBranchBlock
+
 IfBlockStatement ::= (WHEN|IF) ConditionalBlock ElseIfStatement* ElseStatement?
-ConditionalBlock ::= Expression SINGLE_COLON Indentation Statement* Dedentation
-ElseIfStatement ::= ELIF ConditionalBlock
-ElseStatement ::= ELSE SINGLE_COLON Indentation Statement* Dedentation
-Literal ::=  ArrayLiteral | Integer | StringLiteral | Float
+ConditionalBlock ::= Expression SINGLE_COLON OfBranchBlock
+ElseIfStatement ::= ELIF Expression SINGLE_COLON OfBranchBlock
+ElseStatement ::= ELSE SINGLE_COLON OfBranchBlock
+Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float | NIL
 TopDeclaration ::= TypeBlock | <<isNotInType>> MethodTypes | WhenDeclaration
 BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
-WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON MethodBody
+WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
 
-TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
+TypeBlock ::=
+TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
 
 private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockDeclaration)* (<<inProcExpression>> PARAN_CLOSE Dedentation | Dedentation))
 
@@ -232,6 +260,7 @@ Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? Option
 private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
 
 Closure ::= PROC Parameters  MemberTypeAssignment? Pragma?
+
 private MethodTypes ::=
     ProcedureMethod
     | TemplateMethod
@@ -239,16 +268,16 @@ private MethodTypes ::=
 
 
 
-private Signature ::= IdentifierOrOperator? STAR? Generics? Parameters MemberTypeAssignment? Pragma? EQUAL
+private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? Pragma? EQUAL
 
-ProcedureMethod ::= PROC Signature MethodBody
-FuncMethod ::= FUNC Signature MethodBody
-TemplateMethod ::= TEMPLATE Signature MethodBody
+meta MethodLike ::= <<p>>  Signature MethodBody?
+ProcedureMethod ::= <<MethodLike PROC>>
+FuncMethod ::= <<MethodLike FUNC>>
+TemplateMethod ::= <<MethodLike TEMPLATE>>
 
 Generics ::= BRACKET_OPEN Expression GenericsAdditional? BRACKET_CLOSE
 GenericsAdditional ::= COMMA Expression
 
-private IdentifierOrOperator ::= IDENTIFIER | (BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK)
 
 private Types ::= EnumDeclaration | ObjectType
 
@@ -271,7 +300,7 @@ left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=ReferenceExpre
 ReferenceExpression ::= IDENTIFIER { extends=Expression}
 
 StringLiteral ::= DoubleQuotedStringLiteral | RawStringLiteral | TripleQuoteStringLiteral
-
+CharacterLiteral ::= CHAR_LITERAL
 DoubleQuotedStringLiteral ::= DOUBLE_QUOTED_LITERAL
 RawStringLiteral ::= RAW_STRING
 TripleQuoteStringLiteral ::= TRIPLE_DOUBLE_STR
@@ -293,12 +322,13 @@ private AssignmentOp ::= MINUS_ASSIGN | PLUS_ASSIGN | EQUAL
 LeftHandExprList ::= ExpressionList
 
 
-private ExpressionArgList ::= Expression (COMMA Expression)*
-private ExpressionList ::= Expression (COMMA Expression)*
 
+private ExpressionList ::= <<Commas Expression>>
 
+SymbolExpression ::=  Symbol
 Expression ::=
     AtExpression
+    | CastExpression
     | AndExpression
     | OrExpression
     | UranaryConditionalExpression
@@ -310,23 +340,28 @@ Expression ::=
     | ProcExpression
     | MaxGroup
     | Op7Expression
-    | IfExpression
+    | ChainedExpression
+    | BracketExpression
+    | StringJoinExpression
+    //| IfExpression
     | ParanExpression
 
 ProcExpression ::= PROC <<startProcExpression>> Signature MethodBody <<endProcExpression>> { extends=Expression}
 IfExpression ::= IF (UranaryConditionalExpression | ConditionalExpression) SINGLE_COLON  (RETURN | Expression)
 private MaxGroup ::= OperandName
 | IndexOrSliceExpression
+| TypeExpression
 | CallExpression
-
 | Literal
+| SymbolExpression
 
 
-
-
-
+StringJoinExpression ::= Expression AMP Expression
+BracketExpression ::= Expression BRACKET_OPEN BRACKET_CLOSE
+ChainedExpression ::= Expression (DOT Expression)+
+CastExpression ::= CAST BRACKET_OPEN <<OptionalIndent Expression>> BRACKET_CLOSE PARAN_OPEN <<OptionalIndent Expression >> PARAN_CLOSE
 AndExpression ::= Expression OP6 Expression
-AtExpression ::= AT Expression
+AtExpression ::= (AT|DOLLAR) Expression
 SpreadExpression ::= Expression OP4 Expression
 OrExpression ::= Expression OR Expression
 UranaryConditionalExpression ::= NOT Expression
@@ -337,10 +372,11 @@ ParanExpression ::= !Expression PARAN_OPEN <<enterMode "PAR">>  Expression <<exi
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
-CallExpression ::= Expression Generics? ArgumentList
-ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionArgList? <<exitModeSafe "CALL">> PARAN_CLOSE
+CallExpression ::= Expression  Generics? ArgumentList
+TypeExpression ::= TYPE ArgumentList
+ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE
 
-meta OptionalIndent ::= (INDENT <<p>> DEDENT) | <<p>>
+meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
 meta Commas ::= <<p>> (COMMA <<p>>)*
 private S_or_C ::= SEMI_COLON | COMMA
 
@@ -386,7 +422,7 @@ private OP5 ::=
     | NOTIN
     | IS
     | ISNOT
-    | OF
+//    | OF
     | NOT
 
 private OP6 ::= AND

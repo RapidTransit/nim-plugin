@@ -44,7 +44,9 @@ public class GrammarTest extends ParsingTestCase {
     public void testSimple(){
         doTest(true);
     }
-
+    public void testOfs(){
+        doTest(true);
+    }
 
     public void testTypes(){
         doTest(true);

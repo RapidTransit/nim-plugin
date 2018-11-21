@@ -42,8 +42,17 @@ import static org.nim.psi.NimTokenTypes.*;
     If the operator ends with = and its first character is none of <, >, !, =, ~, ?, it is an assignment operator which
     has the second lowest precedence.
      */
-    ASSIGNMENT_LIKE = ([[\+\-\*\<\>\@\$\~\&\%\|\!\?\^\.\:\\\=] -- [\>\<\!\=\~\?]])? "="
+    ASSIGNMENT_LIKE = ([[\+\-\*\<\>\@\$\~\&\%\|\!\?\^\.\:\\\=] -- [\>\<\!\=\~\?]]) "="
 
+    OP2 = [@\:\?] {OP_SYMBOLS}+
+    OP3 = "or" | "xor"
+    OP4 = "and"
+    OP5 = "in"|"notin"|"is"|"isnot"|"not"|[\<\>\!]{OP_SYMBOLS}*|"="{OP_SYMBOLS}+
+    OP6 = "." {OP_SYMBOLS}+
+    OP7 = "&" {OP_SYMBOLS}*
+    OP8 = [\+\-\~\|] {OP_SYMBOLS}*
+    OP9 = "div"|"mod"|"shl"|"shr"|[\*\/\%\\]{OP_SYMBOLS}*
+    OP10 = [\$\^]{OP_SYMBOLS}*
     _LETTER = [a-zA-Z\u8000-\uFF00]
     ONE_NL = \R                                                        // NewLines
 
@@ -55,7 +64,8 @@ import static org.nim.psi.NimTokenTypes.*;
     TRIPLE_DOUBLE_QUOTED_LITERAL = \"\"\" {TRIPLE_DOUBLE_QUOTED_CONTENT}* ~"\"\"\""
     RAW_STRING = "r\"" ({DOUBLE_QUOTED_CONTENT}|"\\"| "\"\"")* ~"\""
     IDENTIFIER= {_LETTER} ( _? {_LETTER} | {DEC_DIGIT} )*
-
+    _VALID_CHARS = "\\"[0-9]+|"\\"{HEX_DIGIT}{2}|[^\\\']|"\\"[rcnlftv\'\"abe]
+    CHAR_LITERAL=\'{_VALID_CHARS}\'
 // Eventually push the number stuff to the parser so we can add error inspections
     // Digit Classes
     DEC_DIGIT = [0-9]
@@ -266,7 +276,19 @@ import static org.nim.psi.NimTokenTypes.*;
           return EXAMPLE;
       }
     {WHITE_SPACE} {return WHITE_SPACE;}
+    {CHAR_LITERAL} {return CHAR_LITERAL;}
 
+//    {ARROW_LIKE} {return OP0;}
+//    {ASSIGNMENT_LIKE} {return OP1;}
+//    {OP2} {return OP2;}
+//      {OP3} {return OP3;}
+//      {OP4} {return OP4;}
+//      {OP5} {return OP5;}
+//      {OP6} {return OP6;}
+//      {OP7} {return OP7;}
+//      {OP8} {return OP8;}
+//      {OP9} {return OP9;}
+//      {OP10} {return OP10;}
     //Numbers
     {FLOAT_LIT} {return FLOAT_LIT;}
     {FLOAT32_LIT} {return FLOAT32_LIT;}
