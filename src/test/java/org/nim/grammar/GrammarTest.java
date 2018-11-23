@@ -2,9 +2,11 @@ package org.nim.grammar;
 
 import com.intellij.lang.ParserDefinition;
 import com.intellij.mock.MockVirtualFile;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.ParsingTestCase;
+import com.intellij.testFramework.TestLoggerFactory;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class GrammarTest extends ParsingTestCase {
+    static {
+        Logger.setFactory(TestLoggerFactory.class);
+    }
     public GrammarTest() {
         super("grammar", "nim", true, new NimParserDefinition());
     }
@@ -19,10 +24,19 @@ public class GrammarTest extends ParsingTestCase {
     public void testAlgorithm(){
         doTest(true);
     }
+    public void testAlgorithm1(){
+        doTest(true);
+    }
     public void testReverse(){
         doTest(true);
     }
+    public void testLogging(){
+        doTest(true);
+    }
 
+    public void testMarshal(){
+        doTest(true);
+    }
     public void testTemplate(){
         doTest(true);
     }
@@ -30,7 +44,9 @@ public class GrammarTest extends ParsingTestCase {
     public void testSimple(){
         doTest(true);
     }
-
+    public void testOfs(){
+        doTest(true);
+    }
 
     public void testTypes(){
         doTest(true);

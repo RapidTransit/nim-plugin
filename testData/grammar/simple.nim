@@ -1,10 +1,11 @@
 var a = r"aaaa\b\n\r""\t\n\m\w"""
+a[x] = 1
 #Single Line Comment
 var a = 10
 var b = 10'i32
 var c = [1, 2 , 3]
 foo.call(a, b, c)
-procedureCall a, b, c
+procedureCall a[0], b, c.call(a,b,c)
 runnableExamples:
   var a = [1, 2, 3, 4, 5, 6]
   a.reverse(1, 3)

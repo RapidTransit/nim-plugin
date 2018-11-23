@@ -125,107 +125,261 @@
     RAW_STRING='<raw_string>'
     COMMENT = '<comment>'
     INDENT= 'INDENT'
-
+    DOC_RUNNABLE = '<doc_runnable>'
+    EXAMPLE = '<example>'
     SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
-  extends("(Or|And|Add|Conversion|Mul|Selector|Paran|Conditional)Expression")=BinaryExpression
+  extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(Expression|OperandName|Literal)")=Expression
     extends(".*Statement")=Statement
+    generateTokenAccessors=true
+
+        consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
 }
 
-File ::= <<beginParsing>> (!<<eof>> (TopDeclaration|&<<isNotInType>>Statement))* <<eof>>?
+File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
 
-Indentations ::= INDENT <<increaseIndent>>
-Dedentations ::= DEDENT <<decreaseIndent>>
-Statement ::= <<isNotInType>>( RunnableExample|VarDeclaration|SimpleStatement)
-RunnableExample ::= EXAMPLE Indentations (DOC_RUNNABLE)* Dedentations
+Statement ::=
+    ImportSection
+    | VarDeclaration
+    | SimpleStatement
+    | ReturnStatement
+    | WhileStatement
+    | IfStatement
+    | ForStatement
+    | CaseStatement
+    | TypeBlock
+    | MethodTypes
+    | WhenDeclaration
 
-VarDeclaration ::= VAR ( VarSpec |  VarSpecs?  )
 
-private VarSpecs ::= VarSpec
+private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
 
-VarSpec ::= VarDefinitionList ( IDENTIFIER [ '=' ExpressionList ] | '=' ExpressionList )
+Symbol ::=
+    BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK
+    | IDENTIFIER
 
-private VarDefinitionList ::= VarDefinition ( ',' VarDefinition )*
 
-VarDefinition ::= IDENTIFIER
 
-DedentOrEOF ::= (Dedentations )*  <<eof>>?
 
-//VarDeclaration ::= VAR IDENTIFIER SINGLE_COLON QualifiedType
+private ImportSymbol ::=
+    Symbol (PathSeparator Symbol)*
+    | StringLiteral
 
-Literal ::=  ArrayLiteral | Integer | RawStringLiteral| StringLiteral | TripleQuoteString | Float
-TopDeclaration ::= TypeBlock
+private ImportOrImportAs ::= ImportSymbol [AS IDENTIFIER]
 
-TypeBlock ::=  TYPE <<beginTypeBlock>>  Indentations TypeDeclaration+ Dedentations
+ImportSection ::=
+    IMPORT ImportOrImportAs (COMMA ImportOrImportAs)*
+    | IMPORT ImportOrImportAs EXCEPT ImportSymbol (COMMA ImportSymbol)*
+    | FROM ImportOrImportAs IMPORT ImportSymbol (COMMA ImportSymbol)*
 
-TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentations?
+Indentation ::= INDENT <<increaseIndent>>
+Dedentation ::= DEDENT <<decreaseIndent>>
+
+
+ReturnStatement ::= RETURN SimpleStatement?
+VarDeclaration ::=
+    VAR Vars
+    | LET Vars
+    | CONST Vars
+
+private Vars ::=
+    (Indentation  VarAssignment+   Dedentation)
+    | ( VarAssignment+  )
+
+
+
+VarAssignment ::= VarDefinitionList  VarDec
+
+
+private VarDec ::=
+
+     (SINGLE_COLON IDENTIFIER BRACKET_OPEN ExpressionList BRACKET_CLOSE EQUAL ExpressionList)
+    | (SINGLE_COLON IDENTIFIER EQUAL ExpressionList )
+    | (SINGLE_COLON IDENTIFIER)
+    | EQUAL ExpressionList
+
+private VarDefinitionList ::= <<Commas VarDefinition >>
+
+
+
+
+
+VarDefinition ::= IDENTIFIER Pragma? STAR?
+
+WhileStatement ::= WHILE Expression SINGLE_COLON Indentation Statement* Dedentation
+ForStatement ::= FOR Expression [COMMA Expression] SINGLE_COLON Indentation Statement* Dedentation
+IfStatement ::= Ifs
+private Ifs ::= IfBlockStatement
+
+
+meta ConditionalLike ::= <<kw>> Expression
+
+CaseStatement ::= CASE Expression SINGLE_COLON? OfBranch+ ElseBranch?
+
+OfBranch ::=  OF <<Commas Expression>> SINGLE_COLON OfBranchBlock
+
+OfBranchBlock ::= Statement |  (Indentation Statement* Dedentation)
+ElseBranch::= ELSE SINGLE_COLON OfBranchBlock
+
+IfBlockStatement ::= (WHEN|IF) ConditionalBlock ElseIfStatement* ElseStatement?
+ConditionalBlock ::= Expression SINGLE_COLON OfBranchBlock
+ElseIfStatement ::= ELIF Expression SINGLE_COLON OfBranchBlock
+ElseStatement ::= ELSE SINGLE_COLON OfBranchBlock
+Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float | NIL
+TopDeclaration ::= TypeBlock | <<isNotInType>> MethodTypes | WhenDeclaration
+BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
+WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
+
+TypeBlock ::=
+TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
+
+private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockDeclaration)* (<<inProcExpression>> PARAN_CLOSE Dedentation | Dedentation))
+
+TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentation?
+
+Parameters ::= PParameters
+
+private PParameters ::=
+(PARAN_OPEN PARAN_CLOSE)
+| PARAN_OPEN (Parameter (S_or_C Parameter | &PARAN_CLOSE)*) PARAN_CLOSE
+
+ParameterDefault ::= EQUAL? Expression
+
+MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
+
+private OptionalPragma ::= Pragma?
+Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
+
+// For this: template sortedByIt*(seq1, op: untyped)
+ParameterNames ::= <<Commas IDENTIFIER>>
+
+Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? OptionalPragma ParameterDefault?)?
+
+
+private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
+
+Closure ::= PROC Parameters  MemberTypeAssignment? Pragma?
+
+private MethodTypes ::=
+    ProcedureMethod
+    | TemplateMethod
+    | FuncMethod
+
+
+
+private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? Pragma? EQUAL
+
+meta MethodLike ::= <<p>>  Signature MethodBody?
+ProcedureMethod ::= <<MethodLike PROC>>
+FuncMethod ::= <<MethodLike FUNC>>
+TemplateMethod ::= <<MethodLike TEMPLATE>>
+
+Generics ::= BRACKET_OPEN Expression GenericsAdditional? BRACKET_CLOSE
+GenericsAdditional ::= COMMA Expression
+
 
 private Types ::= EnumDeclaration | ObjectType
 
-ObjectType ::= REF? (OBJECT | OperandName)  Indentations? ObjectFields+
+ObjectType ::= REF? (OBJECT  OF? OperandName | OperandName)  Indentation? ObjectFields+
 
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName
 
-EnumDeclaration ::= ENUM Indentations OperandName (COMMA OperandName)* Dedentations
+EnumDeclaration ::= ENUM Indentation OperandName (COMMA OperandName)*
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
 SignedInteger ::= INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
 
-ArrayLiteral ::= BRACKET_OPEN Expression (COMMA Expression)* BRACKET_CLOSE
-StringLiteral ::= (DOUBLE_QUOTE ) STRING_CONTENTS DOUBLE_QUOTE
+ArrayLiteral ::= BRACKET_OPEN << OptionalIndent (Expression (COMMA Expression)*) >>? BRACKET_CLOSE
+
 OperandName ::= ReferenceExpression QualifiedReferenceExpression? {elementType=ReferenceExpression}
 left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=ReferenceExpression}
-ReferenceExpression::= IDENTIFIER { extends=Expression}
+ReferenceExpression ::= IDENTIFIER { extends=Expression}
+
+StringLiteral ::= DoubleQuotedStringLiteral | RawStringLiteral | TripleQuoteStringLiteral
+CharacterLiteral ::= CHAR_LITERAL
+DoubleQuotedStringLiteral ::= DOUBLE_QUOTED_LITERAL
 RawStringLiteral ::= RAW_STRING
-TripleQuoteString ::= TRIPLE_DOUBLE_STR
+TripleQuoteStringLiteral ::= TRIPLE_DOUBLE_STR
 
 
 fake BinaryExpression ::= Expression+ {
   methods=[left="Expression[0]" right="Expression[1]" ]
 }
+UnaryExpression ::= UnaryOp Expression
+UnaryOp ::= MINUS
+SimpleStatement ::= UMethodExpressionOrLeftHand
 
-SimpleStatement ::=  <<isNotInType>> (UMethodExpression| (LeftHandExprList [AssignmentStatement]))
+private UMethodExpressionOrLeftHand ::= LeftHandExprList [AssignmentStatement | SimpleStatement]
 
+left AssignmentStatement ::= AssignmentOp ExpressionList
 
+private AssignmentOp ::= MINUS_ASSIGN | PLUS_ASSIGN | EQUAL
 
-left AssignmentStatement ::= EQUAL ExpressionList
 LeftHandExprList ::= ExpressionList
 
-private ExpressionArgList ::= Expression (COMMA Expression)*
-private ExpressionList ::= Expression (COMMA (Expression))*
 
 
+private ExpressionList ::= <<Commas Expression>>
+
+SymbolExpression ::=  Symbol
 Expression ::=
-    AndExpression
+    AtExpression
+    | CastExpression
+    | AndExpression
     | OrExpression
+    | UranaryConditionalExpression
     | ConditionalExpression
     | MultiplyExpression
     | AddExpression
+    | SpreadExpression
+    | UnaryExpression
+    | ProcExpression
     | MaxGroup
-    | ParanExpression
     | Op7Expression
+    | ChainedExpression
+    | BracketExpression
+    | StringJoinExpression
+    //| IfExpression
+    | ParanExpression
 
+ProcExpression ::= PROC <<startProcExpression>> Signature MethodBody <<endProcExpression>> { extends=Expression}
+IfExpression ::= IF (UranaryConditionalExpression | ConditionalExpression) SINGLE_COLON  (RETURN | Expression)
 private MaxGroup ::= OperandName
 | IndexOrSliceExpression
+| TypeExpression
 | CallExpression
 | Literal
+| SymbolExpression
 
-UMethodExpression ::= ReferenceExpression Expression (COMMA Expression)*
-AndExpression ::= Expression AND Expression
+
+StringJoinExpression ::= Expression AMP Expression
+BracketExpression ::= Expression BRACKET_OPEN BRACKET_CLOSE
+ChainedExpression ::= Expression (DOT Expression)+
+CastExpression ::= CAST BRACKET_OPEN <<OptionalIndent Expression>> BRACKET_CLOSE PARAN_OPEN <<OptionalIndent Expression >> PARAN_CLOSE
+AndExpression ::= Expression OP6 Expression
+AtExpression ::= (AT|DOLLAR) Expression
+SpreadExpression ::= Expression OP4 Expression
 OrExpression ::= Expression OR Expression
-ConditionalExpression ::= Expression OP5 Expression
+UranaryConditionalExpression ::= NOT Expression
+ConditionalExpression ::=  Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
 AddExpression ::= Expression OP2 Expression
-ParanExpression ::= PARAN_OPEN Expression PARAN_CLOSE
+ParanExpression ::= !Expression PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
-CallExpression ::= Expression ArgumentList
-ArgumentList ::= PARAN_OPEN [ExpressionArgList] PARAN_CLOSE
+CallExpression ::= Expression  Generics? ArgumentList
+TypeExpression ::= TYPE ArgumentList
+ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE
+
+meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
+meta Commas ::= <<p>> (COMMA <<p>>)*
+private S_or_C ::= SEMI_COLON | COMMA
+
 Operator ::=
     OP0
     | OP1
@@ -268,13 +422,14 @@ private OP5 ::=
     | NOTIN
     | IS
     | ISNOT
-    | OF
+//    | OF
     | NOT
 
 private OP6 ::= AND
 
 private OP7 ::=
-     OR
+      OR
+     | AND
      | XOR
 
 private OP8 ::=
