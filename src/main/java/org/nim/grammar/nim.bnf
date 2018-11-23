@@ -213,21 +213,22 @@ IfStatement ::= Ifs
 private Ifs ::= IfBlockStatement
 
 
-meta ConditionalLike ::= <<kw>> Expression
 
 CaseStatement ::= CASE Expression SINGLE_COLON? OfBranch+ ElseBranch?
 
-OfBranch ::=  OF <<Commas Expression>> SINGLE_COLON OfBranchBlock
+OfBranch ::=  OF <<Commas Expression>> SINGLE_COLON ConditionalStatementOrBlock
 
-OfBranchBlock ::= Statement |  (Indentation Statement* Dedentation)
-ElseBranch::= ELSE SINGLE_COLON OfBranchBlock
+ConditionalStatementOrBlock ::= Statement |  (Indentation Statement* Dedentation)
+ElseBranch::= ELSE SINGLE_COLON ConditionalStatementOrBlock
+
 
 IfBlockStatement ::= (WHEN|IF) ConditionalBlock ElseIfStatement* ElseStatement?
-ConditionalBlock ::= Expression SINGLE_COLON OfBranchBlock
-ElseIfStatement ::= ELIF Expression SINGLE_COLON OfBranchBlock
-ElseStatement ::= ELSE SINGLE_COLON OfBranchBlock
+
+ConditionalBlock ::= Expression SINGLE_COLON ConditionalStatementOrBlock
+ElseIfStatement ::= ELIF Expression SINGLE_COLON ConditionalStatementOrBlock
+ElseStatement ::= ELSE SINGLE_COLON ConditionalStatementOrBlock
 Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float | NIL
-TopDeclaration ::= TypeBlock | <<isNotInType>> MethodTypes | WhenDeclaration
+
 BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
 WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
 
