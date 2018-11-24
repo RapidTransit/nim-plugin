@@ -143,6 +143,7 @@ Statement ::=
     ImportSection
     | VarDeclaration
     | SimpleStatement
+     | TypeFieldStatement
     | ReturnStatement
     | WhileStatement
     | IfStatement
@@ -153,12 +154,13 @@ Statement ::=
     | WhenDeclaration
 
 
+
 private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
 
 Symbol ::=
     BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK
     | IDENTIFIER
-
+SymbolWithPragma ::= Symbol STAR? Pragma?
 
 
 
@@ -169,9 +171,9 @@ private ImportSymbol ::=
 private ImportOrImportAs ::= ImportSymbol [AS IDENTIFIER]
 
 ImportSection ::=
-    IMPORT ImportOrImportAs (COMMA ImportOrImportAs)*
-    | IMPORT ImportOrImportAs EXCEPT ImportSymbol (COMMA ImportSymbol)*
-    | FROM ImportOrImportAs IMPORT ImportSymbol (COMMA ImportSymbol)*
+    IMPORT <<Commas ImportOrImportAs>>
+    | IMPORT ImportOrImportAs EXCEPT <<Commas ImportSymbol>>
+    | FROM ImportOrImportAs IMPORT <<Commas ImportSymbol>>
 
 Indentation ::= INDENT <<increaseIndent>>
 Dedentation ::= DEDENT <<decreaseIndent>>
@@ -194,7 +196,8 @@ VarAssignment ::= VarDefinitionList  VarDec
 
 private VarDec ::=
 
-     (SINGLE_COLON IDENTIFIER BRACKET_OPEN ExpressionList BRACKET_CLOSE EQUAL ExpressionList)
+     (SINGLE_COLON IDENTIFIER Generics EQUAL ExpressionList)
+    | (SINGLE_COLON TupleType EQUAL ExpressionList)
     | (SINGLE_COLON IDENTIFIER EQUAL ExpressionList )
     | (SINGLE_COLON IDENTIFIER)
     | EQUAL ExpressionList
@@ -213,6 +216,7 @@ IfStatement ::= Ifs
 private Ifs ::= IfBlockStatement
 
 
+TupleType ::= TUPLE BRACKET_OPEN (Parameter (S_or_C Parameter | &BRACKET_CLOSE)*)  BRACKET_CLOSE
 
 CaseStatement ::= CASE Expression SINGLE_COLON? OfBranch+ ElseBranch?
 
@@ -232,13 +236,15 @@ Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float |
 BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
 WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
 
-TypeBlock ::=
-TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
+TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
 
 private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockDeclaration)* (<<inProcExpression>> PARAN_CLOSE Dedentation | Dedentation))
 
 TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentation?
 
+TypeFieldStatement ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName
+ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<OptionalIndent  >>
+ObjectPart ::= (Indentation ObjectPart Dedentation) | ObjectCase | NIL | DISCARD |
 Parameters ::= PParameters
 
 private PParameters ::=
@@ -276,25 +282,29 @@ ProcedureMethod ::= <<MethodLike PROC>>
 FuncMethod ::= <<MethodLike FUNC>>
 TemplateMethod ::= <<MethodLike TEMPLATE>>
 
-Generics ::= BRACKET_OPEN Expression GenericsAdditional? BRACKET_CLOSE
-GenericsAdditional ::= COMMA Expression
+Generics ::= BRACKET_OPEN <<enterMode "GEN">> GenericParam ((COMMA GenericParam) | & BRACKET_CLOSE)* <<exitModeSafe "GEN">> BRACKET_CLOSE
+GenericInner ::= Expression Generics
+GenericParam ::= GenericInner| Generics | Expression
+
 
 
 private Types ::= EnumDeclaration | ObjectType
 
-ObjectType ::= REF? (OBJECT  OF? OperandName | OperandName)  Indentation? ObjectFields+
+ObjectType ::= REF? (OBJECT  OF? OperandName? | OperandName)  Indentation? ObjectFields+
 
 ObjectField ::= IDENTIFIER STAR?
-ObjectFields ::= ObjectField (COMMA ObjectField)* SINGLE_COLON REF? OperandName
+ObjectFields ::=
+CaseStatement
+| (<<Commas ObjectField>> SINGLE_COLON REF? OperandName)
 
-EnumDeclaration ::= ENUM Indentation OperandName (COMMA OperandName)*
+EnumDeclaration ::= ENUM Indentation <<Commas OperandName>>
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
 SignedInteger ::= INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
 
-ArrayLiteral ::= BRACKET_OPEN << OptionalIndent (Expression (COMMA Expression)*) >>? BRACKET_CLOSE
+ArrayLiteral ::= BRACKET_OPEN << OptionalIndentWithEnd (Expression ((COMMA Expression)| &BRACKET_CLOSE)*)? BRACKET_CLOSE>>
 
 OperandName ::= ReferenceExpression QualifiedReferenceExpression? {elementType=ReferenceExpression}
 left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=ReferenceExpression}
@@ -344,11 +354,12 @@ Expression ::=
     | ChainedExpression
     | BracketExpression
     | StringJoinExpression
+    | TupleExpression
     //| IfExpression
     | ParanExpression
 
 ProcExpression ::= PROC <<startProcExpression>> Signature MethodBody <<endProcExpression>> { extends=Expression}
-IfExpression ::= IF (UranaryConditionalExpression | ConditionalExpression) SINGLE_COLON  (RETURN | Expression)
+
 private MaxGroup ::= OperandName
 | IndexOrSliceExpression
 | TypeExpression
@@ -356,7 +367,7 @@ private MaxGroup ::= OperandName
 | Literal
 | SymbolExpression
 
-
+TupleExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression (COMMA Expression)*<<exitModeSafe "PAR">> PARAN_CLOSE
 StringJoinExpression ::= Expression AMP Expression
 BracketExpression ::= Expression BRACKET_OPEN BRACKET_CLOSE
 ChainedExpression ::= Expression (DOT Expression)+
@@ -378,6 +389,7 @@ TypeExpression ::= TYPE ArgumentList
 ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE
 
 meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
+meta OptionalIndentWithEnd ::= (Indentation <<p1>> ((<<p2>> Dedentation)| (Dedentation <<p2>>)) | <<p1>>  <<p2>>
 meta Commas ::= <<p>> (COMMA <<p>>)*
 private S_or_C ::= SEMI_COLON | COMMA
 
