@@ -153,6 +153,7 @@ GenericParam ::= GenericInner | Generics | IDENTIFIER
 //AssignExpr ::= OrExpr (OP2 OptInd OrExpr)*
 //OrExpr ::= AndExpr (OP3 OptInd AndExpr)*
 //AndExpr ::= CmpExpr (OP4 OptInd CmpExpr)*
+//AndExpr ::= CmpExpr (OP4 OptInd CmpExpr)*
 //CmpExpr ::= SliceExpr (OP5 OptInd SliceExpr)*
 //SliceExpr ::= AmpExpr (OP6 OptInd AmpExpr)*
 //AmpExpr ::= PlusExpr (OP7 OptInd PlusExpr)*

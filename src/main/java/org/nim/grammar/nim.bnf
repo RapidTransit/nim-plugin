@@ -143,7 +143,7 @@ Statement ::=
     ImportSection
     | VarDeclaration
     | SimpleStatement
-     | TypeFieldStatement
+    | TypeFieldStatement
     | ReturnStatement
     | WhileStatement
     | IfStatement
@@ -161,7 +161,8 @@ Symbol ::=
     BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK
     | IDENTIFIER
 SymbolWithPragma ::= Symbol STAR? Pragma?
-
+//@todo: Should do Simple Expression
+DeclarationColonEquals ::= <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?
 
 
 private ImportSymbol ::=
@@ -243,8 +244,30 @@ private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfSta
 TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentation?
 
 TypeFieldStatement ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName
-ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<OptionalIndent  >>
-ObjectPart ::= (Indentation ObjectPart Dedentation) | ObjectCase | NIL | DISCARD |
+
+/**
+Deals with Things Like this:
+  type
+    TE = enum
+      blah, blah2
+
+    TestObj = object
+      test, asd: int
+      case test2: TE <--- This Right Here
+      of blah:
+        help: string
+      else:
+        nil
+
+ */
+ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<OptionalIndent  ObjectBranches>>
+
+ObjectWhen ::= WHEN Expression SINGLE_COLON  ObjectPart (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
+
+ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | DeclarationColonEquals
+ObjectBranch ::= OF Expression SINGLE_COLON ObjectPart
+ObjectBranches ::= ObjectBranch+ (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
+
 Parameters ::= PParameters
 
 private PParameters ::=
@@ -294,7 +317,7 @@ ObjectType ::= REF? (OBJECT  OF? OperandName? | OperandName)  Indentation? Objec
 
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::=
-CaseStatement
+ ObjectPart
 | (<<Commas ObjectField>> SINGLE_COLON REF? OperandName)
 
 EnumDeclaration ::= ENUM Indentation <<Commas OperandName>>

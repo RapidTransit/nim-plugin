@@ -13,17 +13,39 @@ import java.util.Deque;
 public class NimParserUtil extends GeneratedParserUtilBase {
 
     enum BlockType {
-        NONE, TYPE, PROC
+        NONE, TYPE, TYPE_DEFINITION, METHOD
     }
 
     private static final Key<ParserData> PARSER_DATA_KEY = Key.create("PARSER_DATA");
+
+
 
     public static boolean beginParsing(@NotNull PsiBuilder builder, int level){
         builder.putUserData(PARSER_DATA_KEY, new ParserData());
         return true;
     }
 
+    public static boolean beginTypeDefinitionBlock(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        parserData.blocks.push(new Block(BlockType.TYPE_DEFINITION, parserData.indent));
+        return true;
+    }
 
+    public static boolean endTypeDefinitionBlock(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        final Block peek = parserData.blocks.peek();
+        if(peek != null && peek.blockType == BlockType.TYPE_DEFINITION){
+            parserData.blocks.poll();
+        }
+        return true;
+    }
+
+    public static boolean isInTypeDefinition(@NotNull PsiBuilder builder, int _level){
+        final ParserData parserData = getParserData(builder);
+        if(parserData.blocks.isEmpty()) return false;
+        final Block peek = parserData.blocks.peek();
+        return parserData.indent > peek.indent && peek.blockType == BlockType.TYPE_DEFINITION;
+    }
 
     public static boolean beginTypeBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
