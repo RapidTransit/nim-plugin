@@ -141,15 +141,17 @@ File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
 
 Statement ::=
     ImportSection
+     | TypeBlock
     | VarDeclaration
     | SimpleStatement
+    | NewStatement
     | TypeFieldStatement
     | ReturnStatement
     | WhileStatement
     | IfStatement
     | ForStatement
     | CaseStatement
-    | TypeBlock
+
     | MethodTypes
     | WhenDeclaration
 
@@ -179,7 +181,7 @@ ImportSection ::=
 Indentation ::= INDENT <<increaseIndent>>
 Dedentation ::= DEDENT <<decreaseIndent>>
 
-
+NewStatement ::= NEW PARAN_OPEN Expression PARAN_CLOSE
 ReturnStatement ::= RETURN SimpleStatement?
 VarDeclaration ::=
     VAR Vars
@@ -193,14 +195,15 @@ private Vars ::=
 
 
 VarAssignment ::= VarDefinitionList  VarDec
-
+ExpColonEqExpression ::= Expression [(SINGLE_COLON|EQUAL) Expression ]
+SetOrTableLiteral ::= CURLY_OPEN (<<Commas ExpColonEqExpression >> | SINGLE_COLON) CURLY_CLOSE
 
 private VarDec ::=
 
-     (SINGLE_COLON IDENTIFIER Generics EQUAL ExpressionList)
-    | (SINGLE_COLON TupleType EQUAL ExpressionList)
-    | (SINGLE_COLON IDENTIFIER EQUAL ExpressionList )
-    | (SINGLE_COLON IDENTIFIER)
+     (SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
+    | (SINGLE_COLON REF? TupleType [EQUAL ExpressionList])
+    | (SINGLE_COLON REF? IDENTIFIER EQUAL ExpressionList )
+    | (SINGLE_COLON REF? IDENTIFIER)
     | EQUAL ExpressionList
 
 private VarDefinitionList ::= <<Commas VarDefinition >>
@@ -232,7 +235,7 @@ IfBlockStatement ::= (WHEN|IF) ConditionalBlock ElseIfStatement* ElseStatement?
 ConditionalBlock ::= Expression SINGLE_COLON ConditionalStatementOrBlock
 ElseIfStatement ::= ELIF Expression SINGLE_COLON ConditionalStatementOrBlock
 ElseStatement ::= ELSE SINGLE_COLON ConditionalStatementOrBlock
-Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float | NIL
+Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float | SetOrTableLiteral | NIL
 
 BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
 WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
@@ -241,7 +244,7 @@ TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <
 
 private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockDeclaration)* (<<inProcExpression>> PARAN_CLOSE Dedentation | Dedentation))
 
-TypeDeclaration ::=  <<isInType>> OperandName STAR? EQUAL Types Dedentation?
+
 
 TypeFieldStatement ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName
 
@@ -309,18 +312,18 @@ Generics ::= BRACKET_OPEN <<enterMode "GEN">> GenericParam ((COMMA GenericParam)
 GenericInner ::= Expression Generics
 GenericParam ::= GenericInner| Generics | Expression
 
+TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL Types
 
-
-private Types ::= EnumDeclaration | ObjectType
-
-ObjectType ::= REF? (OBJECT  OF? OperandName? | OperandName)  Indentation? ObjectFields+
-
+private Types ::=  ObjectTypes | EnumDeclaration
+ObjectTypes ::= ObjectTypeB | ObjectTypeA
+ObjectTypeA ::= REF? (OBJECT  OF? OperandName? | OperandName) Indentation ObjectFields* &Dedentation Dedentation   {elementType = ObjectTypes}
+ObjectTypeB ::= REF? (OBJECT  OF? OperandName? | OperandName) !Indentation {elementType = ObjectTypes}
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::=
  ObjectPart
 | (<<Commas ObjectField>> SINGLE_COLON REF? OperandName)
 
-EnumDeclaration ::= ENUM Indentation <<Commas OperandName>>
+EnumDeclaration ::= ENUM Indentation <<Commas OperandName>> Dedentation
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT

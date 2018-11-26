@@ -352,6 +352,7 @@ import static org.nim.psi.NimTokenTypes.*;
     "method" {return METHOD;}
     "mixin" {return MIXIN;}
     "mod" {return MOD;}
+      "new" {return NEW;}
     "nil" {return NIL;}
     "not" {return NOT;}
     "notin" {return NOTIN;}

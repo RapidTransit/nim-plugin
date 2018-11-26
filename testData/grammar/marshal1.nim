@@ -21,10 +21,6 @@ when not defined(testing) and isMainModule:
       else:
         nil
 
-    PNode = ref Node
-    Node = object
-      next, prev: PNode
-      data: string
 
   proc buildList(): PNode =
     new(result)
