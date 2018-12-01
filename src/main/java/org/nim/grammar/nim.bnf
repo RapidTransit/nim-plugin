@@ -137,11 +137,12 @@
         consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
 }
 
+
 File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
 
 Statement ::=
     ImportSection
-     | TypeBlock
+    | TypeBlock
     | VarDeclaration
     | SimpleStatement
     | NewStatement
@@ -314,10 +315,10 @@ GenericParam ::= GenericInner| Generics | Expression
 
 TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL Types
 
-private Types ::=  ObjectTypes | EnumDeclaration
-ObjectTypes ::= ObjectTypeB | ObjectTypeA
-ObjectTypeA ::= REF? (OBJECT  OF? OperandName? | OperandName) Indentation ObjectFields* &Dedentation Dedentation   {elementType = ObjectTypes}
-ObjectTypeB ::= REF? (OBJECT  OF? OperandName? | OperandName) !Indentation {elementType = ObjectTypes}
+private Types ::=  ObjectDeclaration | EnumDeclaration
+
+ObjectDeclaration ::= REF? ((OBJECT  OF OperandName)| OBJECT | OperandName) [Indentation ObjectFields* Dedentation]
+
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::=
  ObjectPart

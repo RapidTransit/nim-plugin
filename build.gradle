@@ -79,7 +79,6 @@ intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
     version '2018.2.4'
-   
     if(System.getProperty('os.name').startsWith('Windows')){
         ideaDependencyCachePath = 'C:\\idea'
     }
