@@ -47,6 +47,7 @@ import static org.nim.psi.NimTokenTypes.*;
     OP2 = [@\:\?] {OP_SYMBOLS}+
     OP3 = "or" | "xor"
     OP4 = "and"
+    //OF left Out Intentionally
     OP5 = "in"|"notin"|"is"|"isnot"|"not"|[\<\>\!]{OP_SYMBOLS}*|"="{OP_SYMBOLS}+
     OP6 = "." {OP_SYMBOLS}+
     OP7 = "&" {OP_SYMBOLS}*

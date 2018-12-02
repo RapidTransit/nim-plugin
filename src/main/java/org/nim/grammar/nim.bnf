@@ -225,7 +225,7 @@ TupleType ::= TUPLE BRACKET_OPEN (Parameter (S_or_C Parameter | &BRACKET_CLOSE)*
 
 CaseStatement ::= CASE Expression SINGLE_COLON? OfBranch+ ElseBranch?
 
-OfBranch ::=  OF <<Commas Expression>> SINGLE_COLON ConditionalStatementOrBlock
+OfBranch ::=  OfAsNonOp <<Commas Expression>> SINGLE_COLON ConditionalStatementOrBlock
 
 ConditionalStatementOrBlock ::= Statement |  (Indentation Statement* Dedentation)
 ElseBranch::= ELSE SINGLE_COLON ConditionalStatementOrBlock
@@ -269,7 +269,7 @@ ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<Optiona
 ObjectWhen ::= WHEN Expression SINGLE_COLON  ObjectPart (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
 
 ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | DeclarationColonEquals
-ObjectBranch ::= OF Expression SINGLE_COLON ObjectPart
+ObjectBranch ::= OfAsNonOp Expression SINGLE_COLON ObjectPart
 ObjectBranches ::= ObjectBranch+ (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
 
 Parameters ::= PParameters
@@ -317,7 +317,7 @@ TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL Types
 
 private Types ::=  ObjectDeclaration | EnumDeclaration
 
-ObjectDeclaration ::= REF? ((OBJECT  OF OperandName)| OBJECT | OperandName) [Indentation ObjectFields* Dedentation]
+ObjectDeclaration ::= REF? ((OBJECT  OfAsNonOp OperandName)| OBJECT | OperandName) [Indentation ObjectFields* Dedentation]
 
 ObjectField ::= IDENTIFIER STAR?
 ObjectFields ::=
@@ -416,10 +416,10 @@ TypeExpression ::= TYPE ArgumentList
 ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE
 
 meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
-meta OptionalIndentWithEnd ::= (Indentation <<p1>> ((<<p2>> Dedentation)| (Dedentation <<p2>>)) | <<p1>>  <<p2>>
+meta OptionalIndentWithEnd ::= (Indentation <<p1>> ((<<p2>> Dedentation)| (Dedentation <<p2>>)) | <<p1>>  <<p2>>)
 meta Commas ::= <<p>> (COMMA <<p>>)*
 private S_or_C ::= SEMI_COLON | COMMA
-
+private OfAsNonOp ::= <<isNotOperator>> OF
 Operator ::=
     OP0
     | OP1
@@ -462,7 +462,7 @@ private OP5 ::=
     | NOTIN
     | IS
     | ISNOT
-//    | OF
+    | <<isOperator>> OF
     | NOT
 
 private OP6 ::= AND

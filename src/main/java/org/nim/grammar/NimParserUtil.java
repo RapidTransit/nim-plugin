@@ -23,7 +23,50 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     private static final Key<ParserData> PARSER_DATA_KEY = Key.create("PARSER_DATA");
 
+    /**
+     * Of Can be used as an operator or as a branch statement
+     * @param builder
+     * @param level
+     * @return true if it is the first non whitespace character
+     */
+    public static boolean isNotOperator(@NotNull PsiBuilder builder, int level){
+        IElementType couldBeWhiteSpace = builder.rawLookup(-1);
+        IElementType shouldntBeNewLine = builder.rawLookup(-2);
+        if(couldBeWhiteSpace == NimTokenTypes.WHITE_SPACE){
+            return shouldntBeNewLine == NimTokenTypes.CRLF;
+        }
+        return shouldntBeNewLine == NimTokenTypes.CRLF;
+    }
 
+    /**
+     * Of Can be used as an operator or as a branch statement ie:
+     *
+     * From marshal.nim
+     * proc storeAny(s: Stream, a: Any, stored: var IntSet) =
+     *   case a.kind
+     *   of akNone: assert false
+     *   of akBool: s.write($getBool(a))
+     *   of akChar:
+     *     let ch = getChar(a)
+     *     if ch < '\128':
+     *       s.write(escapeJson($ch))
+     *     else:
+     *       s.write($int(ch))
+     *
+     * @param builder
+     * @param level
+     * @return true if it is not the first non whitespace character
+     */
+    public static boolean isOperator(@NotNull PsiBuilder builder, int level){
+        IElementType couldBeWhiteSpace = builder.rawLookup(-1);
+        IElementType shouldntBeNewLine = builder.rawLookup(-2);
+        if(couldBeWhiteSpace == NimTokenTypes.WHITE_SPACE){
+            return shouldntBeNewLine != NimTokenTypes.CRLF;
+        }
+        return shouldntBeNewLine != NimTokenTypes.CRLF;
+    }
+
+    // For Debug Stepping
     public static boolean endCurrent(@NotNull PsiBuilder builder, int level){
         final IElementType type = builder.lookAhead(0);
         final IElementType type1 = builder.lookAhead(1);
