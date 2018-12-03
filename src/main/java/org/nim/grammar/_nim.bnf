@@ -132,229 +132,225 @@
   ]
 
 }
-Generics ::= BRACKET_OPEN GenericParam (COMMA GenericParam)* BRACKET_CLOSE
-left GenericInner ::= IDENTIFIER Generics
 
-GenericParam ::= GenericInner | Generics | IDENTIFIER
-//module ::= <<MatchOrEmpty Stmt (';' | IND_EQ)>>
-//Comma ::= ',' COMMENT?
-//Semicolon ::= ';' COMMENT?
-//Colon ::= ':' COMMENT?
-//Colcom ::= ':' COMMENT?
-//Operator ::=  OP0 | OP1 | OP2 | OP3 | OP4 | OP5 | OP6 | OP7 | OP8 | OP9
-//         | 'or' | 'xor' | 'and'
-//         | 'is' | 'isnot' | 'in' | 'notin' | 'of'
-//         | 'div' | 'mod' | 'shl' | 'shr' | 'not' | 'static' | '..'
-//PrefixOperator ::= Operator
-//OptInd ::= COMMENT?
-//OptPar ::= (INDENDT | IND_EQ)?
-//SimpleExpr ::= ArrowExpr (OP0 OptInd ArrowExpr)* pragma?
-//ArrowExpr ::= AssignExpr (OP1 OptInd AssignExpr)*
-//AssignExpr ::= OrExpr (OP2 OptInd OrExpr)*
-//OrExpr ::= AndExpr (OP3 OptInd AndExpr)*
-//AndExpr ::= CmpExpr (OP4 OptInd CmpExpr)*
-//AndExpr ::= CmpExpr (OP4 OptInd CmpExpr)*
-//CmpExpr ::= SliceExpr (OP5 OptInd SliceExpr)*
-//SliceExpr ::= AmpExpr (OP6 OptInd AmpExpr)*
-//AmpExpr ::= PlusExpr (OP7 OptInd PlusExpr)*
-//PlusExpr ::= MulExpr (OP8 OptInd MulExpr)*
-//MulExpr ::= DollarExpr (OP9 OptInd DollarExpr)*
-//DollarExpr ::= Primary (OP10 OptInd primary)*
-//Symbol ::= '`' (KEYW|IDENT|literal|(operator|'('|')'|'['|']'|'{'|'}'|'=')+)+ '`'
-//       | IDENT | KEYW
-//ExprColonEqExpr ::= Expr (':'|'=' Expr)?
-//ExprList ::= <<MatchOneOrMore Expr  Comma>>
-//ExprColonEqExprList ::= ExprColonEqExpr (Comma ExprColonEqExpr)* (Comma)?
-//DotExpr ::= Expr '.' OptInd (Symbol | '[:' ExprList ']')
-//ExplicitGenericInstantiation ::= '[:' ExprList ']' ( '(' ExprColonEqExpr ')' )?
-//QualifiedIdent ::= Symbol ('.' OptInd Symbol)?
-//SetOrTableConstr ::= '{' ((ExprColonEqExpr Comma)* | ':' ) '}'
-//CastExpr ::= 'cast' '[' OptInd TypeDesc OptPar ']' '(' OptInd Expr OptPar ')'
-//ParKeyw ::= 'discard' | 'include' | 'if' | 'while' | 'case' | 'try'
-//        | 'finally' | 'except' | 'for' | 'block' | 'const' | 'let'
-//        | 'when' | 'var' | 'mixin'
-//Par ::= '(' OptInd
-//          ( <<MatchOneOrMore &ParKeywComplexOrSimpleStmt  ';' >>
-//          | ';' <<MatchOneOrMore ComplexOrSimpleStmt  ';'>>
-//          |PragmaStmt
-//          | SimpleExpr ( ('=' Expr (';' <<MatchOneOrMore ComplexOrSimpleStmt  ';'>> )? )
-//                       | (':' Expr (','  <<MatchOneOrMore ExprColonEqExpr     ','>> )? ) ) )
-//          OptPar ')'
-//Literal ::= | INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
-//          | UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
-//          | FLOAT_LIT | FLOAT32_LIT | FLOAT64_LIT
-//          | STR_LIT | RSTR_LIT | TRIPLESTR_LIT
-//          | CHAR_LIT
-//          | NIL
-//GeneralizedLit ::= GENERALIZED_STR_LIT | GENERALIZED_TRIPLESTR_LIT
-//IdentOrLiteral ::= GeneralizedLit | Symbol | Literal
-//               | Par | ArrayConstr | SetOrTableConstr
-//               | CastExpr
-//TupleConstr ::= '(' OptInd (ExprColonEqExpr comma?)* OptPar ')'
-//ArrayConstr ::= '[' OptInd (ExprColonEqExpr comma?)* OptPar ']'
-//PrimarySuffix ::= '(' (ExprColonEqExpr comma?)* ')' DoBlocks?
-//      | DoBlocks
-//      | '.' OptInd Symbol GeneralizedLit?
-//      | '[' OptInd IndexExprList OptPar ']'
-//      | '{' OptInd IndexExprList OptPar '}'
-//      | &( '`'|IDENT|literal|'cast'|'addr'|'type') Expr # command syntax
-//CondExpr ::= Expr Colcom Expr OptInd
-//        ('elif' Expr Colcom Expr OptInd)*
-//         'else' Colcom Expr
-//IfExpr ::= 'if' CondExpr
-//WhenExpr ::= 'when' CondExpr
-//Pragma ::= '{.' OptInd (ExprColonExpr comma?)* OptPar ('.}' | '}')
-//IdentVis ::= Symbol opr?
-//IdentVisDot ::= Symbol '.' OptInd Symbol opr?
-//IdentWithPragma ::= IdentVis pragma?
-//IdentWithPragmaDot ::= IdentVisDot pragma?
-//DeclColonEquals ::= IdentWithPragma (comma IdentWithPragma)* Comma?
-//                  (':' OptInd TypeDesc)? ('=' OptInd Expr)?
-//IdentColonEquals ::= ident (comma ident)* comma?
-//     (':' OptInd TypeDesc)? ('=' OptInd Expr)?)
-//InlTupleDecl ::= 'tuple'
-//    '[' OptInd  (IdentColonEquals (comma/semicolon)?)*  OptPar ']'
-//ExtTupleDecl ::= 'tuple'
-//    COMMENT? (INDENDT IdentColonEquals (IND_EQ IdentColonEquals)*)?
-//TupleClass ::= 'tuple'
-//ParamList ::= '(' declColonEquals ^* (comma/semicolon) ')'
-//ParamListArrow ::= ParamList? ('->' OptInd TypeDesc)?
-//ParamListColon ::= ParamList? (':' OptInd TypeDesc)?
-//DoBlock ::= 'do' ParamListArrow pragmas? Colcom Stmt
-//ProcExpr ::= 'proc' ParamListColon pragmas? ('=' COMMENT? Stmt)?
-//Distinct ::= 'distinct' OptInd TypeDesc
-//Expr ::= (BlockExpr
-//      | IfExpr
-//      | WhenExpr
-//      | CaseExpr
-//      | TryExpr)
-//      / SimpleExpr
-//TypeKeyw ::= 'var' | 'out' | 'ref' | 'ptr' | 'shared' | 'tuple'
-//         | 'proc' | 'iterator' | 'distinct' | 'object' | 'enum'
-//Primary ::= TypeKeyw TypeDesc
-//        |  PrefixOperator* IdentOrLiteral PrimarySuffix*
-//        | 'static' Primary
-//        | 'bind' Primary
-//TypeDesc ::= SimpleExpr
-//TypeDefAux ::= SimpleExpr
-//           | 'concept' typeClass
-//PostExprBlocks ::= ':' Stmt? ( IND_EQ DoBlock
-//                           | IND_EQ 'of' ExprList ':' Stmt
-//                           | IND_EQ 'elif' Expr ':' Stmt
-//                           | IND_EQ 'except' ExprList ':' Stmt
-//                           | IND_EQ 'else' ':' Stmt )*
-//ExprStmt ::= SimpleExpr
-//         (( '=' OptInd Expr ColonBody? )
-//         | ( Expr ^+ comma
-//             DoBlocks
-//              / macroColon
-//           ))?
-//ImportStmt ::= 'import' OptInd Expr
-//              ((Comma Expr)*
-//              / 'except' OptInd (<<OneOr MoreExpr ^+ comma))
-//IncludeStmt ::= 'include' OptInd Expr ^+ comma
-//FromStmt ::= 'from' ModuleName 'import' OptInd Expr (comma Expr)*
-//ReturnStmt ::= 'return' OptInd Expr?
-//RaiseStmt ::= 'raise' OptInd Expr?
-//YieldStmt ::= 'yield' OptInd Expr?
-//DiscardStmt ::= 'discard' OptInd Expr?
-//BreakStmt ::= 'break' OptInd Expr?
-//ContinueStmt ::= 'break' OptInd Expr?
-//CondStmt ::= Expr Colcom Stmt COMMENT?
-//           (IND_EQ 'elif' Expr Colcom Stmt)*
-//           (IND_EQ 'else' Colcom Stmt)?
-//IfStmt ::= 'if'CondStmt
-//WhenStmt ::= 'when'CondStmt
-//WhileStmt ::= 'while' Expr Colcom Stmt
-//OfBranch ::= 'of' ExprList Colcom Stmt
-//OfBranches ::= OfBranch (IND_EQ OfBranch)*
-//                      (IND_EQ 'elif' Expr Colcom Stmt)*
-//                      (IND_EQ 'else' Colcom Stmt)?
-//CaseStmt ::= 'case' Expr ':'? COMMENT?
-//            (INDENDT OfBranches DED
-//            | IND_EQ OfBranches)
-//TryStmt ::= 'try' Colcom Stmt &(IND_EQ? 'except'|'finally')
-//           (IND_EQ? 'except' ExprList Colcom Stmt)*
-//           (IND_EQ? 'finally' Colcom Stmt)?
-//TryExpr ::= 'try' Colcom Stmt &(OptInd 'except'|'finally')
-//           (OptInd 'except' ExprList Colcom Stmt)*
-//           (OptInd 'finally' Colcom Stmt)?
-//ExceptBlock ::= 'except' Colcom Stmt
-//ForStmt ::= 'for' (<<MatchOneOrMore IdentWithPragma  comma>>) 'in' Expr Colcom Stmt
-//BlockStmt ::= 'block' Symbol? Colcom Stmt
-//BlockExpr ::= 'block' Symbol? Colcom Stmt
-//StaticStmt ::= 'static' Colcom Stmt
-//DeferStmt ::= 'defer' Colcom Stmt
-//AsmStmt ::= 'asm' pragma? (STR_LIT | RSTR_LIT | TRIPLE_STR_LIT)
-//GenericParam ::= Symbol (comma Symbol)* (colon Expr)? ('=' OptInd Expr)?
-//GenericParamList ::= '[' OptInd
-//  genericParam ^* (comma/semicolon) OptPar ']'
-//Pattern ::= '{' Stmt '}'
-//IndAndComment ::= (INDENDT COMMENT)? | COMMENT?
-//Routine ::= OptInd IdentVis pattern? GenericParamList?
-//  ParamListColon pragma? ('=' COMMENT? Stmt)? IndAndComment
-//CommentStmt ::= COMMENT
-//section(p) = COMMENT? p / (INDENDT (p / COMMENT)^+IND_EQ DED)
-//Constant ::= IdentWithPragma (colon TypeDesc)? '=' OptInd Expr IndAndComment
-//Enum ::= 'enum' OptInd (Symbol OptInd ('=' OptInd Expr COMMENT?)? Comma?)+
-//ObjectWhen ::= 'when' Expr Colcom ObjectPart COMMENT?
-//            ('elif' Expr Colcom ObjectPart COMMENT?)*
-//            ('else' Colcom ObjectPart COMMENT?)?
-//ObjectBranch ::= 'of' ExprList Colcom ObjectPart
-//ObjectBranches ::= ObjectBranch (IND_EQ ObjectBranch)*
-//                      (IND_EQ 'elif' Expr Colcom ObjectPart)*
-//                      (IND_EQ 'else' Colcom ObjectPart)?
-//ObjectCase ::= 'case' IdentWithPragma ':' TypeDesc ':'? COMMENT?
-//            (INDENDT ObjectBranches DED
-//            | IND_EQ ObjectBranches)
-//ObjectPart ::= INDENDT <<MatchOneOrMore ObjectPart IND_EQ >> DED
-//           / objectWhen / objectCase / 'nil' / 'discard' / declColonEquals
-//Object ::= 'object' pragma? ('of' TypeDesc)? COMMENT? ObjectPart
-//TypeClassParam ::= ('var' | 'out')? Symbol
-//TypeClass ::= typeClassParam ^* ',' (pragma)? ('of' TypeDesc ^* ',')?
-//              &INDENDT Stmt
-//TypeDef ::= IdentWithPragmaDot genericParamList? '=' OptInd typeDefAux
-//            indAndComment?
-//VarTuple ::= '(' OptInd <<MatchOneOrMore IdentWithPragma Comma >> OptPar ')' '=' OptInd Expr
-//ColonBody ::= Colcom Stmt DoBlocks?
-//Variable ::= (VarTuple | IdentColonEquals) colonBody? indAndComment
-//BindStmt ::= 'bind' OptInd <<MatchOneOrMore QualifiedIdent Comma>>
-//MixinStmt ::= 'mixin' OptInd <<MatchOneOrMore QualifiedIdent Comma>>
-//PragmaStmt ::= pragma (':' COMMENT? Stmt)?
-//
-//SimpleStmt ::= (SimpleStatementInner | ExprStmt) COMMENT?
-//
-//private SimpleStatementInner ::=
-//    ReturnStmt
-//    | RaiseStmt
-//    | YieldStmt
-//    | DiscardStmt
-//    | BreakStmt
-//    | ContinueStmt
-//    | PragmaStmt
-//    | ImportStmt
-//    | ExportStmt
-//    | FromStmt
-//    | IncludeStmt
-//    | CommentStmt
-//
-//ComplexOrSimpleStmt ::= (IfStmt |WhenStmt |WhileStmt
-//                    |TryStmt |ForStmt
-//                    |BlockStmt |StaticStmt |DeferStmt |AsmStmt
-//                    | 'proc' routine
-//                    | 'method' routine
-//                    | 'iterator' routine
-//                    | 'macro' routine
-//                    | 'template' routine
-//                    | 'converter' routine
-//                    | 'type' section(TypeDef)
-//                    | 'const' section(constant)
-//                    | ('let' | 'var' | 'using') section(variable)
-//                    | BindStmt |MixinStmt)
-//                    | SimpleStmt
-//Stmt ::=
-//    (INDENDT <<MatchOneOrMore ComplexOrSimpleStmt (IND_EQ | ';')>> DED)
-//    | << MatchOneOrMore SimpleStmt  ';'>>
-//
-//private meta MatchOrEmpty ::= (<< p1 >> (<<p2>>)* )?
-//private meta MatchOneOrMore ::= << p1 >> (<<p2>> <<p1>>)*
+module ::= <<MatchOrEmpty Stmt (';' | IND_EQ)>>
+Comma ::= ',' COMMENT?
+Semicolon ::= ';' COMMENT?
+Colon ::= ':' COMMENT?
+Colcom ::= ':' COMMENT?
+Operator ::=  OP0 | OP1 | OP2 | OP3 | OP4 | OP5 | OP6 | OP7 | OP8 | OP9
+         | 'or' | 'xor' | 'and'
+         | 'is' | 'isnot' | 'in' | 'notin' | 'of'
+         | 'div' | 'mod' | 'shl' | 'shr' | 'not' | 'static' | '..'
+PrefixOperator ::= Operator
+OptInd ::= COMMENT?
+OptPar ::= (INDENDT | IND_EQ)?
+SimpleExpr ::= ArrowExpr (OP0 OptInd ArrowExpr)* pragma?
+ArrowExpr ::= AssignExpr (OP1 OptInd AssignExpr)*
+AssignExpr ::= OrExpr (OP2 OptInd OrExpr)*
+OrExpr ::= AndExpr (OP3 OptInd AndExpr)*
+AndExpr ::= CmpExpr (OP4 OptInd CmpExpr)*
+CmpExpr ::= SliceExpr (OP5 OptInd SliceExpr)*
+SliceExpr ::= AmpExpr (OP6 OptInd AmpExpr)*
+AmpExpr ::= PlusExpr (OP7 OptInd PlusExpr)*
+PlusExpr ::= MulExpr (OP8 OptInd MulExpr)*
+MulExpr ::= DollarExpr (OP9 OptInd DollarExpr)*
+DollarExpr ::= Primary (OP10 OptInd primary)*
+Symbol ::= '`' (KEYW|IDENT|literal|(operator|'('|')'|'['|']'|'{'|'}'|'=')+)+ '`'
+       | IDENT | KEYW
+ExprColonEqExpr ::= Expr (':'|'=' Expr)?
+ExprList ::= <<MatchOneOrMore Expr  Comma>>
+ExprColonEqExprList ::= ExprColonEqExpr (Comma ExprColonEqExpr)* (Comma)?
+DotExpr ::= Expr '.' OptInd (Symbol | '[:' ExprList ']')
+ExplicitGenericInstantiation ::= '[:' ExprList ']' ( '(' ExprColonEqExpr ')' )?
+QualifiedIdent ::= Symbol ('.' OptInd Symbol)?
+SetOrTableConstr ::= '{' ((ExprColonEqExpr Comma)* | ':' ) '}'
+CastExpr ::= 'cast' '[' OptInd TypeDesc OptPar ']' '(' OptInd Expr OptPar ')'
+ParKeyw ::= 'discard' | 'include' | 'if' | 'while' | 'case' | 'try'
+        | 'finally' | 'except' | 'for' | 'block' | 'const' | 'let'
+        | 'when' | 'var' | 'mixin'
+Par ::= '(' OptInd
+          ( <<MatchOneOrMore &ParKeywComplexOrSimpleStmt  ';' >>
+          | ';' <<MatchOneOrMore ComplexOrSimpleStmt  ';'>>
+          |PragmaStmt
+          | SimpleExpr ( ('=' Expr (';' <<MatchOneOrMore ComplexOrSimpleStmt  ';'>> )? )
+                       | (':' Expr (','  <<MatchOneOrMore ExprColonEqExpr     ','>> )? ) ) )
+          OptPar ')'
+Literal ::= | INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
+          | UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
+          | FLOAT_LIT | FLOAT32_LIT | FLOAT64_LIT
+          | STR_LIT | RSTR_LIT | TRIPLESTR_LIT
+          | CHAR_LIT
+          | NIL
+GeneralizedLit ::= GENERALIZED_STR_LIT | GENERALIZED_TRIPLESTR_LIT
+IdentOrLiteral ::= GeneralizedLit | Symbol | Literal
+               | Par | ArrayConstr | SetOrTableConstr
+               | CastExpr
+TupleConstr ::= '(' OptInd (ExprColonEqExpr comma?)* OptPar ')'
+ArrayConstr ::= '[' OptInd (ExprColonEqExpr comma?)* OptPar ']'
+PrimarySuffix ::= '(' (ExprColonEqExpr comma?)* ')' DoBlocks?
+      | DoBlocks
+      | '.' OptInd Symbol GeneralizedLit?
+      | '[' OptInd IndexExprList OptPar ']'
+      | '{' OptInd IndexExprList OptPar '}'
+      | &( '`'|IDENT|literal|'cast'|'addr'|'type') Expr # command syntax
+CondExpr ::= Expr Colcom Expr OptInd
+        ('elif' Expr Colcom Expr OptInd)*
+         'else' Colcom Expr
+IfExpr ::= 'if' CondExpr
+WhenExpr ::= 'when' CondExpr
+Pragma ::= '{.' OptInd (ExprColonExpr comma?)* OptPar ('.}' | '}')
+IdentVis ::= Symbol opr?
+IdentVisDot ::= Symbol '.' OptInd Symbol opr?
+IdentWithPragma ::= IdentVis pragma?
+IdentWithPragmaDot ::= IdentVisDot pragma?
+DeclColonEquals ::= IdentWithPragma (comma IdentWithPragma)* Comma?
+                  (':' OptInd TypeDesc)? ('=' OptInd Expr)?
+IdentColonEquals ::= ident (comma ident)* comma?
+     (':' OptInd TypeDesc)? ('=' OptInd Expr)?)
+InlTupleDecl ::= 'tuple'
+    '[' OptInd  (IdentColonEquals (comma|semicolon)?)*  OptPar ']'
+ExtTupleDecl ::= 'tuple'
+    COMMENT? (INDENDT IdentColonEquals (IND_EQ IdentColonEquals)*)?
+TupleClass ::= 'tuple'
+ParamList ::= '(' declColonEquals ^* (comma|semicolon) ')'
+ParamListArrow ::= ParamList? ('->' OptInd TypeDesc)?
+ParamListColon ::= ParamList? (':' OptInd TypeDesc)?
+DoBlock ::= 'do' ParamListArrow pragmas? Colcom Stmt
+ProcExpr ::= 'proc' ParamListColon pragmas? ('=' COMMENT? Stmt)?
+Distinct ::= 'distinct' OptInd TypeDesc
+Expr ::= (BlockExpr
+      | IfExpr
+      | WhenExpr
+      | CaseExpr
+      | TryExpr)
+      / SimpleExpr
+TypeKeyw ::= 'var' | 'out' | 'ref' | 'ptr' | 'shared' | 'tuple'
+         | 'proc' | 'iterator' | 'distinct' | 'object' | 'enum'
+Primary ::= TypeKeyw TypeDesc
+        |  PrefixOperator* IdentOrLiteral PrimarySuffix*
+        | 'static' Primary
+        | 'bind' Primary
+TypeDesc ::= SimpleExpr
+TypeDefAux ::= SimpleExpr
+           | 'concept' typeClass
+PostExprBlocks ::= ':' Stmt? ( IND_EQ DoBlock
+                           | IND_EQ 'of' ExprList ':' Stmt
+                           | IND_EQ 'elif' Expr ':' Stmt
+                           | IND_EQ 'except' ExprList ':' Stmt
+                           | IND_EQ 'else' ':' Stmt )*
+ExprStmt ::= SimpleExpr
+         (( '=' OptInd Expr ColonBody? )
+         | ( Expr ^+ comma
+             DoBlocks
+              / macroColon
+           ))?
+ImportStmt ::= 'import' OptInd Expr
+              ((Comma Expr)*
+              / 'except' OptInd (<<OneOr MoreExpr ^+ comma))
+IncludeStmt ::= 'include' OptInd Expr ^+ comma
+FromStmt ::= 'from' ModuleName 'import' OptInd Expr (comma Expr)*
+ReturnStmt ::= 'return' OptInd Expr?
+RaiseStmt ::= 'raise' OptInd Expr?
+YieldStmt ::= 'yield' OptInd Expr?
+DiscardStmt ::= 'discard' OptInd Expr?
+BreakStmt ::= 'break' OptInd Expr?
+ContinueStmt ::= 'break' OptInd Expr?
+CondStmt ::= Expr Colcom Stmt COMMENT?
+           (IND_EQ 'elif' Expr Colcom Stmt)*
+           (IND_EQ 'else' Colcom Stmt)?
+IfStmt ::= 'if'CondStmt
+WhenStmt ::= 'when'CondStmt
+WhileStmt ::= 'while' Expr Colcom Stmt
+OfBranch ::= 'of' ExprList Colcom Stmt
+OfBranches ::= OfBranch (IND_EQ OfBranch)*
+                      (IND_EQ 'elif' Expr Colcom Stmt)*
+                      (IND_EQ 'else' Colcom Stmt)?
+CaseStmt ::= 'case' Expr ':'? COMMENT?
+            (INDENDT OfBranches DED
+            | IND_EQ OfBranches)
+TryStmt ::= 'try' Colcom Stmt &(IND_EQ? 'except'|'finally')
+           (IND_EQ? 'except' ExprList Colcom Stmt)*
+           (IND_EQ? 'finally' Colcom Stmt)?
+TryExpr ::= 'try' Colcom Stmt &(OptInd 'except'|'finally')
+           (OptInd 'except' ExprList Colcom Stmt)*
+           (OptInd 'finally' Colcom Stmt)?
+ExceptBlock ::= 'except' Colcom Stmt
+ForStmt ::= 'for' (<<MatchOneOrMore IdentWithPragma  comma>>) 'in' Expr Colcom Stmt
+BlockStmt ::= 'block' Symbol? Colcom Stmt
+BlockExpr ::= 'block' Symbol? Colcom Stmt
+StaticStmt ::= 'static' Colcom Stmt
+DeferStmt ::= 'defer' Colcom Stmt
+AsmStmt ::= 'asm' pragma? (STR_LIT | RSTR_LIT | TRIPLE_STR_LIT)
+GenericParam ::= Symbol (comma Symbol)* (colon Expr)? ('=' OptInd Expr)?
+GenericParamList ::= '[' OptInd
+  genericParam ^* (comma/semicolon) OptPar ']'
+Pattern ::= '{' Stmt '}'
+IndAndComment ::= (INDENDT COMMENT)? | COMMENT?
+Routine ::= OptInd IdentVis pattern? GenericParamList?
+  ParamListColon pragma? ('=' COMMENT? Stmt)? IndAndComment
+CommentStmt ::= COMMENT
+section(p) = COMMENT? p / (INDENDT (p / COMMENT)^+IND_EQ DED)
+Constant ::= IdentWithPragma (colon TypeDesc)? '=' OptInd Expr IndAndComment
+Enum ::= 'enum' OptInd (Symbol OptInd ('=' OptInd Expr COMMENT?)? Comma?)+
+ObjectWhen ::= 'when' Expr Colcom ObjectPart COMMENT?
+            ('elif' Expr Colcom ObjectPart COMMENT?)*
+            ('else' Colcom ObjectPart COMMENT?)?
+ObjectBranch ::= 'of' ExprList Colcom ObjectPart
+ObjectBranches ::= ObjectBranch (IND_EQ ObjectBranch)*
+                      (IND_EQ 'elif' Expr Colcom ObjectPart)*
+                      (IND_EQ 'else' Colcom ObjectPart)?
+ObjectCase ::= 'case' IdentWithPragma ':' TypeDesc ':'? COMMENT?
+            (INDENDT ObjectBranches DED
+            | IND_EQ ObjectBranches)
+ObjectPart ::= INDENDT <<MatchOneOrMore ObjectPart IND_EQ >> DED
+           / objectWhen / objectCase / 'nil' / 'discard' / declColonEquals
+Object ::= 'object' pragma? ('of' TypeDesc)? COMMENT? ObjectPart
+TypeClassParam ::= ('var' | 'out')? Symbol
+TypeClass ::= typeClassParam ^* ',' (pragma)? ('of' TypeDesc ^* ',')?
+              &INDENDT Stmt
+TypeDef ::= IdentWithPragmaDot genericParamList? '=' OptInd typeDefAux
+            indAndComment?
+VarTuple ::= '(' OptInd <<MatchOneOrMore IdentWithPragma Comma >> OptPar ')' '=' OptInd Expr
+ColonBody ::= Colcom Stmt DoBlocks?
+Variable ::= (VarTuple | IdentColonEquals) colonBody? indAndComment
+BindStmt ::= 'bind' OptInd <<MatchOneOrMore QualifiedIdent Comma>>
+MixinStmt ::= 'mixin' OptInd <<MatchOneOrMore QualifiedIdent Comma>>
+PragmaStmt ::= pragma (':' COMMENT? Stmt)?
+
+SimpleStmt ::= (SimpleStatementInner | ExprStmt) COMMENT?
+
+private SimpleStatementInner ::=
+    ReturnStmt
+    | RaiseStmt
+    | YieldStmt
+    | DiscardStmt
+    | BreakStmt
+    | ContinueStmt
+    | PragmaStmt
+    | ImportStmt
+    | ExportStmt
+    | FromStmt
+    | IncludeStmt
+    | CommentStmt
+
+ComplexOrSimpleStmt ::= (IfStmt |WhenStmt |WhileStmt
+                    |TryStmt |ForStmt
+                    |BlockStmt |StaticStmt |DeferStmt |AsmStmt
+                    | 'proc' Routine
+                    | 'method' Routine
+                    | 'iterator' Routine
+                    | 'macro' Routine
+                    | 'template' Routine
+                    | 'converter' Routine
+                    | 'type' section(TypeDef)
+                    | 'const' section(constant)
+                    | ('let' | 'var' | 'using') section(variable)
+                    | BindStmt | MixinStmt)
+                    | SimpleStmt
+Stmt ::=
+    (INDENDT <<MatchOneOrMore ComplexOrSimpleStmt (IND_EQ | ';')>> DED)
+    | << MatchOneOrMore SimpleStmt  ';'>>
+
+private meta MatchOrEmpty ::= (<< p1 >> (<<p2>>)* )?
+private meta MatchOneOrMore ::= << p1 >> (<<p2>> <<p1>>)*

@@ -66,6 +66,17 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return shouldntBeNewLine != NimTokenTypes.CRLF;
     }
 
+    /**
+     * Tuple Disambiguation
+     * @param builder
+     * @param level
+     * @return
+     */
+    public static boolean noWhiteSpace(@NotNull PsiBuilder builder, int level){
+        IElementType shouldntBeWhitespace = builder.rawLookup(-1);
+        return shouldntBeWhitespace != NimTokenTypes.WHITE_SPACE;
+    }
+
     // For Debug Stepping
     public static boolean endCurrent(@NotNull PsiBuilder builder, int level){
         final IElementType type = builder.lookAhead(0);

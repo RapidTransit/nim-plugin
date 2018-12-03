@@ -364,6 +364,7 @@ LeftHandExprList ::= ExpressionList
 private ExpressionList ::= <<Commas Expression>>
 
 SymbolExpression ::=  Symbol
+
 Expression ::=
     AtExpression
     | CastExpression
@@ -394,7 +395,7 @@ private MaxGroup ::= OperandName
 | Literal
 | SymbolExpression
 
-TupleExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression (COMMA Expression)*<<exitModeSafe "PAR">> PARAN_CLOSE
+TupleExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression ((COMMA &PARAN_CLOSE) | (COMMA Expression)+) <<exitModeSafe "PAR">> PARAN_CLOSE
 StringJoinExpression ::= Expression AMP Expression
 BracketExpression ::= Expression BRACKET_OPEN BRACKET_CLOSE
 ChainedExpression ::= Expression (DOT Expression)+
@@ -407,11 +408,11 @@ UranaryConditionalExpression ::= NOT Expression
 ConditionalExpression ::=  Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
 AddExpression ::= Expression OP2 Expression
-ParanExpression ::= !Expression PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
+ParanExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
-CallExpression ::= Expression  Generics? ArgumentList
+CallExpression ::= Expression  Generics? <<noWhiteSpace>> ArgumentList
 TypeExpression ::= TYPE ArgumentList
 ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE
 

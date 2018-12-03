@@ -40,7 +40,9 @@ public class GrammarTest extends ParsingTestCase {
     public void testMarshal1(){
         doTest(true);
     }
-
+    public void testTuples(){
+        doTest(true);
+    }
     public void testTemplate(){
         doTest(true);
     }
