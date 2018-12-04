@@ -3,6 +3,7 @@
 
   extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
+
   psiClassPrefix="Nim"
   psiImplClassSuffix="Impl"
   psiPackage="org.nim.psi"
@@ -129,7 +130,10 @@
     EXAMPLE = '<example>'
     SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
-  extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
+    implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
+    extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
+    elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.NimStubTypes.stubFactory"
+    extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(Expression|OperandName|Literal)")=Expression
     extends(".*Statement")=Statement
     generateTokenAccessors=true
@@ -152,7 +156,6 @@ Statement ::=
     | IfStatement
     | ForStatement
     | CaseStatement
-
     | MethodTypes
     | WhenDeclaration
 
@@ -165,7 +168,10 @@ Symbol ::=
     | IDENTIFIER
 SymbolWithPragma ::= Symbol STAR? Pragma?
 //@todo: Should do Simple Expression
-DeclarationColonEquals ::= <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?
+DeclarationColonEquals ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?{
+    stubClass="org.nim.stubs.DeclarationColonEqualsStub"
+    methods=[]
+}
 
 
 private ImportSymbol ::=
