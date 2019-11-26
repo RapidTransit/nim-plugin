@@ -10,7 +10,8 @@ buildscript {
 }
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.3.11'
+    id 'antlr'
+    id 'org.jetbrains.intellij' version '0.4.13'
     id 'org.jetbrains.kotlin.jvm' version '1.2.51'
     id "org.jetbrains.grammarkit" version "2018.2"
     id("org.asciidoctor.convert") version "1.5.9.2"
@@ -40,7 +41,9 @@ sourceSets {
 dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
     compile group: 'org.jodd', name: 'jodd-core', version: '5.0.5'
-
+    compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.7.2'
+    antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
+    compile "org.antlr:antlr4-intellij-adaptor:0.1"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.1'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.11.1'
@@ -78,7 +81,7 @@ compileTestKotlin {
 intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
-    version '2018.2.4'
+    version '2019.2.4'
     if(System.getProperty('os.name').startsWith('Windows')){
         ideaDependencyCachePath = 'C:\\idea'
     }
@@ -142,4 +145,7 @@ idea {
         generatedSourceDirs += file('build/generated')
 
     }
+}
+generateGrammarSource {
+    arguments += ['-package', 'org.nim.grammar', "-Xexact-output-dir"]
 }
