@@ -147,5 +147,5 @@ idea {
     }
 }
 generateGrammarSource {
-    arguments += ['-package', 'org.nim.grammar', "-Xexact-output-dir"]
+    arguments += ['-package', 'org.nim.grammar.antlr', "-Xexact-output-dir"]
 }
