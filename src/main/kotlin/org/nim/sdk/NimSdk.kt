@@ -77,9 +77,11 @@ class NimSdk : Sdk, SdkModificator {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setName(name: String?) {
+    override fun setName(name: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+
 
     override fun getRoots(rootType: OrderRootType): Array<VirtualFile> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

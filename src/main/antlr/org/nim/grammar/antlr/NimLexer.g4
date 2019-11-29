@@ -1,14 +1,21 @@
 lexer grammar NimLexer;
 @lexer::header {
 import java.util.*;
+import jodd.util.StringUtil;
+
 }
 
 tokens { INDENT, DEDENT}
 
 @lexer::members {
+
       private int previousIndents = -1;
       private int indentLevel = 0;
-      private Queue<Token> tokens = new LinkedList<Token>();
+      private Queue<Token> tokens = new ArrayDeque<Token>();
+private boolean textOnly = false;
+  private boolean notFirst = false;
+  private int p = 0;
+  private int textIndent = 0;
 
        @Override
         public void emit(Token t) {
@@ -32,6 +39,51 @@ tokens { INDENT, DEDENT}
           token.setLine(getLine());
           emit(token);
         }
+
+  private void newline(){
+
+      int n = getText() == null ? 0 : getText().replaceAll("\r?\n", "").length() / 2;
+
+       if(n > previousIndents && n > 0) {
+         jump(INDENT);
+         previousIndents = n;
+         if(textOnly){
+            textIndent = n;
+         }
+       } else if(n < previousIndents) {
+         if(textOnly){
+            if(n < textIndent){
+              textOnly = false;
+              textIndent = -1;
+                popMode();
+            }
+         }
+         int times = previousIndents - n;
+//         while(object.size() > 0){
+//            if(object.peekLast().getName() >= n){
+//                object.removeLast();
+//            } else {
+//                break;
+//            }
+//         }
+         for(int i = 0; i < times; i++){
+              jump(DEDENT);
+         }
+         previousIndents = n;
+       } else if(_input.LA(1) == EOF) {
+         while(indentLevel > 0) {
+           jump(DEDENT);
+           if(indentLevel < textIndent){
+             textOnly = false;
+             textIndent = -1;
+           }
+         }
+       } else {
+            skip();
+       }
+
+  }
+
 }
 
 fragment Letter:  [a-zA-Z\u8000-\uFF00];
@@ -50,7 +102,6 @@ fragment FloatingLiteral: DecimalLiteral '.' DecimalLiteral;
 fragment ExponentLiteral: DecimalLiteral Exponent;
 
 NUMBER: (DecimalLiteral | HexLiteral | FloatingLiteral | ExponentLiteral) NumberSuffix?;
-INDENT: '  ';
 FORWARD_SLASH: '/';
 BACK_SLASH:'\\';
 IDENTIFIER: Letter ( '_'? Letter | Digit )*;
@@ -153,9 +204,12 @@ PERCENT:'%';
 AMP:'&';
 DOLLAR:'$';
 AT:'@';
-CRLF:[\r?\n];
+NEW_LINE:[\r?\n] ' '*;
 DOUBLE_QUOTED_LITERAL: '"Placeholder"';
-TRIPLE_QUOTE_LITERAL: '"""Placeholder"""';
-RAW_STRING: 'r""Placeholder""';
+TRIPLE_QUOTE_LITERAL: '"""' .* '"""';
+fragment TRIPLE_QUOTE_CHAR: ;
+RAW_STRING: 'r"' RAW_STRING_CHAR*? '"';
+fragment RAW_STRING_CHAR: ~'"' | '""';
 mode PROCEDURE_MODE;
 BACK_TICK_IDENTIFIER:[^`]+;
+PM_NEW_LINE: NEW_LINE {newline();} -> popMode;

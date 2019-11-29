@@ -95,7 +95,7 @@ patchPluginXml {
 
 tasks.withType(Test) {
     useJUnit {
-        include '**/**/*Test.*' // any Java or Kotlin class that ends with 'Test'
+        include '**Test.**' // any Java or Kotlin class that ends with 'Test'
     }
 }
 
