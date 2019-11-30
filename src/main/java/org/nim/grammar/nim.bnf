@@ -132,7 +132,7 @@
   ]
     implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
     extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
-    elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.NimStubTypes.stubFactory"
+    //elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.StubAdapter.adapt"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(Expression|OperandName|Literal)")=Expression
     extends(".*Statement")=Statement
@@ -499,7 +499,7 @@ Parameters ::= PParameters
 
 private PParameters ::=
 (PARAN_OPEN PARAN_CLOSE)
-| PARAN_OPEN (Parameter (S_or_C Parameter | &PARAN_CLOSE)*) PARAN_CLOSE
+| PARAN_OPEN (Parameter (S_or_C Parameter )*) PARAN_CLOSE
 
 ParameterDefault ::= EQUAL? Expression
 
@@ -532,7 +532,7 @@ ProcedureMethod ::= <<MethodLike PROC>>
 FuncMethod ::= <<MethodLike FUNC>>
 TemplateMethod ::= <<MethodLike TEMPLATE>>
 
-Generics ::= BRACKET_OPEN <<enterMode "GEN">> GenericParam ((COMMA GenericParam) | & BRACKET_CLOSE)* <<exitModeSafe "GEN">> BRACKET_CLOSE
+Generics ::= BRACKET_OPEN <<enterMode "GEN">> GenericParam ((COMMA GenericParam) )* <<exitModeSafe "GEN">> BRACKET_CLOSE
 GenericInner ::= Expression Generics
 GenericParam ::= GenericInner| Generics | Expression
 
@@ -554,9 +554,9 @@ Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
 SignedInteger ::= INT_LIT | INT8_LIT | INT16_LIT | INT32_LIT | INT64_LIT
 UnsignedInteger ::= UINT_LIT | UINT8_LIT | UINT16_LIT | UINT32_LIT | UINT64_LIT
 
-ArrayLiteral ::= BRACKET_OPEN << OptionalIndentWithEnd (Expression ((COMMA Expression)| &BRACKET_CLOSE)*)? BRACKET_CLOSE>>
+ArrayLiteral ::= BRACKET_OPEN << OptionalIndentWithEnd (Expression ((COMMA Expression))*)? BRACKET_CLOSE>>
 
-OperandName ::= ReferenceExpression QualifiedReferenceExpression? {elementType=ReferenceExpression}
+OperandName ::= ReferenceExpression QualifiedReferenceExpression? CallExpression? {elementType=ReferenceExpression}
 left QualifiedReferenceExpression ::= DOT IDENTIFIER {elementType=ReferenceExpression}
 ReferenceExpression ::= IDENTIFIER { extends=Expression}
 
@@ -631,7 +631,7 @@ UranaryConditionalExpression ::= NOT Expression
 ConditionalExpression ::=  Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
 AddExpression ::= Expression OP2 Expression
-ParanExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression <<exitModeSafe "PAR">> PARAN_CLOSE
+ParanExpression ::=  PARAN_OPEN <<enterMode "PAR">>  Expression  <<exitModeSafe "PAR">> PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
@@ -673,7 +673,7 @@ private OP2 ::=
 
 private OP3 ::= AMP
 
-private OP4 ::= DOUBLE_DOT
+private OP4 ::= DOUBLE_DOT LESS_THAN?
 
 private OP5 ::=
     EQUALS

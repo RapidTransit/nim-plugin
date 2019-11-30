@@ -28,4 +28,20 @@ public abstract class NimNamedElementImpl<T extends NimNamedStub<?>> extends Nim
        return stub != null ? stub.isPublic() : (findChildByType(NimTokenTypes.STAR) != null);
     }
 
+    @Nullable
+    @Override
+    public PsiElement getIdentifier() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public PsiElement getNameIdentifier() {
+        return null;
+    }
+
+    @Override
+    public PsiElement setName(@NotNull String name) throws IncorrectOperationException {
+        return null;
+    }
 }
