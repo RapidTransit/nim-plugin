@@ -146,15 +146,14 @@ public class NimParserUtil extends GeneratedParserUtilBase {
     }
 
     public static boolean isLast(@NotNull PsiBuilder builder, int level){
-
+        IElementType type = builder.rawLookup(1);
+        IElementType type1 = builder.rawLookup(0);
         return false;
     }
 
     public static boolean hasTrailingParanthesis(@NotNull PsiBuilder builder, int level){
-        IElementType type = builder.rawLookup(1);
-        IElementType type1 = builder.rawLookup(0);
-        IElementType type2 = builder.rawLookup(-1);
-        return type1 == NimTokenTypes.PARAN_CLOSE;
+        IElementType type = builder.rawLookup(0);
+        return type == NimTokenTypes.PARAN_CLOSE;
     }
 
     public static boolean endTypeBlock(@NotNull PsiBuilder builder, int level){

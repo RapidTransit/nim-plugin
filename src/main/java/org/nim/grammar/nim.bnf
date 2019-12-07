@@ -156,10 +156,10 @@ Statement ::=
     ImportSection
     | TypeBlock
     | VarDeclaration
+    | ReturnStatement
     | SimpleStatement
     | NewStatement
     | TypeFieldStatement
-    | ReturnStatement
     | WhileStatement
     | IfStatement
     | ForStatement
