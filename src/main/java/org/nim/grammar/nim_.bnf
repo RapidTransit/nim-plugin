@@ -1,0 +1,176 @@
+{
+  parserClass="org.nim.grammar.NimParser_"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+
+  psiClassPrefix="Nim_"
+  psiImplClassSuffix="Impl"
+  psiPackage="org.nim.psi"
+  psiImplPackage="org.nim.psi.impl"
+
+  elementTypeHolderClass="org.nim.psi.NimTokenTypes_"
+  elementTypeClass="org.nim.psi.NimElementType_"
+  tokenTypeClass="org.nim.psi.NimTokenType_"
+  psiImplUtilClass="org.nim.grammar.NimPsiImplUtil"
+    parserUtilClass="org.nim.grammar.NimParserUtil"
+  tokens = [
+    BLOCK_COMMENT_START="#["
+    BLOCK_COMMENT_END="]#"
+    ADDR = 'addr'
+    AND = 'and'
+    AS = 'as'
+    ASM = 'asm'
+    BIND = 'bind'
+    BLOCK = 'block'
+    BREAK = 'break'
+    CASE = 'case'
+    CAST = 'cast'
+    CONCEPT ='concept'
+    CONSY = 'const'
+    CONTINUE = 'continue'
+    CONVERTER='converter'
+    DEFER='defer'
+    DISCARD='discard'
+    DISTINCT='distinct'
+    DIV='div'
+    DO='do'
+    ELIF='elif'
+    ELSE='else'
+    END='end'
+    ENUM='enum'
+    EXCEPT='except'
+    EXPORT='export'
+    FINALLY='finally'
+    FOR='for'
+    FROM='from'
+    FUNC='func'
+    IF='if'
+    IMPORT='import'
+    IN='in'
+    INCLUDE='include'
+    INTERFACE='interface'
+    IS='is'
+    ISNOT='isnot'
+    ITERATOR='iterator'
+    LET='let'
+    MACRO='macro'
+    METHOD='method'
+    MIXIN='mixin'
+    MOD='mod'
+    NIL='nil'
+    NOT='not'
+    NOTIN='notin'
+    OBJECT='object'
+    OF='of'
+    OR='or'
+    OUT='out'
+    PROC='proc'
+    PTR='ptr'
+    RAISE='raise'
+    REF='ref'
+    RETURN='return'
+    SHL='shl'
+    SHR='shr'
+    STATIC='static'
+    TEMPLATE='template'
+    TRY='try'
+    TUPLE='tuple'
+    TYPE='type'
+    USING='using'
+    VAR='var'
+    WHEN='when'
+    WHILE='while'
+    XOR='xor'
+    YIELD='yield'
+    PARAN_DOT_OPEN ='(.'
+    PARAN_DOT_CLOSE='.)'
+    BRACKET_DOT_OPEN='[.'
+    BRACKET_DOT_CLOSE='.]'
+    CURLY_DOT_OPEN='{.'
+    CURLY_DOT_CLOSE='.}'
+    PARAN_OPEN='('
+    PARAN_CLOSE=')'
+    BRACKET_OPEN='['
+    BRACKET_CLOSE=']'
+    CURLY_OPEN='{'
+    CURLY_CLOSE='}'
+    COMMA=','
+    SEMI_COLON=';'
+    DOUBLE_COLON='::'
+    SINGLE_COLON=':'
+    EQUAL='='
+    DOUBLE_DOT='..'
+    DOT='.'
+    BRACKET_COLON='[:'
+    BACK_TICK='`'
+    WHITE_SPACE=' '
+    PLUS='+'
+    MINUS='-'
+    STAR='*'
+    FORWAR_SLASH='/'
+    BACK_SLASH='\\'
+    LESS_THAN='<'
+    GREATER_THAN='>'
+    EXCLAMATION = '!'
+    QUSTION ='?'
+    CARET='^'
+    OP_OR='|'
+    PERCENT='%'
+    AMP='&'
+    DOLLAR='$'
+    AT='@'
+    TILDE='~'
+    TILDE_IDENTIFIER='<tilde_identifier>'
+    CRLF='<crlf>'
+    RAW_STRING='<raw_string>'
+    COMMENT = '<comment>'
+    INDENT= 'INDENT'
+    DOC_RUNNABLE = '<doc_runnable>'
+    EXAMPLE = '<example>'
+    SINGLE_LINE_COMMENT='<single_line_comment>'
+    IDENTIFIER='regexp:\p{Alpha}\w*'
+    space='regexp:\s+'
+    number='regexp:\d+(\.\d*)?'
+  ]
+  extends(".*Expression")=Expression
+//    implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
+//    extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
+//    //elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.StubAdapter.adapt"
+//    extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
+//    extends(".*(Expression|OperandName|Literal)")=Expression
+//    extends(".*Statement")=Statement
+//    generateTokenAccessors=true
+//
+//        consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
+}
+
+root ::=  (!<<eof>> MethodLike)* <<eof>>?
+
+MethodLike ::= ('template'|'proc') IDENTIFIER '*'? '(' MethodParameters? ')' ':' IDENTIFIER '=' Statements+
+MethodLikeExpression ::= 'proc'  '(' MethodParameters? ')' ':' IDENTIFIER '=' Statements+
+MethodParameters ::= MethodParameter (',' MethodParameter)*
+
+MethodParameter ::= SymbolExpression (',' SymbolExpression)* ':' Expression
+
+Statements ::= VariableDeclaration | Expression
+
+VariableDeclaration ::= ('var'|'let') IDENTIFIER ('{.' IDENTIFIER '.}')? '=' Expression
+
+SymbolExpression ::= IDENTIFIER ('.' IDENTIFIER)*
+IndexExpression ::= Expression '[' Expression ']'
+MethodCallExpression ::= Expression '(' (Expression (',' Expression)*)? ')'
+TypeExpression ::= 'type' '(' Expression ')'
+NumberExpression ::=  number
+AssignmentExpression ::= Expression '=' Expression
+ParenthesesExpression ::= '(' Expression Operator Expression ')'
+Operator ::= '*'
+Expression ::= MethodCallExpression
+| SymbolExpression
+| TypeExpression
+| MethodLikeExpression
+| IndexExpression
+| NumberExpression
+| AssignmentExpression
+| ParenthesesExpression
+

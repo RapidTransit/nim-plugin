@@ -9,6 +9,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.diff.FlyweightCapableTreeStructure;
 import gnu.trove.TObjectIntHashMap;
 import org.jetbrains.annotations.NotNull;
+import org.nim.psi.NimTokenType;
 import org.nim.psi.NimTokenTypes;
 
 import java.io.Serializable;
@@ -77,6 +78,12 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return shouldntBeWhitespace != NimTokenTypes.WHITE_SPACE;
     }
 
+
+    public static boolean parseCall(@NotNull PsiBuilder builder, int level){
+        boolean result = false;
+        return false;
+    }
+
     // For Debug Stepping
     public static boolean endCurrent(@NotNull PsiBuilder builder, int level){
         final IElementType type = builder.lookAhead(0);
@@ -138,6 +145,17 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return parserData.inProcExpression;
     }
 
+    public static boolean isLast(@NotNull PsiBuilder builder, int level){
+
+        return false;
+    }
+
+    public static boolean hasTrailingParanthesis(@NotNull PsiBuilder builder, int level){
+        IElementType type = builder.rawLookup(1);
+        IElementType type1 = builder.rawLookup(0);
+        IElementType type2 = builder.rawLookup(-1);
+        return type1 == NimTokenTypes.PARAN_CLOSE;
+    }
 
     public static boolean endTypeBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
