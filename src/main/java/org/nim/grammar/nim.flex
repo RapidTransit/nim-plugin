@@ -67,7 +67,7 @@ import static org.nim.psi.NimTokenTypes.*;
     IDENTIFIER= {_LETTER} ( _? {_LETTER} | {DEC_DIGIT} )*
     _VALID_CHARS = "\\"[0-9]+|"\\"{HEX_DIGIT}{2}|[^\\\']|"\\"[rcnlftv\'\"abe]
     CHAR_LITERAL=\'{_VALID_CHARS}\'
-// Eventually push the number stuff to the parser so we can add error inspections
+// Eventually push the number stuff to the parser so we can add error inspections?
     // Digit Classes
     DEC_DIGIT = [0-9]
     OCTAL_DIGIT = [0-7]

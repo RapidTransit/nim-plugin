@@ -134,7 +134,10 @@
     extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
     //elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.StubAdapter.adapt"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
+    extends(".*(StringLiteral)")=StringLiteral
     extends(".*(Expression|OperandName|Literal)")=Expression
+    extends(".*(Method)")=MethodLike
+    extends(".*Variable")=VariableDeclaration
     extends(".*Statement")=Statement
     generateTokenAccessors=true
     consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
@@ -155,7 +158,7 @@ File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
 Statement ::=
     ImportSection
     | TypeBlock
-    | VarDeclaration
+    | VariableDeclaration
     | ReturnStatement
     | SimpleStatement
     | NewStatement
@@ -198,10 +201,18 @@ Dedentation ::= DEDENT <<decreaseIndent>>
 
 NewStatement ::= NEW PARAN_OPEN Expression PARAN_CLOSE
 ReturnStatement ::= RETURN SimpleStatement? | SimpleStatement <<isLast>>
-VarDeclaration ::=
-    VAR Vars
-    | LET Vars
-    | CONST Vars
+
+// Variable Declaration
+
+VarVariable ::= VAR Vars
+LetVariable ::= LET Vars
+ConstVariable ::= CONST Vars
+
+
+VariableDeclaration ::=
+    VarVariable
+    | LetVariable
+    | ConstVariable
 
 private Vars ::=
     (Indentation  VarAssignment+   Dedentation)
@@ -427,7 +438,7 @@ ParanExpression ::=  PARAN_OPEN <<enterMode "PAR">>  Expression  <<exitModeSafe 
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
-//external CallExpression ::= parseCall
+
 CallExpression ::= Expression  Generics? <<noWhiteSpace>> ArgumentList
 TypeExpression ::= TYPE ArgumentList
 ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE

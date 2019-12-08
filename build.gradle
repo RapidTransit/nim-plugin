@@ -97,6 +97,7 @@ tasks.withType(Test) {
 }
 
 task generateNimLexer(type: GenerateLexer) {
+    group 'grammar'
     // source flex file
     File rootSrc = project.sourceSets.main.java.srcDirs[0];
     source = new File(rootSrc, "org/nim/grammar/nim.flex").path
@@ -115,6 +116,7 @@ task generateNimLexer(type: GenerateLexer) {
 }
 
 task generateNimParser(type: GenerateParser) {
+    group 'grammar'
 //    dependsOn pathingJar
 //    doFirst {
 //        classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath)

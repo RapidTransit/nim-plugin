@@ -1,15 +1,11 @@
 package org.nim.grammar;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.LighterASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.parser.GeneratedParserUtilBase;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.util.diff.FlyweightCapableTreeStructure;
 import gnu.trove.TObjectIntHashMap;
 import org.jetbrains.annotations.NotNull;
-import org.nim.psi.NimTokenType;
 import org.nim.psi.NimTokenTypes;
 
 import java.io.Serializable;
@@ -79,22 +75,6 @@ public class NimParserUtil extends GeneratedParserUtilBase {
     }
 
 
-    public static boolean parseCall(@NotNull PsiBuilder builder, int level){
-        boolean result = false;
-        return false;
-    }
-
-    // For Debug Stepping
-    public static boolean endCurrent(@NotNull PsiBuilder builder, int level){
-        final IElementType type = builder.lookAhead(0);
-        final IElementType type1 = builder.lookAhead(1);
-        final IElementType type2 = builder.lookAhead(2);
-        final IElementType type3 = builder.lookAhead(3);
-        final IElementType type4 = builder.lookAhead(4);
-        final IElementType type5 = builder.lookAhead(5);
-        final IElementType type6 = builder.lookAhead(6);
-        return true;
-    }
 
     public static boolean beginParsing(@NotNull PsiBuilder builder, int level){
         builder.putUserData(PARSER_DATA_KEY, new ParserData());
