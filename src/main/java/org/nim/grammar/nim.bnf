@@ -8,7 +8,9 @@
   psiImplClassSuffix="Impl"
   psiPackage="org.nim.psi"
   psiImplPackage="org.nim.psi.impl"
-
+    parserImports=[
+        'org.nim.grammar.NimParserUtil.VariableType'
+    ]
   elementTypeHolderClass="org.nim.psi.NimTokenTypes"
   elementTypeClass="org.nim.psi.NimElementType"
   tokenTypeClass="org.nim.psi.NimTokenType"
@@ -179,6 +181,7 @@ Symbol ::=
     | IDENTIFIER
 SymbolWithPragma ::= Symbol STAR? Pragma?
 //@todo: Should do Simple Expression
+// I forgot what this is :/
 DeclarationColonEquals ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?{
     stubClass="org.nim.stubs.DeclarationColonEqualsStub"
     methods=[]
@@ -204,19 +207,21 @@ ReturnStatement ::= RETURN SimpleStatement? | SimpleStatement <<isLast>>
 
 // Variable Declaration
 
-VarVariable ::= VAR Vars
-LetVariable ::= LET Vars
-ConstVariable ::= CONST Vars
-
-
 VariableDeclaration ::=
     VarVariable
     | LetVariable
     | ConstVariable
 
+VarVariable ::= VAR <<enterVar>> Vars <<exitVariable>>
+LetVariable ::= LET <<enterLet>> Vars <<exitVariable>>
+ConstVariable ::= CONST <<enterConst>> Vars <<exitConst>>
+
+
+
+
 private Vars ::=
-    (Indentation  VarAssignment+   Dedentation)
-    | ( VarAssignment+  )
+    Indentation  VarAssignment+   Dedentation
+    | VarAssignment+
 
 
 
@@ -234,11 +239,14 @@ private VarDec ::=
 
 private VarDefinitionList ::= <<Commas VarDefinition >>
 
+VarDefinition ::= IDENTIFIER Pragma? STAR? {
+    implements=['org.nim.psi.VariableDeclaration']
+    mixin='org.nim.psi.NimVariableMixin'
+}
 
 
 
 
-VarDefinition ::= IDENTIFIER Pragma? STAR?
 
 WhileStatement ::= WHILE Expression SINGLE_COLON Indentation Statement* Dedentation
 ForStatement ::= FOR Expression [COMMA Expression] SINGLE_COLON Indentation Statement* Dedentation

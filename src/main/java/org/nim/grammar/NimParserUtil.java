@@ -18,8 +18,12 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         NONE, TYPE, TYPE_DEFINITION, METHOD
     }
 
-    private static final Key<ParserData> PARSER_DATA_KEY = Key.create("PARSER_DATA");
+    public enum VariableType {
+        VAR, LET, CONST
+    }
 
+    private static final Key<ParserData> PARSER_DATA_KEY = Key.create("PARSER_DATA");
+    public static final Key<VariableType> VARIABLE_TYPE_KEY = Key.create("VARIABLE_TYPE");
     /**
      * Of Can be used as an operator or as a branch statement
      * @param builder
@@ -33,6 +37,29 @@ public class NimParserUtil extends GeneratedParserUtilBase {
             return shouldntBeNewLine == NimTokenTypes.CRLF;
         }
         return shouldntBeNewLine == NimTokenTypes.CRLF;
+    }
+
+    public static boolean enterVariableType(@NotNull PsiBuilder builder, int level, VariableType type){
+        builder.putUserData(VARIABLE_TYPE_KEY, type);
+        return true;
+    }
+
+    public static boolean enterVar(@NotNull PsiBuilder builder, int level){
+        enterVariableType(builder, level, VariableType.VAR);
+        return true;
+    }
+
+    public static boolean enterLet(@NotNull PsiBuilder builder, int level){
+        enterVariableType(builder, level, VariableType.LET);
+        return true;
+    }
+    public static boolean enterConst(@NotNull PsiBuilder builder, int level){
+        enterVariableType(builder, level, VariableType.CONST);
+        return true;
+    }
+    public static boolean exitVariable(@NotNull PsiBuilder builder, int level){
+        builder.putUserData(VARIABLE_TYPE_KEY, null);
+        return true;
     }
 
     /**
