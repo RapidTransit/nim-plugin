@@ -230,7 +230,7 @@ ExpColonEqExpression ::= Expression [(SINGLE_COLON|EQUAL) Expression ]
 SetOrTableLiteral ::= CURLY_OPEN (<<Commas ExpColonEqExpression >> | SINGLE_COLON) CURLY_CLOSE
 
 private VarDec ::=
-
+        //Not sure why this one is optional and others or not, leave as is for now
      (SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
     | (SINGLE_COLON REF? TupleType [EQUAL ExpressionList])
     | (SINGLE_COLON REF? IDENTIFIER EQUAL ExpressionList )
@@ -274,7 +274,7 @@ Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float |
 BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
 WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
 
-TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
+
 
 private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockDeclaration)* (<<inProcExpression>> <<hasTrailingParanthesis>> | Dedentation))
 
@@ -282,32 +282,8 @@ private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfSta
 
 TypeFieldStatement ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName
 
-/**
-Deals with Things Like this:
-  type
-    TE = enum
-      blah, blah2
 
-    TestObj = object
-      test, asd: int
-      case test2: TE <--- This Right Here
-      of blah:
-        help: string
-      else:
-        nil
-
- */
-ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<OptionalIndent  ObjectBranches>>
-
-ObjectWhen ::= WHEN Expression SINGLE_COLON  ObjectPart (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
-
-ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | DeclarationColonEquals
-ObjectBranch ::= OfAsNonOp Expression SINGLE_COLON ObjectPart
-ObjectBranches ::= ObjectBranch+ (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
-
-Parameters ::= PParameters
-
-private PParameters ::=
+private Parameters ::=
 (PARAN_OPEN PARAN_CLOSE)
 | PARAN_OPEN (Parameter (S_or_C Parameter )*) PARAN_CLOSE
 
@@ -346,18 +322,53 @@ Generics ::= BRACKET_OPEN <<enterMode "GEN">> GenericParam ((COMMA GenericParam)
 GenericInner ::= Expression Generics
 GenericParam ::= GenericInner| Generics | Expression
 
-TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL Types
+// Types
 
-private Types ::=  ObjectDeclaration | EnumDeclaration
+TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
+TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL ObjectOrEnum {
+    implements = [
+        "org.nim.stubs.NimNamedElement"
+        "org.nim.psi.NimType"
+    ]
+    mixin = "org.nim.psi.NimTypeDeclarationMixin"
+    stubClass = "org.nim.stubs.NimTypeStub"
+}
 
-ObjectDeclaration ::= REF? ((OBJECT  OfAsNonOp OperandName)| OBJECT | OperandName) [Indentation ObjectFields* Dedentation]
+
+private ObjectOrEnum ::=  ObjectType | EnumType
+
+private ObjectType ::= REF? ((OBJECT [OfAsNonOp OperandName]) | OperandName) [Indentation ObjectFields* Dedentation]
+
+ObjectFields ::= ObjectPart | (<<Commas ObjectField>> SINGLE_COLON REF? OperandName)
 
 ObjectField ::= IDENTIFIER STAR?
-ObjectFields ::=
- ObjectPart
-| (<<Commas ObjectField>> SINGLE_COLON REF? OperandName)
+/**
+Deals with Things Like this:
+  type
+    TE = enum
+      blah, blah2
 
-EnumDeclaration ::= ENUM Indentation <<Commas OperandName>> Dedentation
+    TestObj = object
+      test, asd: int
+      case test2: TE <--- This Right Here
+      of blah:
+        help: string
+      else:
+        nil
+
+ */
+ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<OptionalIndent  ObjectBranches>>
+
+ObjectWhen ::= WHEN Expression SINGLE_COLON  ObjectPart (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
+
+ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | DeclarationColonEquals
+ObjectBranch ::= OfAsNonOp Expression SINGLE_COLON ObjectPart
+ObjectBranches ::= ObjectBranch+ (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
+
+
+private EnumType ::= ENUM Indentation <<Commas OperandName>> Dedentation
+
+// Literals
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
