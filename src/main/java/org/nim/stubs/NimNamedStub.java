@@ -6,6 +6,7 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.util.io.StringRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.nim.psi.extension.NimNamedElement;
 
 public abstract class NimNamedStub<T extends NimNamedElement> extends NamedStubBase<T> {
 

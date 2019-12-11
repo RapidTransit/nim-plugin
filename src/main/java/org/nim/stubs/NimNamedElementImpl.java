@@ -8,8 +8,9 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nim.psi.NimTokenTypes;
+import org.nim.psi.extension.NimNamedElement;
 
-public abstract class NimNamedElementImpl<T extends NimNamedStub<?>> extends NimStubbedElementImpl<T> implements NimNamedElement{
+public abstract class NimNamedElementImpl<T extends NimNamedStub<?>> extends NimStubbedElementImpl<T> implements NimNamedElement {
     public NimNamedElementImpl(@NotNull T stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
     }

@@ -132,7 +132,7 @@
     EXAMPLE = '<example>'
     SINGLE_LINE_COMMENT='<single_line_comment>'
   ]
-    implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
+    implements("DeclarationColonEquals")="org.nim.psi.extension.NimNamedElement"
     extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
     //elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.StubAdapter.adapt"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
@@ -240,8 +240,8 @@ private VarDec ::=
 private VarDefinitionList ::= <<Commas VarDefinition >>
 
 VarDefinition ::= IDENTIFIER Pragma? STAR? {
-    implements=['org.nim.psi.VariableDeclaration']
-    mixin='org.nim.psi.NimVariableMixin'
+    implements=['org.nim.psi.extension.VariableDeclaration']
+    mixin='org.nim.psi.mixin.NimVariableMixin'
 }
 
 
@@ -327,11 +327,11 @@ GenericParam ::= GenericInner| Generics | Expression
 TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
 TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL ObjectOrEnum {
     implements = [
-        "org.nim.stubs.NimNamedElement"
-        "org.nim.psi.NimType"
+        "org.nim.psi.extension.NimNamedElement"
+        "org.nim.psi.extension.NimType"
     ]
-    mixin = "org.nim.psi.NimTypeDeclarationMixin"
-    stubClass = "org.nim.stubs.NimTypeStub"
+    mixin = "org.nim.psi.mixin.NimTypeDeclarationMixin"
+    stubClass = "org.nim.stubs.impl.NimTypeStub"
 }
 
 

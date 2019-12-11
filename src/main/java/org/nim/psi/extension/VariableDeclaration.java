@@ -1,4 +1,4 @@
-package org.nim.psi;
+package org.nim.psi.extension;
 
 import org.nim.grammar.NimParserUtil;
 
