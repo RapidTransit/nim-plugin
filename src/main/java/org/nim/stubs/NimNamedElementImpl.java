@@ -8,7 +8,6 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nim.psi.NimTokenTypes;
-import org.nim.psi.extension.NimNamedElement;
 
 public abstract class NimNamedElementImpl<T extends NimNamedStub<?>> extends NimStubbedElementImpl<T> implements NimNamedElement {
     public NimNamedElementImpl(@NotNull T stub, @NotNull IStubElementType nodeType) {
@@ -24,16 +23,11 @@ public abstract class NimNamedElementImpl<T extends NimNamedStub<?>> extends Nim
     }
 
     @Override
-    public boolean isPublic() {
+    public boolean isExported() {
        T stub = getStub();
-       return stub != null ? stub.isPublic() : (findChildByType(NimTokenTypes.STAR) != null);
+       return stub != null ? stub.isExported() : (findChildByType(NimTokenTypes.STAR) != null);
     }
 
-    @Nullable
-    @Override
-    public PsiElement getIdentifier() {
-        return null;
-    }
 
     @Nullable
     @Override
@@ -43,6 +37,6 @@ public abstract class NimNamedElementImpl<T extends NimNamedStub<?>> extends Nim
 
     @Override
     public PsiElement setName(@NotNull String name) throws IncorrectOperationException {
-        return null;
+        throw new IncorrectOperationException("Can not modify name");
     }
 }

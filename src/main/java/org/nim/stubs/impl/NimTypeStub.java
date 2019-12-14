@@ -1,6 +1,7 @@
 package org.nim.stubs.impl;
 
 import com.intellij.psi.stubs.*;
+import com.intellij.util.BitUtil;
 import org.jetbrains.annotations.NotNull;
 import org.nim.psi.NimTypeDeclaration;
 import org.nim.psi.impl.NimTypeDeclarationImpl;
@@ -28,11 +29,11 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
                         parentStub,
                         this,
                         // Name
-                        psi.getIdentifier().getText(),
+                        psi.getName(),
                         // Exported
                         false,
                         // Enumeration
-                        false);
+                        false, false);
             }
 
 
@@ -41,6 +42,7 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
                 ds.writeName(stub.name);
                 ds.writeBoolean(stub.exported);
                 ds.writeBoolean(stub.enumeration);
+                ds.writeBoolean(stub.referenceType);
             }
 
             @NotNull
@@ -54,6 +56,8 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
                         // Exported
                         ds.readBoolean(),
                         // Enumeration
+                        ds.readBoolean(),
+                        //referenceType
                         ds.readBoolean());
             }
 
@@ -70,14 +74,17 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
 
     private final boolean enumeration;
 
+    private final boolean referenceType;
+
     protected NimTypeStub(StubElement parent, IStubElementType elementType,
                           String name,
                           boolean exported,
-                          boolean enumeration) {
+                          boolean enumeration, boolean referenceType) {
         super(parent, elementType);
         this.name = name;
         this.exported = exported;
         this.enumeration = enumeration;
+        this.referenceType = referenceType;
     }
 
     public String getName() {
@@ -90,5 +97,9 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
 
     public boolean isEnumeration() {
         return enumeration;
+    }
+
+    public boolean isReferenceType() {
+        return referenceType;
     }
 }

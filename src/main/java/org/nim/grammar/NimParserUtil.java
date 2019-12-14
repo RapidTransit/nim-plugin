@@ -1,5 +1,6 @@
 package org.nim.grammar;
 
+import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.parser.GeneratedParserUtilBase;
 import com.intellij.openapi.util.Key;
@@ -101,6 +102,11 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return shouldntBeWhitespace != NimTokenTypes.WHITE_SPACE;
     }
 
+    public static boolean addType(@NotNull PsiBuilder builder, int level, ASTNode node){
+
+        node.putUserData(VARIABLE_TYPE_KEY, builder.getUserData(VARIABLE_TYPE_KEY));
+        return true;
+    }
 
 
     public static boolean beginParsing(@NotNull PsiBuilder builder, int level){

@@ -14,6 +14,6 @@ public class NimPsiImplUtil {
         if(stub != null){
             return stub.getName();
         }
-        return o.getIdentifier().getText();
+        return o.getName();
     }
 }

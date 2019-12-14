@@ -7,6 +7,10 @@ import com.intellij.psi.stubs.StubBase;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Super Class to all stubs
+ * @param <T>
+ */
 public class NimStubbedElementImpl<T extends StubBase<?>> extends StubBasedPsiElementBase<T> {
     public NimStubbedElementImpl(@NotNull T stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);

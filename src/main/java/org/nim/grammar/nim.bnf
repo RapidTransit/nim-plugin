@@ -1,138 +1,23 @@
 {
-  parserClass="org.nim.grammar.NimParser"
+    parserClass="org.nim.grammar.NimParser"
 
-  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
 
-  psiClassPrefix="Nim"
-  psiImplClassSuffix="Impl"
-  psiPackage="org.nim.psi"
-  psiImplPackage="org.nim.psi.impl"
+    psiClassPrefix="Nim"
+    psiImplClassSuffix="Impl"
+    psiPackage="org.nim.psi"
+    psiImplPackage="org.nim.psi.impl"
     parserImports=[
         'org.nim.grammar.NimParserUtil.VariableType'
     ]
-  elementTypeHolderClass="org.nim.psi.NimTokenTypes"
-  elementTypeClass="org.nim.psi.NimElementType"
-  tokenTypeClass="org.nim.psi.NimTokenType"
-  psiImplUtilClass="org.nim.grammar.NimPsiImplUtil"
+    elementTypeHolderClass="org.nim.psi.NimTokenTypes"
+    elementTypeClass="org.nim.psi.NimElementType"
+    tokenTypeClass="org.nim.psi.NimTokenType"
+    psiImplUtilClass="org.nim.grammar.NimPsiImplUtil"
     parserUtilClass="org.nim.grammar.NimParserUtil"
-  tokens = [
-    BLOCK_COMMENT_START="#["
-    BLOCK_COMMENT_END="]#"
-    ADDR = 'addr'
-    AND = 'and'
-    AS = 'as'
-    ASM = 'asm'
-    BIND = 'bind'
-    BLOCK = 'block'
-    BREAK = 'break'
-    CASE = 'case'
-    CAST = 'cast'
-    CONCEPT ='concept'
-    CONSY = 'const'
-    CONTINUE = 'continue'
-    CONVERTER='converter'
-    DEFER='defer'
-    DISCARD='discard'
-    DISTINCT='distinct'
-    DIV='div'
-    DO='do'
-    ELIF='elif'
-    ELSE='else'
-    END='end'
-    ENUM='enum'
-    EXCEPT='except'
-    EXPORT='export'
-    FINALLY='finally'
-    FOR='for'
-    FROM='from'
-    FUNC='func'
-    IF='if'
-    IMPORT='import'
-    IN='in'
-    INCLUDE='include'
-    INTERFACE='interface'
-    IS='is'
-    ISNOT='isnot'
-    ITERATOR='iterator'
-    LET='let'
-    MACRO='macro'
-    METHOD='method'
-    MIXIN='mixin'
-    MOD='mod'
-    NIL='nil'
-    NOT='not'
-    NOTIN='notin'
-    OBJECT='object'
-    OF='of'
-    OR='or'
-    OUT='out'
-    PROC='proc'
-    PTR='ptr'
-    RAISE='raise'
-    REF='ref'
-    RETURN='return'
-    SHL='shl'
-    SHR='shr'
-    STATIC='static'
-    TEMPLATE='template'
-    TRY='try'
-    TUPLE='tuple'
-    TYPE='type'
-    USING='using'
-    VAR='var'
-    WHEN='when'
-    WHILE='while'
-    XOR='xor'
-    YIELD='yield'
-    PARAN_DOT_OPEN ='(.'
-    PARAN_DOT_CLOSE='.)'
-    BRACKET_DOT_OPEN='[.'
-    BRACKET_DOT_CLOSE='.]'
-    CURLY_DOT_OPEN='{.'
-    CURLY_DOT_CLOSE='.}'
-    PARAN_OPEN='('
-    PARAN_CLOSE=')'
-    BRACKET_OPEN='['
-    BRACKET_CLOSE=']'
-    CURLY_OPEN='{'
-    CURLY_CLOSE='}'
-    COMMA=','
-    SEMI_COLON=';'
-    DOUBLE_COLON='::'
-    SINGLE_COLON=':'
-    EQUAL='='
-    DOUBLE_DOT='..'
-    DOT='.'
-    BRACKET_COLON='[:'
-    BACK_TICK='`'
-    WHITE_SPACE=' '
-    PLUS='+'
-    MINUS='-'
-    STAR='*'
-    FORWAR_SLASH='/'
-    BACK_SLASH='\\'
-    LESS_THAN='<'
-    GREATER_THAN='>'
-    EXCLAMATION = '!'
-    QUSTION ='?'
-    CARET='^'
-    OP_OR='|'
-    PERCENT='%'
-    AMP='&'
-    DOLLAR='$'
-    AT='@'
-    TILDE='~'
-    TILDE_IDENTIFIER='<tilde_identifier>'
-    CRLF='<crlf>'
-    RAW_STRING='<raw_string>'
-    COMMENT = '<comment>'
-    INDENT= 'INDENT'
-    DOC_RUNNABLE = '<doc_runnable>'
-    EXAMPLE = '<example>'
-    SINGLE_LINE_COMMENT='<single_line_comment>'
-  ]
-    implements("DeclarationColonEquals")="org.nim.psi.extension.NimNamedElement"
+
+    implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
     extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
     //elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.StubAdapter.adapt"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
@@ -143,6 +28,122 @@
     extends(".*Statement")=Statement
     generateTokenAccessors=true
     consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
+    tokens = [
+        BLOCK_COMMENT_START="#["
+        BLOCK_COMMENT_END="]#"
+        ADDR = 'addr'
+        AND = 'and'
+        AS = 'as'
+        ASM = 'asm'
+        BIND = 'bind'
+        BLOCK = 'block'
+        BREAK = 'break'
+        CASE = 'case'
+        CAST = 'cast'
+        CONCEPT ='concept'
+        CONSY = 'const'
+        CONTINUE = 'continue'
+        CONVERTER='converter'
+        DEFER='defer'
+        DISCARD='discard'
+        DISTINCT='distinct'
+        DIV='div'
+        DO='do'
+        ELIF='elif'
+        ELSE='else'
+        END='end'
+        ENUM='enum'
+        EXCEPT='except'
+        EXPORT='export'
+        FINALLY='finally'
+        FOR='for'
+        FROM='from'
+        FUNC='func'
+        IF='if'
+        IMPORT='import'
+        IN='in'
+        INCLUDE='include'
+        INTERFACE='interface'
+        IS='is'
+        ISNOT='isnot'
+        ITERATOR='iterator'
+        LET='let'
+        MACRO='macro'
+        METHOD='method'
+        MIXIN='mixin'
+        MOD='mod'
+        NIL='nil'
+        NOT='not'
+        NOTIN='notin'
+        OBJECT='object'
+        OF='of'
+        OR='or'
+        OUT='out'
+        PROC='proc'
+        PTR='ptr'
+        RAISE='raise'
+        REF='ref'
+        RETURN='return'
+        SHL='shl'
+        SHR='shr'
+        STATIC='static'
+        TEMPLATE='template'
+        TRY='try'
+        TUPLE='tuple'
+        TYPE='type'
+        USING='using'
+        VAR='var'
+        WHEN='when'
+        WHILE='while'
+        XOR='xor'
+        YIELD='yield'
+        PARAN_DOT_OPEN ='(.'
+        PARAN_DOT_CLOSE='.)'
+        BRACKET_DOT_OPEN='[.'
+        BRACKET_DOT_CLOSE='.]'
+        CURLY_DOT_OPEN='{.'
+        CURLY_DOT_CLOSE='.}'
+        PARAN_OPEN='('
+        PARAN_CLOSE=')'
+        BRACKET_OPEN='['
+        BRACKET_CLOSE=']'
+        CURLY_OPEN='{'
+        CURLY_CLOSE='}'
+        COMMA=','
+        SEMI_COLON=';'
+        DOUBLE_COLON='::'
+        SINGLE_COLON=':'
+        EQUAL='='
+        DOUBLE_DOT='..'
+        DOT='.'
+        BRACKET_COLON='[:'
+        BACK_TICK='`'
+        WHITE_SPACE=' '
+        PLUS='+'
+        MINUS='-'
+        STAR='*'
+        FORWAR_SLASH='/'
+        BACK_SLASH='\\'
+        LESS_THAN='<'
+        GREATER_THAN='>'
+        EXCLAMATION = '!'
+        QUSTION ='?'
+        CARET='^'
+        OP_OR='|'
+        PERCENT='%'
+        AMP='&'
+        DOLLAR='$'
+        AT='@'
+        TILDE='~'
+        TILDE_IDENTIFIER='<tilde_identifier>'
+        CRLF='<crlf>'
+        RAW_STRING='<raw_string>'
+        COMMENT = '<comment>'
+        INDENT= 'INDENT'
+        DOC_RUNNABLE = '<doc_runnable>'
+        EXAMPLE = '<example>'
+        SINGLE_LINE_COMMENT='<single_line_comment>'
+      ]
 }
 
 
@@ -205,43 +206,41 @@ Dedentation ::= DEDENT <<decreaseIndent>>
 NewStatement ::= NEW PARAN_OPEN Expression PARAN_CLOSE
 ReturnStatement ::= RETURN SimpleStatement? | SimpleStatement <<isLast>>
 
-// Variable Declaration
 
+/**
+Variable Declaration
+ */
 VariableDeclaration ::=
     VarVariable
     | LetVariable
     | ConstVariable
 
-VarVariable ::= VAR <<enterVar>> Vars <<exitVariable>>
-LetVariable ::= LET <<enterLet>> Vars <<exitVariable>>
-ConstVariable ::= CONST <<enterConst>> Vars <<exitConst>>
+VarVariable ::= VAR <<enterVar>> <<OptionalIndent VarAssignment+ >> <<exitVariable>>
+LetVariable ::= LET <<enterLet>> <<OptionalIndent VarAssignment+ >> <<exitVariable>>
+ConstVariable ::= CONST <<enterConst>> <<OptionalIndent VarAssignment+ >> <<exitVariable>>
 
 
 
-
-private Vars ::=
-    Indentation  VarAssignment+   Dedentation
-    | VarAssignment+
-
-
-
-VarAssignment ::= VarDefinitionList  VarDec
+VarAssignment ::= <<Commas VarName >>  VarTypeAndOrAssignment
 ExpColonEqExpression ::= Expression [(SINGLE_COLON|EQUAL) Expression ]
 SetOrTableLiteral ::= CURLY_OPEN (<<Commas ExpColonEqExpression >> | SINGLE_COLON) CURLY_CLOSE
 
-private VarDec ::=
+private VarTypeAndOrAssignment ::=
+
         //Not sure why this one is optional and others or not, leave as is for now
-     (SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
+     |(SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
     | (SINGLE_COLON REF? TupleType [EQUAL ExpressionList])
     | (SINGLE_COLON REF? IDENTIFIER EQUAL ExpressionList )
     | (SINGLE_COLON REF? IDENTIFIER)
     | EQUAL ExpressionList
 
-private VarDefinitionList ::= <<Commas VarDefinition >>
 
-VarDefinition ::= IDENTIFIER Pragma? STAR? {
-    implements=['org.nim.psi.extension.VariableDeclaration']
-    mixin='org.nim.psi.mixin.NimVariableMixin'
+
+VarName ::= IDENTIFIER Pragma? STAR?  {
+ //WTF? Causes a problem with the Visitor
+    implements=['org.nim.psi.extension.VarName']
+    mixin='org.nim.psi.mixin.NimVarNameMixin'
+
 }
 
 
@@ -291,13 +290,13 @@ ParameterDefault ::= EQUAL? Expression
 
 MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
 
-private OptionalPragma ::= Pragma?
-Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
+
+Pragma ::= CURLY_DOT_OPEN <<Commas IDENTIFIER >> CURLY_DOT_CLOSE
 
 // For this: template sortedByIt*(seq1, op: untyped)
 ParameterNames ::= <<Commas IDENTIFIER>>
 
-Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? OptionalPragma ParameterDefault?)?
+Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? Pragma? ParameterDefault?)?
 
 
 private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
@@ -325,9 +324,9 @@ GenericParam ::= GenericInner| Generics | Expression
 // Types
 
 TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
-TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL ObjectOrEnum {
+TypeDeclaration ::=  <<isInType>> OperandName Pragma? STAR? EQUAL ObjectOrEnum {
     implements = [
-        "org.nim.psi.extension.NimNamedElement"
+        "org.nim.stubs.NimNamedElement"
         "org.nim.psi.extension.NimType"
     ]
     mixin = "org.nim.psi.mixin.NimTypeDeclarationMixin"
@@ -464,7 +463,7 @@ ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe
 
 meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
 meta OptionalIndentWithEnd ::= (Indentation <<p1>> ((<<p2>> Dedentation)| (Dedentation <<p2>>)) | <<p1>>  <<p2>>)
-meta Commas ::= <<p>> (COMMA <<p>>)*
+private meta Commas ::= <<p>> (COMMA <<p>>)*
 private S_or_C ::= SEMI_COLON | COMMA
 private OfAsNonOp ::= <<isNotOperator>> OF
 Operator ::=

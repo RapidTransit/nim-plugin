@@ -9,11 +9,13 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nim.psi.NimTokenTypes;
-import org.nim.psi.extension.NimNamedElement;
+import org.nim.psi.NimTypeDeclaration;
+import org.nim.stubs.NimNamedElement;
 import org.nim.psi.extension.NimType;
 import org.nim.stubs.impl.NimTypeStub;
 
-public abstract class NimTypeDeclarationMixin extends StubBasedPsiElementBase<NimTypeStub> implements NimType, NimNamedElement {
+public abstract class NimTypeDeclarationMixin extends StubBasedPsiElementBase<NimTypeStub> implements NimTypeDeclaration, NimType, NimNamedElement {
+
     public NimTypeDeclarationMixin(@NotNull NimTypeStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
     }
@@ -28,8 +30,9 @@ public abstract class NimTypeDeclarationMixin extends StubBasedPsiElementBase<Ni
 
     @Nullable
     @Override
+    //@todo: Fix this
     public PsiElement getNameIdentifier() {
-        return null;
+        return getReferenceExpressionList().get(0);
     }
 
     @Override
@@ -39,22 +42,30 @@ public abstract class NimTypeDeclarationMixin extends StubBasedPsiElementBase<Ni
 
     @Override
     public boolean isReferenceType() {
-        return findChildByType(NimTokenTypes.REF) != null;
+        NimTypeStub stub = getStub();
+        if (stub != null) {
+            return stub.isReferenceType();
+        }
+        return getRef() != null;
     }
 
     @Override
     public boolean isEnum() {
-        return false;
+        NimTypeStub stub = getStub();
+        if (stub != null) {
+            return stub.isEnumeration();
+        }
+        return getEnum() != null;
     }
 
     @Override
-    public boolean isPublic() {
-        return false;
+    public boolean isExported() {
+        NimTypeStub stub = getStub();
+        if (stub != null) {
+            return stub.isExported();
+        }
+        return getStar() != null;
     }
 
-    @Nullable
-    @Override
-    public PsiElement getIdentifier() {
-        return null;
-    }
+
 }
