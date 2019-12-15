@@ -19,7 +19,7 @@
 
     implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
     extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
-    //elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.StubAdapter.adapt"
+    elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.NimStubTypesKt.stub"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(StringLiteral)")=StringLiteral
     extends(".*(Expression|OperandName|Literal)")=Expression
@@ -183,7 +183,7 @@ Symbol ::=
 SymbolWithPragma ::= Symbol STAR? Pragma?
 //@todo: Should do Simple Expression
 // I forgot what this is :/
-DeclarationColonEquals ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?{
+TypeField ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?{
     stubClass="org.nim.stubs.DeclarationColonEqualsStub"
     methods=[]
 }
@@ -237,7 +237,6 @@ private VarTypeAndOrAssignment ::=
 
 
 VarName ::= IDENTIFIER Pragma? STAR?  {
- //WTF? Causes a problem with the Visitor
     implements=['org.nim.psi.extension.VarName']
     mixin='org.nim.psi.mixin.NimVarNameMixin'
 
@@ -360,7 +359,7 @@ ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<Optiona
 
 ObjectWhen ::= WHEN Expression SINGLE_COLON  ObjectPart (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
 
-ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | DeclarationColonEquals
+ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | TypeField
 ObjectBranch ::= OfAsNonOp Expression SINGLE_COLON ObjectPart
 ObjectBranches ::= ObjectBranch+ (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
 

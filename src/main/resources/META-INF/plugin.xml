@@ -15,7 +15,12 @@
     -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileTypeFactory implementation="org.nim.lang.NimFileTypeFactory"/>
+        <fileType
+                name="Nim File"
+                implementationClass="org.nim.lang.NimFileType"
+                fieldName="INSTANCE"
+                language="Nim"
+                extensions="nim" />
         <lang.parserDefinition language="Nim" implementationClass="org.nim.grammar.NimParserDefinition"/>
         <lang.syntaxHighlighterFactory key="Nim" implementationClass="org.nim.NimSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.nim.NimColorSettingsPage"/>
