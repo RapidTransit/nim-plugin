@@ -22,8 +22,10 @@
                 language="Nim"
                 extensions="nim" />
         <lang.parserDefinition language="Nim" implementationClass="org.nim.grammar.NimParserDefinition"/>
-        <lang.syntaxHighlighterFactory key="Nim" implementationClass="org.nim.NimSyntaxHighlighterFactory"/>
-        <colorSettingsPage implementation="org.nim.NimColorSettingsPage"/>
+        <directoryProjectGenerator implementation="org.nim.project.NimDirectoryProjectGenerator" />
+        <moduleType id="NIM_MODULE" implementationClass="org.nim.module.NimModuleType" />
+        <!--        <lang.syntaxHighlighterFactory key="Nim" implementationClass="org.nim.NimSyntaxHighlighterFactory"/>-->
+<!--        <colorSettingsPage implementation="org.nim.NimColorSettingsPage"/>-->
     </extensions>
 
     <actions>

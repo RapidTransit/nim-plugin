@@ -8,9 +8,9 @@ buildscript {
 }
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.13'
+    id 'org.jetbrains.intellij' version '0.4.15'
 
-    id "org.jetbrains.grammarkit" version "2018.2"
+    id "org.jetbrains.grammarkit" version "2019.3"
     id("org.asciidoctor.convert") version "1.5.9.2"
 }
 
@@ -22,7 +22,7 @@ import org.jetbrains.grammarkit.tasks.*
 group 'org.nim'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 
 repositories {
     mavenCentral()
@@ -38,7 +38,6 @@ sourceSets {
 dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
     compile group: 'org.jodd', name: 'jodd-core', version: '5.0.5'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.1'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.11.1'
 
@@ -70,7 +69,8 @@ dependencies {
 intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
-    version '2019.2.4'
+
+    version '2019.3'
     if(System.getProperty('os.name').startsWith('Windows')){
         ideaDependencyCachePath = 'C:\\idea'
     }
