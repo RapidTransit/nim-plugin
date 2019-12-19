@@ -19,7 +19,7 @@
 
 //    implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
 //    extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
-//    elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.NimStubTypesKt.stub"
+    elementTypeFactory("TypeDeclaration")="org.nim.stubs.NimStubFactory.build"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(StringLiteral)")=StringLiteral
     extends(".*(Expression|OperandName|Literal)")=Expression
@@ -145,11 +145,6 @@
       ]
 }
 
-
-
-
-
-
 File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
 
 Statement ::=
@@ -159,7 +154,7 @@ Statement ::=
     | ReturnStatement
     | SimpleStatement
     | NewStatement
-    | TypeFieldStatement
+    | TypeFieldStatements
     | WhileStatement
     | IfStatement
     | ForStatement
@@ -167,18 +162,18 @@ Statement ::=
     | MethodTypes
     | WhenDeclaration
 
-
-
 private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
 
 Symbol ::=
     BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK
     | IDENTIFIER
+
 SymbolWithPragma ::= Symbol STAR? Pragma?
+
 //@todo: Should do Simple Expression
 // I forgot what this is :/
 TypeField ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?{
-    stubClass="org.nim.stubs.DeclarationColonEqualsStub"
+    stubClass="org.nim.stubs.impl.NimTypeFieldStatementStub"
     methods=[]
 }
 
@@ -204,19 +199,32 @@ ReturnStatement ::= RETURN SimpleStatement? | SimpleStatement <<isLast>>
 /**
 Variable Declaration
  */
-VariableDeclaration ::= (VAR | LET | CONST) <<enterVar>> <<OptionalIndent VarAssignment+ >> <<exitVariable>>
 
+//private VariableDeclaration ::= EnclosedVariableDeclaration | TopLevelVariableDeclaration
 
+ VariableDeclaration ::= (VAR | LET | CONST) <<enterVar>> <<OptionalIndent VarAssignment+ >> <<exitVariable>>
 
+/**
+    Does not Get Stubbed or Exported
+ */
+//EnclosedVariableDeclaration ::= <<isInMethodLike>> VariableDeclarationDefinition
+//
+///**
+//This Gets Stubbed and/or Exported
+// */
+//TopLevelVariableDeclaration ::= !<<isInMethodLike>> VariableDeclarationDefinition
 
-VarAssignment ::= <<Commas VarName >>  VarTypeAndOrAssignment
+VarAssignment ::= <<Commas VarName >>  VarTypeAndOrAssignment {
+    implements=['org.nim.psi.extension.NimVarAssignmentEx']
+    mixin='org.nim.psi.mixin.NimVarAssignmentMixin'
+}
 ExpColonEqExpression ::= Expression [(SINGLE_COLON|EQUAL) Expression ]
 SetOrTableLiteral ::= CURLY_OPEN (<<Commas ExpColonEqExpression >> | SINGLE_COLON) CURLY_CLOSE
 
 private VarTypeAndOrAssignment ::=
 
         //Not sure why this one is optional and others or not, leave as is for now
-     |(SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
+    (SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
     | (SINGLE_COLON REF? TupleType [EQUAL ExpressionList])
     | (SINGLE_COLON REF? IDENTIFIER EQUAL ExpressionList )
     | (SINGLE_COLON REF? IDENTIFIER)
@@ -266,7 +274,10 @@ private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfSta
 
 
 
-TypeFieldStatement ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName
+TypeFieldStatements ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName {
+    implements=['org.nim.stubs.NimNamedElement']
+    mixin='org.nim.psi.mixin.NimTypeFieldStatementMixin'
+}
 
 
 private Parameters ::=
@@ -299,12 +310,12 @@ private MethodTypes ::=
 
 private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? Pragma? EQUAL
 
-meta MethodLike ::= <<p>>  Signature MethodBody?
+meta MethodLike ::=  <<p>>  Signature MethodBody?
 ProcedureMethod ::= <<MethodLike PROC>>
 FuncMethod ::= <<MethodLike FUNC>>
 TemplateMethod ::= <<MethodLike TEMPLATE>>
 
-Generics ::= BRACKET_OPEN <<enterMode "GEN">> GenericParam ((COMMA GenericParam) )* <<exitModeSafe "GEN">> BRACKET_CLOSE
+Generics ::= BRACKET_OPEN  GenericParam ((COMMA GenericParam) )*  BRACKET_CLOSE
 GenericInner ::= Expression Generics
 GenericParam ::= GenericInner| Generics | Expression
 

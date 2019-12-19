@@ -1,10 +1,11 @@
 package org.nim.psi.extension;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
 import org.jetbrains.annotations.Nullable;
 import org.nim.grammar.NimParserUtil;
 
-public interface NimVarNameExt extends PsiElement {
+public interface NimVarNameExt extends PsiElement, PsiNamedElement {
 
     @Nullable
     NimParserUtil.VariableType getDeclarationType();

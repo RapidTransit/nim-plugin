@@ -16,7 +16,7 @@ import java.util.Deque;
 public class NimParserUtil extends GeneratedParserUtilBase {
 
     enum BlockType {
-        NONE, TYPE, TYPE_DEFINITION, METHOD
+        NONE, TYPE, TYPE_DEFINITION, METHOD_LIKE
     }
 
     public enum VariableType {
@@ -112,6 +112,27 @@ public class NimParserUtil extends GeneratedParserUtilBase {
     public static boolean beginParsing(@NotNull PsiBuilder builder, int level){
         builder.putUserData(PARSER_DATA_KEY, new ParserData());
         return true;
+    }
+    public static boolean beginMethodLike(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        parserData.blocks.push(new Block(BlockType.METHOD_LIKE, parserData.indent));
+        return true;
+    }
+
+    public static boolean endMethodLike(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        final Block peek = parserData.blocks.peek();
+        if(peek != null && peek.blockType == BlockType.METHOD_LIKE){
+            parserData.blocks.poll();
+        }
+        return true;
+    }
+
+    public static boolean isInMethodLike(@NotNull PsiBuilder builder, int _level){
+        final ParserData parserData = getParserData(builder);
+        if(parserData.blocks.isEmpty()) return false;
+        final Block peek = parserData.blocks.peek();
+        return peek.blockType == BlockType.METHOD_LIKE;
     }
 
     public static boolean beginTypeDefinitionBlock(@NotNull PsiBuilder builder, int level){
@@ -225,9 +246,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return true;
     }
 
-    public static boolean exitMode(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode) {
-        return exitMode(builder_, level,mode, false);
-    }
+
 
     public static boolean exitModeSafe(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode) {
         return exitMode(builder_, level,mode, true);

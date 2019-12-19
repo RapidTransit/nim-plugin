@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class NimTypeStub extends StubBase<NimTypeDeclaration> {
 
-    public static final String NAME = "TYPE";
+    public static final String NAME = "TYPE_DECLARATION";
 
     public static final NimStubAdapter<NimTypeStub, NimTypeDeclaration> ADAPTER =
 

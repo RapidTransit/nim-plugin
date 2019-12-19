@@ -36,6 +36,8 @@ sourceSets {
 }
 
 dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
     compile group: 'org.jodd', name: 'jodd-core', version: '5.0.5'
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.1'
@@ -69,7 +71,7 @@ dependencies {
 intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
-
+    plugins 'java'
     version '2019.3'
     if(System.getProperty('os.name').startsWith('Windows')){
         ideaDependencyCachePath = 'C:\\idea'

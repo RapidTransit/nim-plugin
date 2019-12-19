@@ -32,6 +32,9 @@ public abstract class NimTypeDeclarationMixin extends StubBasedPsiElementBase<Ni
     @Override
     //@todo: Fix this
     public PsiElement getNameIdentifier() {
+        if(getReferenceExpressionList().isEmpty()){
+            return null;
+        }
         return getReferenceExpressionList().get(0);
     }
 

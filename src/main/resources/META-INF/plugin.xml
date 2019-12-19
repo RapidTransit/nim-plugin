@@ -16,16 +16,23 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileType
-                name="Nim File"
+                name="Nim file"
                 implementationClass="org.nim.lang.NimFileType"
                 fieldName="INSTANCE"
                 language="Nim"
                 extensions="nim" />
+        <fileType
+                name="Nimble file"
+                implementationClass="org.nim.lang.NimbleFileType"
+                fieldName="INSTANCE"
+                language="Nim"
+                extensions="nimble" />
         <lang.parserDefinition language="Nim" implementationClass="org.nim.grammar.NimParserDefinition"/>
         <directoryProjectGenerator implementation="org.nim.project.NimDirectoryProjectGenerator" />
         <moduleType id="NIM_MODULE" implementationClass="org.nim.module.NimModuleType" />
-        <!--        <lang.syntaxHighlighterFactory key="Nim" implementationClass="org.nim.NimSyntaxHighlighterFactory"/>-->
-<!--        <colorSettingsPage implementation="org.nim.NimColorSettingsPage"/>-->
+        <lang.syntaxHighlighterFactory language="Nim" implementationClass="org.nim.color.NimSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="org.nim.color.NimColorSettingsPage"/>
+        <annotator language="Nim" implementationClass="org.nim.color.HighlightingAnnotator" />
     </extensions>
 
     <actions>
