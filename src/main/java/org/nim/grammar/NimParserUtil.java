@@ -16,7 +16,7 @@ import java.util.Deque;
 public class NimParserUtil extends GeneratedParserUtilBase {
 
     enum BlockType {
-        NONE, TYPE, TYPE_DEFINITION, METHOD_LIKE
+        NONE, TYPE, TYPE_DEFINITION, METHOD_LIKE, CALL
     }
 
     public enum VariableType {
@@ -91,6 +91,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return shouldntBeNewLine != NimTokenTypes.CRLF;
     }
 
+
     /**
      * Tuple Disambiguation
      * @param builder
@@ -113,6 +114,40 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         builder.putUserData(PARSER_DATA_KEY, new ParserData());
         return true;
     }
+
+
+
+
+    public static boolean beginCall(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        parserData.blocks.push(new Block(BlockType.CALL, parserData.indent));
+        return true;
+    }
+
+    public static boolean endCall(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        final Block peek = parserData.blocks.peek();
+        if(peek != null && peek.blockType == BlockType.CALL){
+            parserData.blocks.poll();
+        }
+        return true;
+    }
+
+
+    public static boolean callIndent(@NotNull PsiBuilder builder, int _level){
+        final ParserData parserData = getParserData(builder);
+        var block = parserData.blocks.peek();
+        return block != null && block.callIndents;
+    }
+
+    public static boolean isInCall(@NotNull PsiBuilder builder, int _level){
+        final ParserData parserData = getParserData(builder);
+        if(parserData.blocks.isEmpty()) return false;
+        final Block peek = parserData.blocks.peek();
+        return peek.blockType == BlockType.CALL;
+    }
+
+
     public static boolean beginMethodLike(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
         parserData.blocks.push(new Block(BlockType.METHOD_LIKE, parserData.indent));
@@ -179,11 +214,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return parserData.inProcExpression;
     }
 
-    public static boolean isLast(@NotNull PsiBuilder builder, int level){
-        IElementType type = builder.rawLookup(1);
-        IElementType type1 = builder.rawLookup(0);
-        return false;
-    }
+
 
     public static boolean hasTrailingParanthesis(@NotNull PsiBuilder builder, int level){
         IElementType type = builder.rawLookup(0);
@@ -216,6 +247,10 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean increaseIndent(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
+        var block = parserData.blocks.peek();
+        if(block != null && block.blockType == BlockType.CALL){
+            block.callIndents = true;
+        }
         parserData.indent++;
         return true;
     }
@@ -267,6 +302,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
     protected static class Block implements Serializable {
         private final BlockType blockType;
         private final int indent;
+        private boolean callIndents;
 
         public Block(BlockType blockType, int indent) {
             this.blockType = blockType;

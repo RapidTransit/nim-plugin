@@ -193,7 +193,7 @@ Indentation ::= INDENT <<increaseIndent>>
 Dedentation ::= DEDENT <<decreaseIndent>>
 
 NewStatement ::= NEW PARAN_OPEN Expression PARAN_CLOSE
-ReturnStatement ::= RETURN SimpleStatement? | SimpleStatement <<isLast>>
+ReturnStatement ::= RETURN SimpleStatement? //| SimpleStatement <<isLast>>
 
 
 /**
@@ -390,16 +390,13 @@ fake BinaryExpression ::= Expression+ {
 }
 UnaryExpression ::= UnaryOp Expression
 UnaryOp ::= MINUS
-SimpleStatement ::= UMethodExpressionOrLeftHand
+SimpleStatement ::= ExpressionList (AssignmentStatement | SimpleStatement)?
 
-private UMethodExpressionOrLeftHand ::= LeftHandExprList [AssignmentStatement | SimpleStatement]
+
 
 AssignmentStatement ::= AssignmentOp ExpressionList
 
 private AssignmentOp ::= MINUS_ASSIGN | PLUS_ASSIGN | EQUAL
-
-LeftHandExprList ::=  ExpressionList
-
 
 
 private ExpressionList ::=  <<Commas Expression>>
@@ -450,14 +447,14 @@ UranaryConditionalExpression ::= NOT Expression
 ConditionalExpression ::=  Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
 AddExpression ::= Expression OP2 Expression
-ParanExpression ::=  PARAN_OPEN <<enterMode "PAR">>  Expression  <<exitModeSafe "PAR">> PARAN_CLOSE
+ParanExpression ::=  PARAN_OPEN  Expression   PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
 
-CallExpression ::= Expression  Generics? <<noWhiteSpace>> ArgumentList
+CallExpression ::=  Expression  Generics? <<noWhiteSpace>>  ArgumentList
 TypeExpression ::= TYPE ArgumentList
-ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE
+ArgumentList ::= PARAN_OPEN  ExpressionList?  (<<callIndent>> PARAN_CLOSE Dedentation | PARAN_CLOSE)
 
 private meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
 meta OptionalIndentWithEnd ::= (Indentation <<p1>> ((<<p2>> Dedentation)| (Dedentation <<p2>>)) | <<p1>>  <<p2>>)
