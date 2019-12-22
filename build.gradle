@@ -30,7 +30,7 @@ repositories {
 
 sourceSets {
     main {
-        java.srcDirs 'src/main/java', 'src/main/kotlin', 'build/generated'
+        java.srcDirs 'src/main/java', 'build/generated'
         resources.srcDirs 'src/main/resources'
     }
 }
@@ -71,6 +71,7 @@ dependencies {
 intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
+    //This is Here for reference
     plugins 'java'
     version '2019.3'
     if(System.getProperty('os.name').startsWith('Windows')){
@@ -133,6 +134,8 @@ task generateNimParser(type: GenerateParser) {
     purgeOldFiles = true
 
 }
+
+
 
 idea {
     module {

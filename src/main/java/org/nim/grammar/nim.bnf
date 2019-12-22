@@ -168,7 +168,7 @@ Symbol ::=
     BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK
     | IDENTIFIER
 
-SymbolWithPragma ::= Symbol STAR? Pragma?
+SymbolWithPragma ::= Symbol STAR? PragmaDeclarationsBlock?
 
 //@todo: Should do Simple Expression
 // I forgot what this is :/
@@ -232,7 +232,7 @@ private VarTypeAndOrAssignment ::=
 
 
 
-VarName ::= IDENTIFIER Pragma? STAR?  {
+VarName ::= IDENTIFIER PragmaDeclarationsBlock? STAR?  {
     implements=['org.nim.psi.extension.NimVarNameExt']
     mixin='org.nim.psi.mixin.NimVarNameMixin'
 
@@ -289,17 +289,19 @@ ParameterDefault ::= EQUAL? Expression
 MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
 
 
-Pragma ::= CURLY_DOT_OPEN <<Commas IDENTIFIER >> CURLY_DOT_CLOSE
+
+PragmaDeclarationsBlock ::= CURLY_DOT_OPEN PragmaDeclaration (COMMA PragmaDeclaration)* CURLY_DOT_CLOSE
+PragmaDeclaration ::= IDENTIFIER (SINGLE_COLON (StringLiteral | Integer | Float ))
 
 // For this: template sortedByIt*(seq1, op: untyped)
 ParameterNames ::= <<Commas IDENTIFIER>>
 
-Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? Pragma? ParameterDefault?)?
+Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? PragmaDeclarationsBlock? ParameterDefault?)?
 
 
 private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
 
-Closure ::= PROC Parameters  MemberTypeAssignment? Pragma?
+Closure ::= PROC Parameters  MemberTypeAssignment? PragmaDeclarationsBlock?
 
 private MethodTypes ::=
     ProcedureMethod
@@ -308,7 +310,7 @@ private MethodTypes ::=
 
 
 
-private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? Pragma? EQUAL
+private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? PragmaDeclarationsBlock? EQUAL
 
 meta MethodLike ::=  <<p>>  Signature MethodBody?
 ProcedureMethod ::= <<MethodLike PROC>>
@@ -322,7 +324,7 @@ GenericParam ::= GenericInner| Generics | Expression
 // Types
 
 TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
-TypeDeclaration ::=  <<isInType>> IDENTIFIER Pragma? STAR? EQUAL ObjectOrEnum {
+TypeDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
     implements = [
         "org.nim.stubs.NimNamedElement"
         "org.nim.psi.extension.NimType"
@@ -425,7 +427,7 @@ Expression ::=
     //| IfExpression
     | ParanExpression
 
-ProcExpression ::= PROC <<startProcExpression>> Parameters MemberTypeAssignment? Pragma? EQUAL MethodBody <<endProcExpression>>
+ProcExpression ::= PROC <<startProcExpression>> Parameters MemberTypeAssignment? PragmaDeclarationsBlock? EQUAL MethodBody <<endProcExpression>>
 
 private MaxGroup ::= OperandName
 | IndexOrSliceExpression
