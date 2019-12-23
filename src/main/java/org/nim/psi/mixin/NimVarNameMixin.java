@@ -96,4 +96,8 @@ public abstract class NimVarNameMixin extends StubBasedPsiElementBase<NimVarName
     public PsiElement setName(@NotNull String name) throws IncorrectOperationException {
         return null;
     }
+
+    public String toString() {
+        return getClass().getSimpleName() + "(" + getNode().getElementType().toString() + ")";
+    }
 }

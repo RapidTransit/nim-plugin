@@ -26,4 +26,8 @@ public abstract class NimVarAssignmentMixin extends StubBasedPsiElementBase<NimV
     public int getStatementIndex() {
         return 0;
     }
+
+    public String toString() {
+        return getClass().getSimpleName() + "(" + getNode().getElementType().toString() + ")";
+    }
 }

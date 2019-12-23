@@ -145,7 +145,7 @@
       ]
 }
 
-File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
+File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>? <<debug>>
 
 Statement ::=
     ImportSection
@@ -160,6 +160,7 @@ Statement ::=
     | ForStatement
     | CaseStatement
     | MethodTypes
+    | BlockStatement
     | WhenDeclaration
 
 private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
@@ -265,12 +266,12 @@ ElseIfStatement ::= ELIF Expression SINGLE_COLON ConditionalStatementOrBlock
 ElseStatement ::= ELSE SINGLE_COLON ConditionalStatementOrBlock
 Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float | SetOrTableLiteral | NIL
 
-BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
+BlockStatement ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
 WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
 
 
 
-private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockDeclaration)* (<<inProcExpression>> <<hasTrailingParanthesis>> | Dedentation))
+private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockStatement)* (<<inProcExpression>> <<hasTrailingParanthesis>> | Dedentation))
 
 
 
@@ -291,7 +292,7 @@ MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
 
 
 PragmaDeclarationsBlock ::= CURLY_DOT_OPEN PragmaDeclaration (COMMA PragmaDeclaration)* CURLY_DOT_CLOSE
-PragmaDeclaration ::= IDENTIFIER (SINGLE_COLON (StringLiteral | Integer | Float ))
+PragmaDeclaration ::= IDENTIFIER (SINGLE_COLON (StringLiteral | Integer | Float ))?
 
 // For this: template sortedByIt*(seq1, op: untyped)
 ParameterNames ::= <<Commas IDENTIFIER>>
@@ -454,10 +455,11 @@ Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
 
-CallExpression ::=  Expression  Generics? <<noWhiteSpace>>  ArgumentList
+CallExpression ::=   Expression  Generics? <<noWhiteSpace>>  PARAN_OPEN <<beginCall>> ExpressionList?  (<<callIndent>> PARAN_CLOSE Dedentation |  PARAN_CLOSE) <<endCall>> {
+  pin=3 // Ensures <<endCall>> is called
+}
 TypeExpression ::= TYPE ArgumentList
 ArgumentList ::= PARAN_OPEN  ExpressionList?  (<<callIndent>> PARAN_CLOSE Dedentation | PARAN_CLOSE)
-
 private meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
 meta OptionalIndentWithEnd ::= (Indentation <<p1>> ((<<p2>> Dedentation)| (Dedentation <<p2>>)) | <<p1>>  <<p2>>)
 private meta Commas ::= <<p>> (COMMA <<p>>)*

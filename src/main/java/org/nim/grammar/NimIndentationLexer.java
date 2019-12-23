@@ -60,7 +60,7 @@ public class NimIndentationLexer extends LexerBase {
 
     private void tryToAddToStack() {
         delegate.advance();
-        if(delegate.getTokenType() == CRLF /*&& delegate.getState() != NimLexer.CALLABLE_ARGUMENTS*/) {
+        if(delegate.getTokenType() == CRLF && delegate.getState() != NimLexer.CALLABLE_ARGUMENTS) {
             StackElement holder = new StackElement(delegate);
 
             List<StackElement> nonSignificantTokens = new ArrayList<>();

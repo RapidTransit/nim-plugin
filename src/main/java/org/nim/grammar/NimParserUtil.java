@@ -40,6 +40,11 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return shouldntBeNewLine == NimTokenTypes.CRLF;
     }
 
+    public static boolean debug(@NotNull PsiBuilder builder, int level){
+        ParserData parserData = getParserData(builder);
+        return true;
+    }
+
     public static boolean enterVariableType(@NotNull PsiBuilder builder, int level, VariableType type){
         builder.putUserData(VARIABLE_TYPE_KEY, type);
         return true;
@@ -120,7 +125,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean beginCall(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
-        parserData.blocks.push(new Block(BlockType.CALL, parserData.indent));
+        parserData.blocks.push(new Block(BlockType.CALL, parserData.indent, level));
         return true;
     }
 
@@ -150,7 +155,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean beginMethodLike(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
-        parserData.blocks.push(new Block(BlockType.METHOD_LIKE, parserData.indent));
+        parserData.blocks.push(new Block(BlockType.METHOD_LIKE, parserData.indent, level));
         return true;
     }
 
@@ -172,7 +177,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean beginTypeDefinitionBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
-        parserData.blocks.push(new Block(BlockType.TYPE_DEFINITION, parserData.indent));
+        parserData.blocks.push(new Block(BlockType.TYPE_DEFINITION, parserData.indent, level));
         return true;
     }
 
@@ -194,7 +199,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean beginTypeBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
-        parserData.blocks.push(new Block(BlockType.TYPE, parserData.indent));
+        parserData.blocks.push(new Block(BlockType.TYPE, parserData.indent, level));
         return true;
     }
 
@@ -303,10 +308,11 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         private final BlockType blockType;
         private final int indent;
         private boolean callIndents;
-
-        public Block(BlockType blockType, int indent) {
+        private final int level;
+        public Block(BlockType blockType, int indent, int level) {
             this.blockType = blockType;
             this.indent = indent;
+            this.level = level;
         }
     }
 }
