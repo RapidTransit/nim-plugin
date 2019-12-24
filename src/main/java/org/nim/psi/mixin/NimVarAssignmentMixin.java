@@ -5,11 +5,12 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
+import org.nim.psi.NimStubbedElement;
 import org.nim.psi.NimVarAssignment;
 import org.nim.psi.extension.NimVarAssignmentEx;
 import org.nim.stubs.impl.NimVarAssignmentStub;
 
-public abstract class NimVarAssignmentMixin extends StubBasedPsiElementBase<NimVarAssignmentStub> implements NimVarAssignmentEx, NimVarAssignment {
+public abstract class NimVarAssignmentMixin extends NimStubbedElement<NimVarAssignmentStub> implements NimVarAssignmentEx, NimVarAssignment {
     public NimVarAssignmentMixin(@NotNull NimVarAssignmentStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
     }
@@ -27,7 +28,5 @@ public abstract class NimVarAssignmentMixin extends StubBasedPsiElementBase<NimV
         return 0;
     }
 
-    public String toString() {
-        return getClass().getSimpleName() + "(" + getNode().getElementType().toString() + ")";
-    }
+
 }

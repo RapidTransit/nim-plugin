@@ -19,10 +19,6 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         NONE, TYPE, TYPE_DEFINITION, METHOD_LIKE, CALL
     }
 
-    public enum VariableType {
-        VAR, LET, CONST
-    }
-
     private static final Key<ParserData> PARSER_DATA_KEY = Key.create("PARSER_DATA");
     public static final Key<VariableType> VARIABLE_TYPE_KEY = Key.create("VARIABLE_TYPE");
     /**

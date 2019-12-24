@@ -1,4 +1,4 @@
-package org.nim.stubs;
+package org.nim.psi.extension;
 
 import com.intellij.navigation.NavigationItem;
 import com.intellij.psi.PsiElement;

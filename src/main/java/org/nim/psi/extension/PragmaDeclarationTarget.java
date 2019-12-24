@@ -1,12 +1,13 @@
 package org.nim.psi.extension;
 
 
+import com.intellij.psi.PsiElement;
 import org.nim.psi.NimPragmaDeclaration;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface PragmaDeclarationTarget {
+public interface PragmaDeclarationTarget extends PsiElement {
 
     List<NimPragmaDeclaration> getPragmaDeclaration();
 

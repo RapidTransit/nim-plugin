@@ -17,7 +17,7 @@
     psiImplUtilClass="org.nim.grammar.NimPsiImplUtil"
     parserUtilClass="org.nim.grammar.NimParserUtil"
 
-//    implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
+//    implements("DeclarationColonEquals")="org.nim.psi.extension.NimNamedElement"
 //    extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
     elementTypeFactory("TypeDeclaration")="org.nim.stubs.NimStubFactory.build"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
@@ -276,7 +276,7 @@ private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfSta
 
 
 TypeFieldStatements ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName {
-    implements=['org.nim.stubs.NimNamedElement']
+    implements=['org.nim.psi.extension.NimNamedElement']
     mixin='org.nim.psi.mixin.NimTypeFieldStatementMixin'
 }
 
@@ -324,10 +324,12 @@ GenericParam ::= GenericInner| Generics | Expression
 
 // Types
 
-TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
+TypeBlock ::=TYPE  Indentation <<beginTypeBlock>> TypeDeclaration+ Dedentation <<endTypeBlock>> {
+    pin=2 // Ensures endTypeBlock is called
+}
 TypeDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
     implements = [
-        "org.nim.stubs.NimNamedElement"
+        "org.nim.psi.extension.NimNamedElement"
         "org.nim.psi.extension.NimType"
     ]
     mixin = "org.nim.psi.mixin.NimTypeDeclarationMixin"
@@ -437,7 +439,7 @@ private MaxGroup ::= OperandName
 | Literal
 | SymbolExpression
 
-TupleExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression ((COMMA &PARAN_CLOSE) | (COMMA Expression)+) <<exitModeSafe "PAR">> PARAN_CLOSE
+TupleExpression ::= PARAN_OPEN  Expression ((COMMA &PARAN_CLOSE) | (COMMA Expression)+)  PARAN_CLOSE
 StringJoinExpression ::= Expression AMP Expression
 BracketExpression ::= Expression BRACKET_OPEN BRACKET_CLOSE
 ChainedExpression ::= Expression (DOT Expression)+

@@ -1,6 +1,5 @@
 package org.nim.psi.mixin;
 
-import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.IStubElementType;
@@ -8,7 +7,8 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.nim.grammar.NimParserUtil;
+import org.nim.grammar.VariableType;
+import org.nim.psi.NimStubbedElement;
 import org.nim.psi.NimVarAssignment;
 import org.nim.psi.NimVariableDeclaration;
 import org.nim.psi.extension.NimType;
@@ -18,7 +18,7 @@ import org.nim.stubs.impl.NimVarNameStub;
 
 import java.util.List;
 
-public abstract class NimVarNameMixin extends StubBasedPsiElementBase<NimVarNameStub> implements NimVarNameExt {
+public abstract class NimVarNameMixin extends NimStubbedElement<NimVarNameStub> implements NimVarNameExt {
 
     public NimVarNameMixin(@NotNull NimVarNameStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
@@ -34,7 +34,7 @@ public abstract class NimVarNameMixin extends StubBasedPsiElementBase<NimVarName
 
 
     @Override
-    public NimParserUtil.VariableType getDeclarationType() {
+    public VariableType getDeclarationType() {
         NimVarNameStub stub = getStub();
         if (stub != null) {
             return stub.getType();
@@ -97,7 +97,4 @@ public abstract class NimVarNameMixin extends StubBasedPsiElementBase<NimVarName
         return null;
     }
 
-    public String toString() {
-        return getClass().getSimpleName() + "(" + getNode().getElementType().toString() + ")";
-    }
 }
