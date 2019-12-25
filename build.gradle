@@ -136,6 +136,49 @@ task generateNimParser(type: GenerateParser) {
 }
 
 
+task generateNimbleLexer(type: GenerateLexer) {
+    group 'grammar'
+    // source flex file
+    File rootSrc = project.sourceSets.main.java.srcDirs[0];
+    source = new File(rootSrc, "org/nim/nimble/nimble.flex").path
+
+    // target directory for lexer
+    targetDir = new File(project.buildDir, "/generated/org/nim/nimble/").path
+
+    // target classname, target file will be targetDir/targetClass.java
+    targetClass = "NimbleLexer"
+
+    // optional, path to the task-specific skeleton file. Default: none
+    //skeleton = '/some/specific/skeleton'
+
+    // if set, plugin will remove a lexer output file before generating new one. Default: false
+    purgeOldFiles = true
+}
+
+task generateNimbleParser(type: GenerateParser) {
+    group 'grammar'
+//    dependsOn pathingJar
+//    doFirst {
+//        classpath = files("$buildDir/classes/main", "$buildDir/resources/main", pathingJar.archivePath)
+//    }
+    // source bnf file
+    File rootSrc = project.sourceSets.main.java.srcDirs[0];
+    source =  new File(rootSrc, "org/nim/nimble/nimble.bnf").path
+
+    // optional, task-specific root for the generated files. Default: none
+    targetRoot = new File(project.buildDir, "/generated/").path
+
+    // path to a parser file, relative to the targetRoot
+    pathToParser = '/org/nim/nimble/NimbleParser.java'
+
+    // path to a directory with generated psi files, relative to the targetRoot
+    pathToPsiRoot = '/org/nim/nimble/psi'
+
+    // if set, plugin will remove a parser output file and psi output directory before generating new ones. Default: false
+    purgeOldFiles = true
+
+}
+
 
 idea {
     module {

@@ -23,7 +23,7 @@
                 extensions="nim" />
         <fileType
                 name="Nimble file"
-                implementationClass="org.nim.lang.NimbleFileType"
+                implementationClass="org.nim.nimble.NimbleFileType"
                 fieldName="INSTANCE"
                 language="Nim"
                 extensions="nimble" />

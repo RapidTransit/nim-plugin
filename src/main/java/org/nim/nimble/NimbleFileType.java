@@ -1,8 +1,10 @@
-package org.nim.lang;
+package org.nim.nimble;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.nim.lang.NimIcons;
+import org.nim.lang.NimLanguage;
 
 import javax.swing.*;
 
@@ -10,7 +12,7 @@ public class NimbleFileType extends LanguageFileType {
     public static final NimbleFileType INSTANCE = new NimbleFileType();
 
     private NimbleFileType() {
-        super(NimLanguage.INSTANCE);
+        super(NimbleLanguage.INSTANCE);
     }
 
     @NotNull

@@ -9,7 +9,7 @@
     psiPackage="org.nim.psi"
     psiImplPackage="org.nim.psi.impl"
     parserImports=[
-        'org.nim.grammar.NimParserUtil.VariableType'
+        'org.nim.grammar.VariableType'
     ]
     elementTypeHolderClass="org.nim.psi.NimTokenTypes"
     elementTypeClass="org.nim.psi.NimElementType"
@@ -324,8 +324,8 @@ GenericParam ::= GenericInner| Generics | Expression
 
 // Types
 
-TypeBlock ::=TYPE  Indentation <<beginTypeBlock>> TypeDeclaration+ Dedentation <<endTypeBlock>> {
-    pin=2 // Ensures endTypeBlock is called
+TypeBlock ::=TYPE  <<beginTypeBlock>> Indentation  TypeDeclaration+ Dedentation <<endTypeBlock>> {
+  //  pin=2 // Ensures endTypeBlock is called
 }
 TypeDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
     implements = [
