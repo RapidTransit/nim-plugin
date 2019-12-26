@@ -31,6 +31,10 @@
         NUMBER = 'regexp:\d+'
         IDENTIFIER = 'regexp:\p{Alpha}\w*'
         OPERATOR = "regexp:(>=|<=|>|<)"
+        VOP_LT='<'
+        VOP_GT='>'
+        VOP_LTE='<='
+        VOP_GTE='>='
         WS = '<ws>'
         CRLF = '<crlf>'
         EQUAL = '='
@@ -44,6 +48,17 @@ Required ::= REQUIRES EQUAL PackageDeclaration (COMMA PackageDeclaration)* {pin 
 private recover_required ::= !(REQUIRES)
 PackageDeclaration ::= D_QUOTE Package D_QUOTE
 Package ::= IDENTIFIER PackageVersion?
-PackageVersion ::= OPERATOR VersionNumber (AMP OPERATOR VersionNumber)? //{pin=1 recoverWhile=recover_PackageVersion}
+PackageVersion ::= VersionOperator VersionNumber AdditionalVersionConstraint? //{pin=1 recoverWhile=recover_PackageVersion}
+AdditionalVersionConstraint ::= AMP VersionOperator VersionNumber
+VersionOperator ::= VOP_GTE | VOP_LTE | VOP_GT | VOP_LT {
+    implements=['org.nim.nimble.psi.ext.VersionOperator']
+    mixin='org.nim.nimble.psi.mixin.NimbleVersionOperatorMixin'
+}
 private recover_PackageVersion ::= !(OPERATOR )
-VersionNumber ::= NUMBER (DOT NUMBER (DOT NUMBER)? )?
+
+
+VersionNumber ::= VersionNumberPart (DOT VersionNumberPart (DOT VersionNumberPart)? )?{
+    methods=[versionNumberParts="VersionNumberPart"]
+}
+
+VersionNumberPart ::= NUMBER

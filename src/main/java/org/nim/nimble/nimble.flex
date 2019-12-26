@@ -23,7 +23,10 @@ import static org.nim.nimble.psi.NimbleTokenTypes.*;
       "\"" {return D_QUOTE;}
       "." {return DOT;}
       [0-9]+ {return NUMBER;}
-      [><]"="? {return OPERATOR;}
+      "<=" {return VOP_LTE;}
+      ">=" {return VOP_GTE;}
+      ">" {return VOP_GT;}
+      "<" {return VOP_LT;}
       "&" {return AMP;}
 }
 
