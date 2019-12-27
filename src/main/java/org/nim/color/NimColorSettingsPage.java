@@ -17,6 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class NimColorSettingsPage implements ColorSettingsPage {
+
+
+
     @Nullable
     @Override
     public Icon getIcon() {

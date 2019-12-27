@@ -72,7 +72,7 @@ intellij {
     pluginName = 'nim-plugin'
     instrumentCode = false
     //This is Here for reference
-    plugins 'java'
+    plugins 'java', 'gradle'
     version '2019.3'
     if(System.getProperty('os.name').startsWith('Windows')){
         ideaDependencyCachePath = 'C:\\idea'
