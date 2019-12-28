@@ -33,6 +33,8 @@
         <lang.syntaxHighlighterFactory language="Nim" implementationClass="org.nim.color.NimSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.nim.color.NimColorSettingsPage"/>
         <annotator language="Nim" implementationClass="org.nim.color.HighlightingAnnotator" />
+        <sdkType implementation="org.nim.sdk.NimSdkType" />
+        <additionalLibraryRootsProvider implementation="org.nim.nimble.library.NimbleAdditionalLibraryRootsProvider" />
     </extensions>
 
     <actions>
