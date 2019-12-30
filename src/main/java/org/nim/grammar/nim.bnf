@@ -187,6 +187,7 @@ private ImportOrImportAs ::= ImportSymbol [AS IDENTIFIER]
 
 ImportSection ::=
     IMPORT <<Commas ImportOrImportAs>>
+    | IMPORT ImportSymbol PathSeparator BRACKET_OPEN <<Commas IDENTIFIER >> BRACKET_CLOSE
     | IMPORT ImportOrImportAs EXCEPT <<Commas ImportSymbol>>
     | FROM ImportOrImportAs IMPORT <<Commas ImportSymbol>>
 
