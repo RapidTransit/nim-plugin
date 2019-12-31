@@ -145,6 +145,8 @@
       ]
 }
 
+//Module ::= File+
+
 File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>? <<debug>>
 
 Statement ::=
@@ -179,7 +181,7 @@ TypeField ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expres
 }
 
 
-private ImportSymbol ::=
+ImportSymbol ::=
     Symbol (PathSeparator Symbol)*
     | StringLiteral
 

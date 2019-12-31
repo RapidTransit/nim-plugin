@@ -1,5 +1,7 @@
 package org.nim.sdk;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Version;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -32,35 +34,39 @@ public class NimVersionUtil {
 
     @Nullable
     public static Version findVersion(@NotNull VirtualFile vf)  {
-        try(InputStream inputStream = vf.getInputStream()) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            reader.skip(7000);
-            String line = reader.readLine();
-            while (line != null) {
-                if (line.startsWith(START)) {
-                    break;
-                } else {
-                    line = reader.readLine();
+        return ApplicationManager.getApplication().runReadAction((Computable<Version>) ()->{
+            try(InputStream inputStream = vf.getInputStream()) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                // The version stuff happens around line 3500, 7000 chars should be a good number to skip without passing it
+                reader.skip(7000);
+                String line = reader.readLine();
+                while (line != null) {
+                    if (line.startsWith(START)) {
+                        break;
+                    } else {
+                        line = reader.readLine();
+                    }
                 }
+                if (line == null) {
+                    return null;
+                }
+                Matcher matcher = MAJOR.matcher(line);
+                Integer major = null;
+                if (matcher.matches()) {
+                    major = Integer.valueOf(matcher.group(0));
+                } else {
+                    return null;
+                }
+                var minor = read(reader, MINOR);
+                var patch = read(reader, PATCH);
+                reader.close();
+                return new Version(major, minor.orElse(0), patch.orElse(0));
+            } catch (IOException e){
+                e.printStackTrace();
             }
-            if (line == null) {
-                return null;
-            }
-            Matcher matcher = MAJOR.matcher(line);
-            Integer major = null;
-            if (matcher.matches()) {
-                major = Integer.valueOf(matcher.group(0));
-            } else {
-                return null;
-            }
-            var minor = read(reader, MINOR);
-            var patch = read(reader, PATCH);
-            reader.close();
-            return new Version(major, minor.orElse(0), patch.orElse(0));
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        return null;
+            return null;
+        });
+
     }
 
     private static Optional<Integer> read(BufferedReader reader, Pattern pattern) throws IOException {
