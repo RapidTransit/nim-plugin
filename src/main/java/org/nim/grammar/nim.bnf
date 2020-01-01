@@ -252,7 +252,7 @@ IfStatement ::= Ifs
 private Ifs ::= IfBlockStatement
 
 
-TupleType ::= TUPLE BRACKET_OPEN (Parameter (S_or_C Parameter | &BRACKET_CLOSE)*)  BRACKET_CLOSE
+TupleType ::= TUPLE BRACKET_OPEN (ParameterDeclaration (S_or_C ParameterDeclaration | &BRACKET_CLOSE)*)  BRACKET_CLOSE
 
 CaseStatement ::= CASE Expression SINGLE_COLON? OfBranch+ ElseBranch?
 
@@ -286,7 +286,7 @@ TypeFieldStatements ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName {
 
 private Parameters ::=
 (PARAN_OPEN PARAN_CLOSE)
-| PARAN_OPEN (Parameter (S_or_C Parameter )*) PARAN_CLOSE
+| PARAN_OPEN (ParameterDeclaration (S_or_C ParameterDeclaration )*) PARAN_CLOSE
 
 ParameterDefault ::= EQUAL? Expression
 
@@ -298,9 +298,34 @@ PragmaDeclarationsBlock ::= CURLY_DOT_OPEN PragmaDeclaration (COMMA PragmaDeclar
 PragmaDeclaration ::= IDENTIFIER (SINGLE_COLON (StringLiteral | Integer | Float ))?
 
 // For this: template sortedByIt*(seq1, op: untyped)
-ParameterNames ::= <<Commas IDENTIFIER>>
+/**
+    Because Nim allows parameters like this
+    ```
+    proc someMethod(a,b: SomeType)
+    ```
+    - `a,b: Sometype` Is the `ParameterDeclaration`
+    - `a,b` Is the `ParameterNames`
+    - `a` and `b` are the actual Parameters, this means to get the type you have to go up 2 levels to get the type
+      and other information
+ */
 
-Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? PragmaDeclarationsBlock? ParameterDefault?)?
+ParameterNames ::= <<Commas Parameter>>
+Parameter ::= IDENTIFIER {
+    implements=[
+        'com.intellij.psi.PsiNamedElement'
+        'org.nim.psi.extension.TypeAssignable'
+
+    ]
+    mixin='org.nim.psi.mixin.NimParameterMixin'
+}
+ParameterDeclaration ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? PragmaDeclarationsBlock? ParameterDefault?)? {
+    implements=[
+
+        'org.nim.psi.extension.TypeAssignable'
+    ]
+
+    mixin='org.nim.psi.mixin.NimParameterDeclarationMixin'
+}
 
 
 private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
