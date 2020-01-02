@@ -1,6 +1,5 @@
 package org.nim.psi.mixin;
 
-import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.IStubElementType;
@@ -11,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.nim.psi.NimStubbedElement;
 import org.nim.psi.NimTypeDeclaration;
 import org.nim.psi.extension.NimNamedElement;
-import org.nim.psi.extension.NimType;
+import org.nim.psi.types.NimType;
 import org.nim.stubs.impl.NimTypeStub;
 
 public abstract class NimTypeDeclarationMixin extends NimStubbedElement<NimTypeStub> implements NimTypeDeclaration, NimType, NimNamedElement {

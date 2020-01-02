@@ -16,5 +16,5 @@ public class NimQualifiedImport {
     private List<String> restrictionPredicates = new ArrayList<>();
     private Map<String, String> renames = new HashMap<>();
 
-    
+
 }

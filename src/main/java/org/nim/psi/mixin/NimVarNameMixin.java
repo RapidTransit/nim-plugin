@@ -11,7 +11,7 @@ import org.nim.grammar.VariableType;
 import org.nim.psi.NimStubbedElement;
 import org.nim.psi.NimVarAssignment;
 import org.nim.psi.NimVariableDeclaration;
-import org.nim.psi.extension.NimType;
+import org.nim.psi.types.NimType;
 import org.nim.psi.extension.NimVariableDeclarationExtension;
 import org.nim.psi.extension.NimVarNameExt;
 import org.nim.stubs.impl.NimVarNameStub;

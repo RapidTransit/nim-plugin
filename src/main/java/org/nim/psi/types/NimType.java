@@ -1,4 +1,4 @@
-package org.nim.psi.extension;
+package org.nim.psi.types;
 
 public interface NimType {
     boolean isReferenceType();

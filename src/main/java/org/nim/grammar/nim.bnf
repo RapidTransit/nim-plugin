@@ -327,13 +327,21 @@ GenericParam ::= GenericInner| Generics | Expression
 
 // Types
 
-TypeBlock ::=TYPE  <<beginTypeBlock>> Indentation  TypeDeclaration+ Dedentation <<endTypeBlock>> {
+TypeBlock ::=TYPE  <<beginTypeBlock>> Indentation  ClassDeclaration+ Dedentation <<endTypeBlock>> {
   //  pin=2 // Ensures endTypeBlock is called
 }
-TypeDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
+
+/**
+  Renaming this to `ClassDeclaration` even though Nim isn't strongly OOP and refers to objects/structures as types the
+  reasoning is to match the semantics of Java/JVM (which this IDE runs on) so to take a page from java:
+  - The Actual Definition is the class
+  - The Type refers to the actual usage with generics
+
+ */
+ClassDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
     implements = [
         "org.nim.psi.extension.NimNamedElement"
-        "org.nim.psi.extension.NimType"
+        "org.nim.psi.types.NimType"
     ]
     mixin = "org.nim.psi.mixin.NimTypeDeclarationMixin"
     stubClass = "org.nim.stubs.impl.NimTypeStub"

@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.jetbrains.annotations.Nullable;
 import org.nim.grammar.VariableType;
+import org.nim.psi.types.NimType;
 
 public interface NimVarNameExt extends PsiElement, PsiNamedElement {
 
