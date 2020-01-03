@@ -1,15 +1,19 @@
 package org.nim.psi.types;
 
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+// @todo: Add a {@link com.intellij.psi.PsiConstantEvaluationHelper}
 @AllArgsConstructor
 @Getter
 @EqualsAndHashCode
 @ToString
 public class NimPrimitiveType implements NimType {
+
+
 
     public static final NimPrimitiveType INT = new NimPrimitiveType("int");
     public static final NimPrimitiveType INT8 = new NimPrimitiveType("int8");
@@ -29,9 +33,10 @@ public class NimPrimitiveType implements NimType {
     public static final NimPrimitiveType STRING = new NimPrimitiveType("string");
     public static final NimPrimitiveType CSTRING = new NimPrimitiveType("cstring");
     public static final NimPrimitiveType VOID = new NimPrimitiveType("void");
-    public static final NimPrimitiveType NULL = new NimPrimitiveType("nil");
+    public static final NimPrimitiveType NIL = new NimPrimitiveType("nil");
 
     private final String type;
+
 
 
     @Override
@@ -43,4 +48,5 @@ public class NimPrimitiveType implements NimType {
     public boolean isEnum() {
         return false;
     }
+
 }

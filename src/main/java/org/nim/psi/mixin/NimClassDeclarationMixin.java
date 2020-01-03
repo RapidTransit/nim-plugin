@@ -11,19 +11,19 @@ import org.nim.psi.NimStubbedElement;
 import org.nim.psi.NimTypeDeclaration;
 import org.nim.psi.extension.NimNamedElement;
 import org.nim.psi.types.NimType;
-import org.nim.stubs.impl.NimTypeStub;
+import org.nim.stubs.impl.NimClassStub;
 
-public abstract class NimTypeDeclarationMixin extends NimStubbedElement<NimTypeStub> implements NimTypeDeclaration, NimType, NimNamedElement {
+public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClassStub> implements NimTypeDeclaration, NimType, NimNamedElement {
 
-    public NimTypeDeclarationMixin(@NotNull NimTypeStub stub, @NotNull IStubElementType nodeType) {
+    public NimClassDeclarationMixin(@NotNull NimClassStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
     }
 
-    public NimTypeDeclarationMixin(@NotNull ASTNode node) {
+    public NimClassDeclarationMixin(@NotNull ASTNode node) {
         super(node);
     }
 
-    public NimTypeDeclarationMixin(NimTypeStub stub, IElementType nodeType, ASTNode node) {
+    public NimClassDeclarationMixin(NimClassStub stub, IElementType nodeType, ASTNode node) {
         super(stub, nodeType, node);
     }
 
@@ -44,7 +44,7 @@ public abstract class NimTypeDeclarationMixin extends NimStubbedElement<NimTypeS
 
     @Override
     public boolean isReferenceType() {
-        NimTypeStub stub = getStub();
+        NimClassStub stub = getStub();
         if (stub != null) {
             return stub.isReferenceType();
         }
@@ -53,7 +53,7 @@ public abstract class NimTypeDeclarationMixin extends NimStubbedElement<NimTypeS
 
     @Override
     public boolean isEnum() {
-        NimTypeStub stub = getStub();
+        NimClassStub stub = getStub();
         if (stub != null) {
             return stub.isEnumeration();
         }
@@ -62,7 +62,7 @@ public abstract class NimTypeDeclarationMixin extends NimStubbedElement<NimTypeS
 
     @Override
     public boolean isExported() {
-        NimTypeStub stub = getStub();
+        NimClassStub stub = getStub();
         if (stub != null) {
             return stub.isExported();
         }

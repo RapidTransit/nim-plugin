@@ -1,7 +1,6 @@
 package org.nim.stubs.impl;
 
 import com.intellij.psi.stubs.*;
-import com.intellij.util.BitUtil;
 import org.jetbrains.annotations.NotNull;
 import org.nim.psi.NimTypeDeclaration;
 import org.nim.psi.impl.NimTypeDeclarationImpl;
@@ -9,23 +8,23 @@ import org.nim.stubs.NimStubAdapter;
 
 import java.io.IOException;
 
-public class NimTypeStub extends StubBase<NimTypeDeclaration> {
+public class NimClassStub extends StubBase<NimTypeDeclaration> {
 
     public static final String NAME = "TYPE_DECLARATION";
 
-    public static final NimStubAdapter<NimTypeStub, NimTypeDeclaration> ADAPTER =
+    public static final NimStubAdapter<NimClassStub, NimTypeDeclaration> ADAPTER =
 
-        new NimStubAdapter<NimTypeStub, NimTypeDeclaration>(NAME) {
+        new NimStubAdapter<NimClassStub, NimTypeDeclaration>(NAME) {
 
             @Override
-            public NimTypeDeclaration createPsi(@NotNull NimTypeStub stub) {
+            public NimTypeDeclaration createPsi(@NotNull NimClassStub stub) {
                 return new NimTypeDeclarationImpl(stub, this);
             }
 
             @NotNull
             @Override
-            public NimTypeStub createStub(@NotNull NimTypeDeclaration psi, StubElement parentStub) {
-                return new NimTypeStub(
+            public NimClassStub createStub(@NotNull NimTypeDeclaration psi, StubElement parentStub) {
+                return new NimClassStub(
                         parentStub,
                         this,
                         // Name
@@ -38,7 +37,7 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
 
 
             @Override
-            public void serialize(@NotNull NimTypeStub stub, @NotNull StubOutputStream ds) throws IOException {
+            public void serialize(@NotNull NimClassStub stub, @NotNull StubOutputStream ds) throws IOException {
                 ds.writeName(stub.name);
                 ds.writeBoolean(stub.exported);
                 ds.writeBoolean(stub.enumeration);
@@ -47,8 +46,8 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
 
             @NotNull
             @Override
-            public NimTypeStub deserialize(@NotNull StubInputStream ds, StubElement parentStub) throws IOException {
-                return new NimTypeStub(
+            public NimClassStub deserialize(@NotNull StubInputStream ds, StubElement parentStub) throws IOException {
+                return new NimClassStub(
                         parentStub,
                         this,
                         // Name
@@ -62,7 +61,7 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
             }
 
             @Override
-            public void indexStub(@NotNull NimTypeStub stub, @NotNull IndexSink sink) {
+            public void indexStub(@NotNull NimClassStub stub, @NotNull IndexSink sink) {
                 sink.occurrence(StubIndexKey.createIndexKey(stub.name), stub);
             }
     };
@@ -76,10 +75,10 @@ public class NimTypeStub extends StubBase<NimTypeDeclaration> {
 
     private final boolean referenceType;
 
-    protected NimTypeStub(StubElement parent, IStubElementType elementType,
-                          String name,
-                          boolean exported,
-                          boolean enumeration, boolean referenceType) {
+    protected NimClassStub(StubElement parent, IStubElementType elementType,
+                           String name,
+                           boolean exported,
+                           boolean enumeration, boolean referenceType) {
         super(parent, elementType);
         this.name = name;
         this.exported = exported;

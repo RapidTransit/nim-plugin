@@ -6,8 +6,8 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nim.psi.NimStubbedElement;
-import org.nim.psi.extension.NimType;
 import org.nim.psi.extension.TypeAssignable;
+import org.nim.psi.types.NimType;
 import org.nim.stubs.impl.NimParameterDeclarationStub;
 
 public abstract class NimParameterDeclarationMixin extends NimStubbedElement<NimParameterDeclarationStub> implements TypeAssignable {

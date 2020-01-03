@@ -368,8 +368,8 @@ ClassDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQU
         "org.nim.psi.extension.NimNamedElement"
         "org.nim.psi.types.NimType"
     ]
-    mixin = "org.nim.psi.mixin.NimTypeDeclarationMixin"
-    stubClass = "org.nim.stubs.impl.NimTypeStub"
+    mixin = "org.nim.psi.mixin.NimClassDeclarationMixin"
+    stubClass = "org.nim.stubs.impl.NimClassStub"
 }
 
 

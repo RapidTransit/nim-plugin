@@ -1,13 +1,13 @@
 package org.nim.stubs;
 
 import com.intellij.psi.stubs.IStubElementType;
-import org.nim.stubs.impl.NimTypeStub;
+import org.nim.stubs.impl.NimClassStub;
 
 public abstract class NimStubFactory {
 
     public static IStubElementType build(String name){
-        if(NimTypeStub.NAME.equals(name)){
-            return NimTypeStub.ADAPTER;
+        if(NimClassStub.NAME.equals(name)){
+            return NimClassStub.ADAPTER;
         }
         return null;
     }
