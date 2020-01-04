@@ -1,19 +1,21 @@
 package org.nim.psi.mixin;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.nim.psi.NimClassDeclaration;
 import org.nim.psi.NimStubbedElement;
-import org.nim.psi.NimTypeDeclaration;
 import org.nim.psi.extension.NimNamedElement;
 import org.nim.psi.types.NimType;
 import org.nim.stubs.impl.NimClassStub;
 
-public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClassStub> implements NimTypeDeclaration, NimType, NimNamedElement {
+public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClassStub>
+        implements NimClassDeclaration, NimType, NimNamedElement {
 
     public NimClassDeclarationMixin(@NotNull NimClassStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
@@ -31,10 +33,7 @@ public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClas
     @Override
     //@todo: Fix this
     public PsiElement getNameIdentifier() {
-        if(getReferenceExpressionList().isEmpty()){
-            return null;
-        }
-        return getReferenceExpressionList().get(0);
+        return getIdentifier();
     }
 
     @Override
@@ -48,7 +47,7 @@ public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClas
         if (stub != null) {
             return stub.isReferenceType();
         }
-        return getRef() != null;
+        return getReference() != null;
     }
 
     @Override

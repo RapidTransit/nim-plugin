@@ -142,6 +142,8 @@
         DOC_RUNNABLE = '<doc_runnable>'
         EXAMPLE = '<example>'
         SINGLE_LINE_COMMENT='<single_line_comment>'
+        TRUE = 'true'
+        FALSE = 'false'
       ]
 }
 

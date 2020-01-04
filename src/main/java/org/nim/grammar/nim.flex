@@ -417,7 +417,8 @@ import static org.nim.psi.NimTokenTypes.*;
     "`" {yybegin(NON_CALLABLE_BACK_TICK); return BACK_TICK;}
     "<=" {return LT_EQUAL;}
     ">=" {return GT_EQUAL;}
-
+    "true" {return TRUE;}
+    "false" {return FALSE;}
     // String literals
     {DOUBLE_QUOTED_LITERAL} {return DOUBLE_QUOTED_LITERAL;}
     {RAW_STRING} {return RAW_STRING;}

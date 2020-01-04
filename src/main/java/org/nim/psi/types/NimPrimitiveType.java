@@ -49,4 +49,14 @@ public class NimPrimitiveType implements NimType {
         return false;
     }
 
+    @Override
+    public boolean isAssignableFrom(NimType other) {
+        return this.equals(other);
+    }
+
+    @Override
+    public String getClassName() {
+        return "system/" + type;
+    }
+
 }
