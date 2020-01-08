@@ -73,7 +73,7 @@ intellij {
     instrumentCode = false
     //This is Here for reference
     plugins 'java', 'gradle'
-    version '2019.3'
+    version '2019.3.1'
     if(System.getProperty('os.name').startsWith('Windows')){
         ideaDependencyCachePath = 'C:\\idea'
     }

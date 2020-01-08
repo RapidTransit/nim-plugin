@@ -47,9 +47,6 @@ public abstract class NimLiteralMixin extends NimStubbedElement<NimLiteralStub> 
         super(node);
     }
 
-    public NimLiteralMixin(NimLiteralStub stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
 
     @Nullable
     @Override

@@ -10,7 +10,9 @@ import org.nim.psi.NimVarAssignment;
 import org.nim.psi.extension.NimVarAssignmentEx;
 import org.nim.stubs.impl.NimVarAssignmentStub;
 
-public abstract class NimVarAssignmentMixin extends NimStubbedElement<NimVarAssignmentStub> implements NimVarAssignmentEx, NimVarAssignment {
+public abstract class NimVarAssignmentMixin extends NimStubbedElement<NimVarAssignmentStub>
+        implements NimVarAssignmentEx, NimVarAssignment {
+
     public NimVarAssignmentMixin(@NotNull NimVarAssignmentStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
     }
@@ -19,9 +21,7 @@ public abstract class NimVarAssignmentMixin extends NimStubbedElement<NimVarAssi
         super(node);
     }
 
-    public NimVarAssignmentMixin(NimVarAssignmentStub stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
+
 
     @Override
     public int getStatementIndex() {

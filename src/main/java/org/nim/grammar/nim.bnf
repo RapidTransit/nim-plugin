@@ -23,7 +23,7 @@
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(StringLiteral)")=StringLiteral
     extends(".*(Expression|OperandName|Literal)")=Expression
-    extends(".*(Method)")=MethodLike
+    //extends(".*(Method)")=MethodLike
     extends(".*Statement")=Statement
     generateTokenAccessors=true
     consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
@@ -163,7 +163,7 @@ Statement ::=
     | IfStatement
     | ForStatement
     | CaseStatement
-    | MethodTypes
+    | MethodLikeDeclaration
     | BlockStatement
     | WhenDeclaration
 
@@ -334,19 +334,18 @@ private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIE
 
 Closure ::= PROC Parameters  MemberTypeAssignment? PragmaDeclarationsBlock?
 
-private MethodTypes ::=
-    ProcedureMethod
-    | TemplateMethod
-    | FuncMethod
 
 
 
 private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? PragmaDeclarationsBlock? EQUAL
 
-meta MethodLike ::=  <<p>>  Signature MethodBody?
-ProcedureMethod ::= <<MethodLike PROC>>
-FuncMethod ::= <<MethodLike FUNC>>
-TemplateMethod ::= <<MethodLike TEMPLATE>>
+MethodLikeDeclaration ::= (PROC | FUNC | TEMPLATE | METHOD) Signature MethodBody? {
+    implements=[
+        'org.nim.psi.extension.NimNamedElement'
+        'org.nim.psi.extension.MethodLikeType'
+    ]
+}
+
 
 Generics ::= BRACKET_OPEN  GenericParam ((COMMA GenericParam) )*  BRACKET_CLOSE
 GenericInner ::= Expression Generics
@@ -354,24 +353,24 @@ GenericParam ::= GenericInner| Generics | Expression
 
 // Types
 
-TypeBlock ::=TYPE  <<beginTypeBlock>> Indentation  ClassDeclaration+ Dedentation <<endTypeBlock>> {
+TypeBlock ::=TYPE  <<beginTypeBlock>> Indentation  TypeStructureDeclaration+ Dedentation <<endTypeBlock>> {
   //  pin=2 // Ensures endTypeBlock is called
 }
 
 /**
-  Renaming this to `ClassDeclaration` even though Nim isn't strongly OOP and refers to objects/structures as types the
+  Renaming this to `TypeStructureDeclaration` even though Nim isn't strongly OOP and refers to objects/structures as types the
   reasoning is to match the semantics of Java/JVM (which this IDE runs on) so to take a page from java:
-  - The Actual Definition is the class
+  - The Actual Definition is the TypeStructure
   - The Type refers to the actual usage with generics
 
  */
-ClassDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
+TypeStructureDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
     implements = [
         "org.nim.psi.extension.NimNamedElement"
         "org.nim.psi.types.NimType"
     ]
-    mixin = "org.nim.psi.mixin.NimClassDeclarationMixin"
-    stubClass = "org.nim.stubs.impl.NimClassStub"
+    mixin = "org.nim.psi.mixin.NimTypeStructureDeclarationMixin"
+    stubClass = "org.nim.stubs.impl.NimTypeStructureStub"
 }
 
 

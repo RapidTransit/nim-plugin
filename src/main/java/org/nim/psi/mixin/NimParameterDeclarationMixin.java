@@ -19,9 +19,7 @@ public abstract class NimParameterDeclarationMixin extends NimStubbedElement<Nim
         super(node);
     }
 
-    public NimParameterDeclarationMixin(NimParameterDeclarationStub stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
+
 
     @Nullable
     @Override

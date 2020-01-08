@@ -8,19 +8,25 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nim.psi.NimParameter;
+import org.nim.stubs.TypeInfo;
 
-@Getter
+
 public class NimParameterStub extends NamedStubBase<NimParameter> {
 
-    private final String type;
 
-    protected NimParameterStub(StubElement parent, @NotNull IStubElementType elementType, @Nullable StringRef name, String type) {
+    protected NimParameterStub(StubElement parent, @NotNull IStubElementType elementType, @Nullable StringRef name) {
         super(parent, elementType, name);
-        this.type = type;
+
     }
 
-    protected NimParameterStub(StubElement parent, @NotNull IStubElementType elementType, @Nullable String name, String type) {
+    protected NimParameterStub(StubElement parent, @NotNull IStubElementType elementType, @Nullable String name) {
         super(parent, elementType, name);
-        this.type = type;
+    }
+
+    public TypeInfo getType(){
+        if(myParent instanceof NimParameterDeclarationStub){
+            return ((NimParameterDeclarationStub) myParent).getType();
+        }
+        return null;
     }
 }

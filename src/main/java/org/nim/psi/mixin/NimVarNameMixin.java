@@ -28,10 +28,6 @@ public abstract class NimVarNameMixin extends NimStubbedElement<NimVarNameStub> 
         super(node);
     }
 
-    public NimVarNameMixin(NimVarNameStub stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
-
 
     @Override
     public VariableType getDeclarationType() {

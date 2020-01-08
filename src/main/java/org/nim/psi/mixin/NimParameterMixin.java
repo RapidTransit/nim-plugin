@@ -17,7 +17,5 @@ public abstract class NimParameterMixin extends NimStubbedElement<NimParameterSt
         super(node);
     }
 
-    public NimParameterMixin(NimParameterStub stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
+
 }

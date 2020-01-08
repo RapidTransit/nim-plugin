@@ -1,33 +1,30 @@
 package org.nim.psi.mixin;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.nim.psi.NimClassDeclaration;
 import org.nim.psi.NimStubbedElement;
+import org.nim.psi.NimTypeStructureDeclaration;
 import org.nim.psi.extension.NimNamedElement;
 import org.nim.psi.types.NimType;
-import org.nim.stubs.impl.NimClassStub;
+import org.nim.stubs.impl.NimTypeStructureStub;
 
-public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClassStub>
-        implements NimClassDeclaration, NimType, NimNamedElement {
+public abstract class NimTypeStructureDeclarationMixin extends NimStubbedElement<NimTypeStructureStub>
+        implements NimTypeStructureDeclaration, NimType, NimNamedElement {
 
-    public NimClassDeclarationMixin(@NotNull NimClassStub stub, @NotNull IStubElementType nodeType) {
+    public NimTypeStructureDeclarationMixin(@NotNull NimTypeStructureStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
     }
 
-    public NimClassDeclarationMixin(@NotNull ASTNode node) {
+    public NimTypeStructureDeclarationMixin(@NotNull ASTNode node) {
         super(node);
     }
 
-    public NimClassDeclarationMixin(NimClassStub stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
+
 
     @Nullable
     @Override
@@ -43,7 +40,7 @@ public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClas
 
     @Override
     public boolean isReferenceType() {
-        NimClassStub stub = getStub();
+        NimTypeStructureStub stub = getStub();
         if (stub != null) {
             return stub.isReferenceType();
         }
@@ -52,7 +49,7 @@ public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClas
 
     @Override
     public boolean isEnum() {
-        NimClassStub stub = getStub();
+        NimTypeStructureStub stub = getStub();
         if (stub != null) {
             return stub.isEnumeration();
         }
@@ -61,7 +58,7 @@ public abstract class NimClassDeclarationMixin extends NimStubbedElement<NimClas
 
     @Override
     public boolean isExported() {
-        NimClassStub stub = getStub();
+        NimTypeStructureStub stub = getStub();
         if (stub != null) {
             return stub.isExported();
         }

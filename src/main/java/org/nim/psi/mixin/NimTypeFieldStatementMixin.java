@@ -24,9 +24,7 @@ public abstract class NimTypeFieldStatementMixin extends NimStubbedElement<NimTy
         super(node);
     }
 
-    public NimTypeFieldStatementMixin(NimTypeFieldStatementStub stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
+
 
     @Override
     public boolean isExported() {

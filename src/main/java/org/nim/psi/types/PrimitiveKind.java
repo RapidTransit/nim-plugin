@@ -46,7 +46,7 @@ public enum PrimitiveKind {
         }
     }
 
-    public  PrimitiveKind getKindForElement(IElementType type){
+    public static PrimitiveKind getKindForElement(IElementType type){
         return Mappings.TYPE_MAPPINGS.get(type);
     }
 

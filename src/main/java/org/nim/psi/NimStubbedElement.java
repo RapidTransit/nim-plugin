@@ -23,9 +23,6 @@ public abstract class NimStubbedElement<T extends StubBase<?>> extends StubBased
         super(node);
     }
 
-    public NimStubbedElement(T stub, IElementType nodeType, ASTNode node) {
-        super(stub, nodeType, node);
-    }
 
     public String toString() {
         return getClass().getSimpleName() + "(" + getNode().getElementType().toString() + ")";

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 // @todo: Add a {@link com.intellij.psi.PsiConstantEvaluationHelper}
-@AllArgsConstructor
+
 @Getter
 @EqualsAndHashCode
 @ToString
@@ -37,7 +37,9 @@ public class NimPrimitiveType implements NimType {
 
     private final String type;
 
-
+    public NimPrimitiveType(String type) {
+        this.type = type;
+    }
 
     @Override
     public boolean isReferenceType() {
