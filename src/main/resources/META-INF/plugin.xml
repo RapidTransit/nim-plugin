@@ -35,6 +35,7 @@
         <annotator language="Nim" implementationClass="org.nim.color.HighlightingAnnotator" />
         <sdkType implementation="org.nim.sdk.NimSdkType" />
         <additionalLibraryRootsProvider implementation="org.nim.nimble.library.NimbleAdditionalLibraryRootsProvider" />
+        <projectService serviceImplementation="org.nim.psi.NimPsiService" />
     </extensions>
 
     <actions>

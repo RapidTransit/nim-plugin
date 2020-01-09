@@ -27,7 +27,7 @@ public class NimStructureType implements NimType {
     }
 
     @Override
-    public String getClassName() {
+    public String getStructureName() {
         return null;
     }
 }

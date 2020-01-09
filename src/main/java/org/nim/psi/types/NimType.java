@@ -33,5 +33,5 @@ public interface NimType {
      */
      boolean isAssignableFrom(NimType other);
 
-     String getClassName();
+     String getStructureName();
 }

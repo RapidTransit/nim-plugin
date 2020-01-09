@@ -57,7 +57,7 @@ public class NimPrimitiveType implements NimType {
     }
 
     @Override
-    public String getClassName() {
+    public String getStructureName() {
         return "system/" + type;
     }
 
