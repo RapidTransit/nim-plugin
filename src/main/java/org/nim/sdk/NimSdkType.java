@@ -55,4 +55,9 @@ public class NimSdkType extends SdkType {
     public void saveAdditionalData(@NotNull SdkAdditionalData additionalData, @NotNull Element additional) {
 
     }
+
+    @Override
+    public boolean setupSdkPaths(@NotNull Sdk sdk, @NotNull SdkModel sdkModel) {
+        return super.setupSdkPaths(sdk, sdkModel);
+    }
 }

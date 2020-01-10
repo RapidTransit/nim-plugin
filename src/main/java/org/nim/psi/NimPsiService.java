@@ -29,7 +29,7 @@ public class NimPsiService {
 
     public NimPsiService(Project project) {
         this.project = project;
-        
+
         final PsiModificationTracker modificationTracker = PsiManager.getInstance(project).getModificationTracker();
 
         project.getMessageBus().connect().subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener() {

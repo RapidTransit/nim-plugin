@@ -11,6 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class NimSettings implements SearchableConfigurable, Disposable {
+
+
+
+
     @Override
     public void dispose() {
 

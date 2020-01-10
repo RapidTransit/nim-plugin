@@ -16,10 +16,14 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.StandardFileSystems;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Builder;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * May want to use a  CustomStepProjectGenerator I think SDK is discouraged
+ */
 @CustomLog
 public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
 
@@ -29,8 +33,6 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
     private String version;
     private String homePath;
     private LibraryImpl rootProvider;
-
-
 
     @NotNull
     @Override
@@ -52,12 +54,12 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
     @Nullable
     @Override
     public String getVersionString() {
-        return null;
+        return version;
     }
 
     @Override
     public void setVersionString(String versionString) {
-
+        this.version = versionString;
     }
 
     @Nullable
@@ -89,7 +91,7 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
     @NotNull
     @Override
     public SdkModificator getSdkModificator() {
-        return null;
+        return (SdkModificator) clone();
     }
 
     @Nullable
@@ -101,7 +103,13 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
     @NotNull
     @Override
     public Object clone() {
-        return null;
+        var clone = new NimSdk();
+        clone.parent = this;
+        clone.type = type;
+        clone.version = version;
+        clone.homePath = homePath;
+        clone.rootProvider = rootProvider;
+        return clone;
     }
 
     @Override
@@ -143,12 +151,15 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
 
     @Override
     public void commitChanges() {
-
+        parent.type = type;
+        parent.version = version;
+        parent.homePath = homePath;
+        parent.rootProvider = rootProvider;
     }
 
     @Override
     public boolean isWritable() {
-        return false;
+        return parent != null;
     }
 
 
