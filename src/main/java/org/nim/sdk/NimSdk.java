@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * May want to use a  CustomStepProjectGenerator I think SDK is discouraged
  */
-@CustomLog
+//@CustomLog
 public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
 
     private NimSdk parent;
@@ -33,6 +33,10 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
     private String version;
     private String homePath;
     private LibraryImpl rootProvider;
+
+    public NimSdk(NimSdkType type) {
+        this.type = type;
+    }
 
     @NotNull
     @Override
@@ -54,6 +58,9 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
     @Nullable
     @Override
     public String getVersionString() {
+        if(version == null){
+            version = type.getVersionString(this);
+        }
         return version;
     }
 
@@ -100,12 +107,12 @@ public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
         return null;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @NotNull
     @Override
     public Object clone() {
-        var clone = new NimSdk();
+        var clone = new NimSdk(type);
         clone.parent = this;
-        clone.type = type;
         clone.version = version;
         clone.homePath = homePath;
         clone.rootProvider = rootProvider;

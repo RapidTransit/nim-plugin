@@ -36,7 +36,7 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.10'
+    compile 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
     compile group: 'org.jodd', name: 'jodd-core', version: '5.0.5'

@@ -36,6 +36,11 @@
         <sdkType implementation="org.nim.sdk.NimSdkType" />
         <additionalLibraryRootsProvider implementation="org.nim.nimble.library.NimbleAdditionalLibraryRootsProvider" />
         <projectService serviceImplementation="org.nim.psi.NimPsiService" />
+        <applicationConfigurable id="Settings.Nim" bundle="messages.ProjectBundle"
+                                 nonDefaultProject="true"
+                                 key="nim.settings.name"
+                                 groupId="language"
+                             instance="org.nim.settings.NimSettings" />
     </extensions>
 
     <actions>

@@ -4,12 +4,19 @@ import com.intellij.openapi.project.ProjectBundle;
 import com.intellij.openapi.projectRoots.*;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileSystem;
+import jodd.util.StringUtil;
+import lombok.CustomLog;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Optional;
 
+//@CustomLog
 public class NimSdkType extends SdkType {
 
 
@@ -59,5 +66,30 @@ public class NimSdkType extends SdkType {
     @Override
     public boolean setupSdkPaths(@NotNull Sdk sdk, @NotNull SdkModel sdkModel) {
         return super.setupSdkPaths(sdk, sdkModel);
+    }
+
+    @Nullable
+    @Override
+    public String getVersionString(String sdkHome) {
+        if(StringUtil.isNotEmpty(sdkHome)) {
+          //  log.info("SDK Home was empty");
+            VirtualFileSystem fileSystem = VirtualFileManager.getInstance().getFileSystem("file");
+            if (fileSystem != null) {
+                var path = sdkHome + File.pathSeparator + "system.nim";
+                VirtualFile fileByPath = fileSystem.findFileByPath(path);
+                if(fileByPath != null && fileByPath.exists()){
+                    return Optional.ofNullable(NimVersionUtil.findVersion(fileByPath))
+                            .map(x->x.toCompactString())
+                            .orElse(null);
+                } else {
+                   // log.error("Path `" + path + "` did not contain the system.nim file");
+                }
+
+            } else {
+                // For Debug Purposes
+              //  log.error("File system with the key: `file` does not exist in the VirtualFileManager");
+            }
+        }
+        return null;
     }
 }

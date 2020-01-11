@@ -13,29 +13,29 @@ import javax.swing.*;
 public class NimSettings implements SearchableConfigurable, Disposable {
 
 
-
+    private NimSettingsForm form;
 
     @Override
     public void dispose() {
-
+        form = null;
     }
 
     @NotNull
     @Override
     public String getId() {
-        return null;
+        return "Settings.Nim";
     }
 
     @Nls(capitalization = Nls.Capitalization.Title)
     @Override
     public String getDisplayName() {
-        return null;
+        return "Nim";
     }
 
     @Nullable
     @Override
     public JComponent createComponent() {
-        return null;
+        return getForm().getMainPanel();
     }
 
     @Override
@@ -46,5 +46,12 @@ public class NimSettings implements SearchableConfigurable, Disposable {
     @Override
     public void apply() throws ConfigurationException {
 
+    }
+
+    NimSettingsForm getForm(){
+        if(form == null){
+            form = new NimSettingsForm();
+        }
+        return form;
     }
 }
