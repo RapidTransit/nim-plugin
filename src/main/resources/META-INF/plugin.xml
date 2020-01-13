@@ -25,8 +25,9 @@
                 name="Nimble file"
                 implementationClass="org.nim.nimble.NimbleFileType"
                 fieldName="INSTANCE"
-                language="Nim"
+                language="Nimble"
                 extensions="nimble" />
+        <lang.parserDefinition language="Nimble" implementationClass="org.nim.nimble.NimbleParserDefinition"/>
         <lang.parserDefinition language="Nim" implementationClass="org.nim.grammar.NimParserDefinition"/>
         <directoryProjectGenerator implementation="org.nim.project.NimDirectoryProjectGenerator" />
         <moduleType id="NIM_MODULE" implementationClass="org.nim.module.NimModuleType" />

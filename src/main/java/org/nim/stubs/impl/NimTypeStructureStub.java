@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class NimTypeStructureStub extends StubBase<NimTypeStructureDeclaration> {
 
-    public static final String NAME = "TYPE_DECLARATION";
+    public static final String NAME = "TYPE_STRUCTURE_DECLARATION";
 
     public static final NimStubAdapter<NimTypeStructureStub, NimTypeStructureDeclaration> ADAPTER =
 

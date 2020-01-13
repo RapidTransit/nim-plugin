@@ -50,7 +50,7 @@ public class NimbleParserDefinition implements ParserDefinition {
 
     @NotNull
     public PsiParser createParser(final Project project) {
-        return new NimParserWrapper();
+        return new NimbleParser();
     }
 
     @Override

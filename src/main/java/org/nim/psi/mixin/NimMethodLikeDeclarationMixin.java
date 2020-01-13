@@ -81,5 +81,8 @@ public abstract class NimMethodLikeDeclarationMixin extends NimStubbedElement<Ni
         return null;
     }
 
-
+    @Override
+    public NimType getReturnType() {
+        return null;
+    }
 }
