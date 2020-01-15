@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.Optional;
 
-//@CustomLog
+@CustomLog
 public class NimSdkType extends SdkType {
 
 
@@ -72,7 +72,7 @@ public class NimSdkType extends SdkType {
     @Override
     public String getVersionString(String sdkHome) {
         if(StringUtil.isNotEmpty(sdkHome)) {
-          //  log.info("SDK Home was empty");
+            log.info("SDK Home was empty");
             VirtualFileSystem fileSystem = VirtualFileManager.getInstance().getFileSystem("file");
             if (fileSystem != null) {
                 var path = sdkHome + File.pathSeparator + "system.nim";
@@ -82,12 +82,12 @@ public class NimSdkType extends SdkType {
                             .map(x->x.toCompactString())
                             .orElse(null);
                 } else {
-                   // log.error("Path `" + path + "` did not contain the system.nim file");
+                    log.error("Path `" + path + "` did not contain the system.nim file");
                 }
 
             } else {
                 // For Debug Purposes
-              //  log.error("File system with the key: `file` does not exist in the VirtualFileManager");
+                log.error("File system with the key: `file` does not exist in the VirtualFileManager");
             }
         }
         return null;

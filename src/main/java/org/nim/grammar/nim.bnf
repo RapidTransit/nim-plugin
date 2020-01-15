@@ -19,7 +19,7 @@
 
 //    implements("DeclarationColonEquals")="org.nim.psi.extension.NimNamedElement"
 //    extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
-    elementTypeFactory("TypeStructureDeclaration")="org.nim.stubs.NimStubFactory.build"
+    elementTypeFactory("TypeStructureDeclaration|MethodLikeDeclaration")="org.nim.stubs.NimStubFactory.build"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
     extends(".*(StringLiteral)")=StringLiteral
     extends(".*(Expression|OperandName|Literal)")=Expression
@@ -345,6 +345,7 @@ MethodLikeDeclaration ::= (PROC | FUNC | TEMPLATE | METHOD) Signature MethodBody
         'org.nim.psi.extension.MethodLikeType'
     ]
     mixin='org.nim.psi.mixin.NimMethodLikeDeclarationMixin'
+    stubClass='org.nim.stubs.impl.NimMethodLikeStub'
 }
 
 

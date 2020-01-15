@@ -1,6 +1,7 @@
 package org.nim.stubs.impl;
 
 import com.intellij.psi.stubs.*;
+import com.intellij.util.BitUtil;
 import org.jetbrains.annotations.NotNull;
 
 import org.nim.psi.NimTypeStructureDeclaration;
@@ -31,19 +32,15 @@ public class NimTypeStructureStub extends StubBase<NimTypeStructureDeclaration> 
                         this,
                         // Name
                         psi.getName(),
-                        // Exported
-                        false,
-                        // Enumeration
-                        false, false);
+                        // Exported, Enum, Ref Type
+                        packFlags(psi.isExported(), psi.isEnum(), psi.isReferenceType()));
             }
 
 
             @Override
             public void serialize(@NotNull NimTypeStructureStub stub, @NotNull StubOutputStream ds) throws IOException {
                 ds.writeName(stub.name);
-                ds.writeBoolean(stub.exported);
-                ds.writeBoolean(stub.enumeration);
-                ds.writeBoolean(stub.referenceType);
+                ds.writeInt(stub.flags);
             }
 
             @NotNull
@@ -54,12 +51,8 @@ public class NimTypeStructureStub extends StubBase<NimTypeStructureDeclaration> 
                         this,
                         // Name
                         ds.readNameString(),
-                        // Exported
-                        ds.readBoolean(),
-                        // Enumeration
-                        ds.readBoolean(),
-                        //referenceType
-                        ds.readBoolean());
+                        // Flags
+                        ds.readInt());
             }
 
             @Override
@@ -68,24 +61,19 @@ public class NimTypeStructureStub extends StubBase<NimTypeStructureDeclaration> 
             }
     };
 
+    private static final int EXPORTED = 0x01;
+    private static final int ENUMERATION = 0x02;
+    private static final int REFERENCE_TYPE = 0x04;
 
     private final String name;
 
-    private final boolean exported;
-
-    private final boolean enumeration;
-
-    private final boolean referenceType;
+    private final int flags;
 
     protected NimTypeStructureStub(StubElement parent, IStubElementType elementType,
-                                   String name,
-                                   boolean exported,
-                                   boolean enumeration, boolean referenceType) {
+                                   String name, int flags) {
         super(parent, elementType);
         this.name = name;
-        this.exported = exported;
-        this.enumeration = enumeration;
-        this.referenceType = referenceType;
+        this.flags = flags;
     }
 
     public String getName() {
@@ -93,14 +81,24 @@ public class NimTypeStructureStub extends StubBase<NimTypeStructureDeclaration> 
     }
 
     public boolean isExported() {
-        return exported;
+        return BitUtil.isSet(flags, EXPORTED);
     }
 
     public boolean isEnumeration() {
-        return enumeration;
+        return BitUtil.isSet(flags, ENUMERATION);
     }
 
     public boolean isReferenceType() {
-        return referenceType;
+        return BitUtil.isSet(flags, REFERENCE_TYPE);
     }
+
+
+    private static int packFlags(boolean exported, boolean enumeration, boolean referenceType){
+        int flags = 0;
+        if(exported) flags |= EXPORTED;
+        if(enumeration) flags |= ENUMERATION;
+        if(referenceType) flags |= REFERENCE_TYPE;
+        return flags;
+    }
+
 }

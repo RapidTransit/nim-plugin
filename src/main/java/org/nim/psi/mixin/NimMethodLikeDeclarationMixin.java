@@ -28,7 +28,7 @@ public abstract class NimMethodLikeDeclarationMixin extends NimStubbedElement<Ni
 
     public NimMethodLikeDeclarationMixin(@NotNull NimMethodLikeStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
-        returnType = new AtomicNotNullLazyValue<NimType>() {
+        returnType = new AtomicNotNullLazyValue<>() {
             @NotNull
             @Override
             protected NimType compute() {
@@ -39,7 +39,7 @@ public abstract class NimMethodLikeDeclarationMixin extends NimStubbedElement<Ni
 
     public NimMethodLikeDeclarationMixin(@NotNull ASTNode node) {
         super(node);
-        returnType = new AtomicNotNullLazyValue<NimType>() {
+        returnType = new AtomicNotNullLazyValue<>() {
             @NotNull
             @Override
             protected NimType compute() {
@@ -55,8 +55,13 @@ public abstract class NimMethodLikeDeclarationMixin extends NimStubbedElement<Ni
 
 
     @Override
+    //@todo: Need to add something to make sure if it is exported without the asterisk
     public boolean isExported() {
-        return false;
+        var stub = getStub();
+        if (stub != null) {
+            return stub.isExported();
+        }
+        return getStar() != null;
     }
 
     @Nullable
@@ -72,17 +77,30 @@ public abstract class NimMethodLikeDeclarationMixin extends NimStubbedElement<Ni
 
     @Override
     public MethodType getMethodType() {
+        var stub = getStub();
+        if (stub != null) {
+            return stub.getType();
+        }
+        if(getProc() != null){
+            return MethodType.PROC;
+        } else if(getTemplate() != null){
+            return MethodType.TEMPLATE;
+        } else if(getFunc() != null){
+            return MethodType.PROC;
+        } else if(getMethod() != null){
+            return MethodType.METHOD;
+        }
         return null;
     }
 
     @Nullable
     @Override
     public PsiElement getIdentifyingElement() {
-        return null;
+        return getSymbol();
     }
 
     @Override
     public NimType getReturnType() {
-        return null;
+        return returnType.getValue();
     }
 }
