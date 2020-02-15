@@ -16,17 +16,15 @@ import org.nim.psi.extension.MethodLikeType;
 import org.nim.psi.extension.NimNamedElement;
 import org.nim.psi.types.NimPrimitiveType;
 import org.nim.psi.types.NimType;
-import org.nim.stubs.impl.NimMethodLikeStub;
+import org.nim.stubs.impl.NimMethodLikeDeclarationStub;
 import org.nim.stubs.impl.NimStructureType;
 
-import java.util.Optional;
-
-public abstract class NimMethodLikeDeclarationMixin extends NimStubbedElement<NimMethodLikeStub>
+public abstract class NimMethodLikeDeclarationMixin extends NimStubbedElement<NimMethodLikeDeclarationStub>
         implements NimNamedElement, NimMethodLikeDeclaration, MethodLikeType {
 
     private final NotNullLazyValue<NimType> returnType;
 
-    public NimMethodLikeDeclarationMixin(@NotNull NimMethodLikeStub stub, @NotNull IStubElementType nodeType) {
+    public NimMethodLikeDeclarationMixin(@NotNull NimMethodLikeDeclarationStub stub, @NotNull IStubElementType nodeType) {
         super(stub, nodeType);
         returnType = new AtomicNotNullLazyValue<>() {
             @NotNull

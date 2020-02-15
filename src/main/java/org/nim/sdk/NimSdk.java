@@ -1,179 +1,78 @@
 package org.nim.sdk;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkAdditionalData;
-import com.intellij.openapi.projectRoots.SdkModificator;
-import com.intellij.openapi.projectRoots.SdkTypeId;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.RootProvider;
-import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
-import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.UserDataHolderBase;
+import com.intellij.openapi.project.ProjectBundle;
+import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.StandardFileSystems;
 import com.intellij.openapi.vfs.VirtualFile;
-import lombok.Builder;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileSystem;
+import jodd.util.StringUtil;
 import lombok.CustomLog;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.util.Optional;
+
 /**
- * May want to use a  CustomStepProjectGenerator I think SDK is discouraged
+ * Acts similar to IntelliJ's SDK related but Intellij is tied to JDK implementations this should work better across
+ * IDEs
  */
-//@CustomLog
-public class NimSdk extends UserDataHolderBase implements Sdk, SdkModificator {
+@CustomLog
+public class NimSdk {
 
-    private NimSdk parent;
-    private NimSdkType type;
     private String name;
-    private String version;
+
     private String homePath;
-    private LibraryImpl rootProvider;
 
-    public NimSdk(NimSdkType type) {
-        this.type = type;
-    }
+    private String version;
 
-    @NotNull
-    @Override
-    public SdkTypeId getSdkType() {
-        return type;
-    }
+    public String getVersionString(String sdkHome) {
+        if(StringUtil.isNotEmpty(sdkHome)) {
+            log.info("SDK Home was empty");
+            VirtualFileSystem fileSystem = VirtualFileManager.getInstance().getFileSystem("file");
+            if (fileSystem != null) {
+                var path = sdkHome + File.pathSeparator + "system.nim";
+                VirtualFile fileByPath = fileSystem.findFileByPath(path);
+                if(fileByPath != null && fileByPath.exists()){
+                    return Optional.ofNullable(NimVersionUtil.findVersion(fileByPath))
+                            .map(x->x.toCompactString())
+                            .orElse(null);
+                } else {
+                    log.error("Path `" + path + "` did not contain the system.nim file");
+                }
 
-    @NotNull
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(@NotNull String name) {
-        this.name = name;
-    }
-
-    @Nullable
-    @Override
-    public String getVersionString() {
-        if(version == null){
-            version = type.getVersionString(this);
+            } else {
+                // For Debug Purposes
+                log.error("File system with the key: `file` does not exist in the VirtualFileManager");
+            }
         }
-        return version;
+        return null;
+    }
+    public boolean isValidSdkHome(String path) {
+        if(path != null){
+            File root = new File(FileUtil.toSystemDependentName(path));
+            return new File(root, "system.nim").isFile() && new File(root, "stdlib.nim").isFile();
+        }
+        return false;
     }
 
-    @Override
-    public void setVersionString(String versionString) {
-        this.version = versionString;
+    public String suggestHomePath() {
+        return SystemInfo.isLinux ? "/usr/lib/nim" : null;
     }
 
-    @Nullable
-    @Override
-    public String getHomePath() {
-        return homePath;
+    public String suggestSdkName(@Nullable String currentSdkName, String sdkHome) {
+        return "NimSDK";
     }
 
-    @Override
-    public void setHomePath(String path) {
-        this.homePath = path;
+    public String getPresentableName() {
+        return ProjectBundle.message("nim.sdk.name");
     }
 
-    @Nullable
-    @Override
     public VirtualFile getHomeDirectory() {
         if (homePath == null) {
             return null;
         }
         return StandardFileSystems.local().findFileByPath(homePath);
-    }
-
-    @NotNull
-    @Override
-    public RootProvider getRootProvider() {
-        return rootProvider;
-    }
-
-    @NotNull
-    @Override
-    public SdkModificator getSdkModificator() {
-        return (SdkModificator) clone();
-    }
-
-    @Nullable
-    @Override
-    public SdkAdditionalData getSdkAdditionalData() {
-        return null;
-    }
-
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    @NotNull
-    @Override
-    public Object clone() {
-        var clone = new NimSdk(type);
-        clone.parent = this;
-        clone.version = version;
-        clone.homePath = homePath;
-        clone.rootProvider = rootProvider;
-        return clone;
-    }
-
-    @Override
-    public void setSdkAdditionalData(SdkAdditionalData data) {
-
-    }
-
-    @NotNull
-    @Override
-    public VirtualFile[] getRoots(@NotNull OrderRootType rootType) {
-        return new VirtualFile[0];
-    }
-
-    @Override
-    public void addRoot(@NotNull VirtualFile root, @NotNull OrderRootType rootType) {
-        rootProvider.addRoot(root, rootType);
-    }
-
-    @Override
-    public void removeRoot(@NotNull VirtualFile root, @NotNull OrderRootType rootType) {
-        rootProvider.removeRoot(root.getUrl(), rootType);
-    }
-
-    @Override
-    public void removeRoots(@NotNull OrderRootType rootType) {
-        var urls = rootProvider.getUrls(rootType);
-        for(var url : urls){
-            rootProvider.removeRoot(url, rootType);
-        }
-    }
-
-    @Override
-    public void removeAllRoots() {
-        var rootTypes = OrderRootType.getAllTypes();
-        for(var rootType : rootTypes){
-            removeRoots(rootType);
-        }
-    }
-
-    @Override
-    public void commitChanges() {
-        parent.type = type;
-        parent.version = version;
-        parent.homePath = homePath;
-        parent.rootProvider = rootProvider;
-    }
-
-    @Override
-    public boolean isWritable() {
-        return parent != null;
-    }
-
-
-    public static LibraryImpl create(Project project, String name){
-        return (LibraryImpl) ApplicationManager.getApplication().runWriteAction((Computable<Library>) () -> {
-            var table = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
-            return table.createLibrary(name);
-        });
     }
 }

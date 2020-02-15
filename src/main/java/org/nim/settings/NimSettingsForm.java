@@ -8,8 +8,6 @@ import javax.swing.*;
 public class NimSettingsForm {
     private JPanel mainPanel;
     private JBLabel sdkHomeLabel;
-    private JBTextField sdkHome;
-    private JButton sdkHomeLookup;
 
     public JPanel getMainPanel() {
         return mainPanel;

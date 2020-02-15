@@ -345,7 +345,7 @@ MethodLikeDeclaration ::= (PROC | FUNC | TEMPLATE | METHOD) Signature MethodBody
         'org.nim.psi.extension.MethodLikeType'
     ]
     mixin='org.nim.psi.mixin.NimMethodLikeDeclarationMixin'
-    stubClass='org.nim.stubs.impl.NimMethodLikeStub'
+    stubClass='org.nim.stubs.impl.NimMethodLikeDeclarationStub'
 }
 
 
