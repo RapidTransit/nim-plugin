@@ -1,15 +1,12 @@
 package org.nim.grammar;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.lang.LighterASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.parser.GeneratedParserUtilBase;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.util.diff.FlyweightCapableTreeStructure;
 import gnu.trove.TObjectIntHashMap;
 import org.jetbrains.annotations.NotNull;
-import org.nim.psi.NimTokenType;
 import org.nim.psi.NimTokenTypes;
 
 import java.io.Serializable;
@@ -19,11 +16,11 @@ import java.util.Deque;
 public class NimParserUtil extends GeneratedParserUtilBase {
 
     enum BlockType {
-        NONE, TYPE, TYPE_DEFINITION, METHOD
+        NONE, TYPE, TYPE_DEFINITION, METHOD_LIKE, CALL
     }
 
     private static final Key<ParserData> PARSER_DATA_KEY = Key.create("PARSER_DATA");
-
+    public static final Key<VariableType> VARIABLE_TYPE_KEY = Key.create("VARIABLE_TYPE");
     /**
      * Of Can be used as an operator or as a branch statement
      * @param builder
@@ -37,6 +34,34 @@ public class NimParserUtil extends GeneratedParserUtilBase {
             return shouldntBeNewLine == NimTokenTypes.CRLF;
         }
         return shouldntBeNewLine == NimTokenTypes.CRLF;
+    }
+
+    public static boolean debug(@NotNull PsiBuilder builder, int level){
+        ParserData parserData = getParserData(builder);
+        return true;
+    }
+
+    public static boolean enterVariableType(@NotNull PsiBuilder builder, int level, VariableType type){
+        builder.putUserData(VARIABLE_TYPE_KEY, type);
+        return true;
+    }
+
+    public static boolean enterVar(@NotNull PsiBuilder builder, int level){
+        enterVariableType(builder, level, VariableType.VAR);
+        return true;
+    }
+
+    public static boolean enterLet(@NotNull PsiBuilder builder, int level){
+        enterVariableType(builder, level, VariableType.LET);
+        return true;
+    }
+    public static boolean enterConst(@NotNull PsiBuilder builder, int level){
+        enterVariableType(builder, level, VariableType.CONST);
+        return true;
+    }
+    public static boolean exitVariable(@NotNull PsiBuilder builder, int level){
+        builder.putUserData(VARIABLE_TYPE_KEY, null);
+        return true;
     }
 
     /**
@@ -67,6 +92,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return shouldntBeNewLine != NimTokenTypes.CRLF;
     }
 
+
     /**
      * Tuple Disambiguation
      * @param builder
@@ -78,32 +104,76 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return shouldntBeWhitespace != NimTokenTypes.WHITE_SPACE;
     }
 
+    public static boolean addType(@NotNull PsiBuilder builder, int level, ASTNode node){
 
-    public static boolean parseCall(@NotNull PsiBuilder builder, int level){
-        boolean result = false;
-        return false;
-    }
-
-    // For Debug Stepping
-    public static boolean endCurrent(@NotNull PsiBuilder builder, int level){
-        final IElementType type = builder.lookAhead(0);
-        final IElementType type1 = builder.lookAhead(1);
-        final IElementType type2 = builder.lookAhead(2);
-        final IElementType type3 = builder.lookAhead(3);
-        final IElementType type4 = builder.lookAhead(4);
-        final IElementType type5 = builder.lookAhead(5);
-        final IElementType type6 = builder.lookAhead(6);
+        node.putUserData(VARIABLE_TYPE_KEY, builder.getUserData(VARIABLE_TYPE_KEY));
         return true;
     }
+
 
     public static boolean beginParsing(@NotNull PsiBuilder builder, int level){
         builder.putUserData(PARSER_DATA_KEY, new ParserData());
         return true;
     }
 
+
+
+
+    public static boolean beginCall(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        parserData.blocks.push(new Block(BlockType.CALL, parserData.indent, level));
+        return true;
+    }
+
+    public static boolean endCall(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        final Block peek = parserData.blocks.peek();
+        if(peek != null && peek.blockType == BlockType.CALL){
+            parserData.blocks.poll();
+        }
+        return true;
+    }
+
+
+    public static boolean callIndent(@NotNull PsiBuilder builder, int _level){
+        final ParserData parserData = getParserData(builder);
+        var block = parserData.blocks.peek();
+        return block != null && block.callIndents;
+    }
+
+    public static boolean isInCall(@NotNull PsiBuilder builder, int _level){
+        final ParserData parserData = getParserData(builder);
+        if(parserData.blocks.isEmpty()) return false;
+        final Block peek = parserData.blocks.peek();
+        return peek.blockType == BlockType.CALL;
+    }
+
+
+    public static boolean beginMethodLike(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        parserData.blocks.push(new Block(BlockType.METHOD_LIKE, parserData.indent, level));
+        return true;
+    }
+
+    public static boolean endMethodLike(@NotNull PsiBuilder builder, int level){
+        final ParserData parserData = getParserData(builder);
+        final Block peek = parserData.blocks.peek();
+        if(peek != null && peek.blockType == BlockType.METHOD_LIKE){
+            parserData.blocks.poll();
+        }
+        return true;
+    }
+
+    public static boolean isInMethodLike(@NotNull PsiBuilder builder, int _level){
+        final ParserData parserData = getParserData(builder);
+        if(parserData.blocks.isEmpty()) return false;
+        final Block peek = parserData.blocks.peek();
+        return peek.blockType == BlockType.METHOD_LIKE;
+    }
+
     public static boolean beginTypeDefinitionBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
-        parserData.blocks.push(new Block(BlockType.TYPE_DEFINITION, parserData.indent));
+        parserData.blocks.push(new Block(BlockType.TYPE_DEFINITION, parserData.indent, level));
         return true;
     }
 
@@ -125,7 +195,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean beginTypeBlock(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
-        parserData.blocks.push(new Block(BlockType.TYPE, parserData.indent));
+        parserData.blocks.push(new Block(BlockType.TYPE, parserData.indent, level));
         return true;
     }
 
@@ -145,11 +215,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return parserData.inProcExpression;
     }
 
-    public static boolean isLast(@NotNull PsiBuilder builder, int level){
-        IElementType type = builder.rawLookup(1);
-        IElementType type1 = builder.rawLookup(0);
-        return false;
-    }
+
 
     public static boolean hasTrailingParanthesis(@NotNull PsiBuilder builder, int level){
         IElementType type = builder.rawLookup(0);
@@ -182,6 +248,10 @@ public class NimParserUtil extends GeneratedParserUtilBase {
 
     public static boolean increaseIndent(@NotNull PsiBuilder builder, int level){
         final ParserData parserData = getParserData(builder);
+        var block = parserData.blocks.peek();
+        if(block != null && block.blockType == BlockType.CALL){
+            block.callIndents = true;
+        }
         parserData.indent++;
         return true;
     }
@@ -212,9 +282,7 @@ public class NimParserUtil extends GeneratedParserUtilBase {
         return true;
     }
 
-    public static boolean exitMode(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode) {
-        return exitMode(builder_, level,mode, false);
-    }
+
 
     public static boolean exitModeSafe(@NotNull PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level, String mode) {
         return exitMode(builder_, level,mode, true);
@@ -235,10 +303,12 @@ public class NimParserUtil extends GeneratedParserUtilBase {
     protected static class Block implements Serializable {
         private final BlockType blockType;
         private final int indent;
-
-        public Block(BlockType blockType, int indent) {
+        private boolean callIndents;
+        private final int level;
+        public Block(BlockType blockType, int indent, int level) {
             this.blockType = blockType;
             this.indent = indent;
+            this.level = level;
         }
     }
 }

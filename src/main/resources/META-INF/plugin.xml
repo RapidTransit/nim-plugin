@@ -15,10 +15,33 @@
     -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileTypeFactory implementation="org.nim.lang.NimFileTypeFactory"/>
+        <fileType
+                name="Nim file"
+                implementationClass="org.nim.lang.NimFileType"
+                fieldName="INSTANCE"
+                language="Nim"
+                extensions="nim" />
+        <fileType
+                name="Nimble file"
+                implementationClass="org.nim.nimble.NimbleFileType"
+                fieldName="INSTANCE"
+                language="Nimble"
+                extensions="nimble" />
+        <lang.parserDefinition language="Nimble" implementationClass="org.nim.nimble.NimbleParserDefinition"/>
         <lang.parserDefinition language="Nim" implementationClass="org.nim.grammar.NimParserDefinition"/>
-        <lang.syntaxHighlighterFactory key="Nim" implementationClass="org.nim.NimSyntaxHighlighterFactory"/>
-        <colorSettingsPage implementation="org.nim.NimColorSettingsPage"/>
+        <directoryProjectGenerator implementation="org.nim.project.NimDirectoryProjectGenerator" />
+        <moduleType id="NIM_MODULE" implementationClass="org.nim.module.NimModuleType" />
+        <lang.syntaxHighlighterFactory language="Nim" implementationClass="org.nim.color.NimSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="org.nim.color.NimColorSettingsPage"/>
+        <annotator language="Nim" implementationClass="org.nim.color.HighlightingAnnotator" />
+<!--        <sdkType implementation="org.nim.sdk.NimSdkType" />-->
+        <additionalLibraryRootsProvider implementation="org.nim.nimble.library.NimbleAdditionalLibraryRootsProvider" />
+        <projectService serviceImplementation="org.nim.psi.NimPsiService" />
+        <applicationConfigurable id="Settings.Nim" bundle="messages.ProjectBundle"
+                                 nonDefaultProject="true"
+                                 key="nim.settings.name"
+                                 groupId="language"
+                             instance="org.nim.settings.NimSettings" />
     </extensions>
 
     <actions>

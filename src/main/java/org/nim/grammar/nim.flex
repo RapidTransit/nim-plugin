@@ -67,7 +67,7 @@ import static org.nim.psi.NimTokenTypes.*;
     IDENTIFIER= {_LETTER} ( _? {_LETTER} | {DEC_DIGIT} )*
     _VALID_CHARS = "\\"[0-9]+|"\\"{HEX_DIGIT}{2}|[^\\\']|"\\"[rcnlftv\'\"abe]
     CHAR_LITERAL=\'{_VALID_CHARS}\'
-// Eventually push the number stuff to the parser so we can add error inspections
+// Eventually push the number stuff to the parser so we can add error inspections?
     // Digit Classes
     DEC_DIGIT = [0-9]
     OCTAL_DIGIT = [0-7]
@@ -417,7 +417,8 @@ import static org.nim.psi.NimTokenTypes.*;
     "`" {yybegin(NON_CALLABLE_BACK_TICK); return BACK_TICK;}
     "<=" {return LT_EQUAL;}
     ">=" {return GT_EQUAL;}
-
+    "true" {return TRUE;}
+    "false" {return FALSE;}
     // String literals
     {DOUBLE_QUOTED_LITERAL} {return DOUBLE_QUOTED_LITERAL;}
     {RAW_STRING} {return RAW_STRING;}

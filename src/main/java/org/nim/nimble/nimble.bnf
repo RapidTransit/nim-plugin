@@ -1,0 +1,64 @@
+{
+    parserClass="org.nim.nimble.NimbleParser"
+     extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+
+    psiClassPrefix="Nimble"
+    psiImplClassSuffix="Impl"
+    psiPackage="org.nim.nimble.psi"
+    psiImplPackage="org.nim.nimble.psi.impl"
+       elementTypeHolderClass="org.nim.nimble.psi.NimbleTokenTypes"
+        elementTypeClass="org.nim.nimble.psi.NimbleElementType"
+        tokenTypeClass="org.nim.nimble.psi.NimbleTokenType"
+     generateTokenAccessors=true
+
+     tokens = [
+        NAME = 'name'
+        VERSION = 'version'
+        AUTHOR = 'author'
+        DESCRIPTION = 'description'
+        LICENSE = 'license'
+        SKIP_DIRS = 'skipDirs'
+        SKIP_FILES = 'skipFiles'
+        SKIP_EXT = 'skipExt'
+
+        REQUIRES = 'requires'
+
+        D_QUOTE = '"'
+        DOT = '.'
+        AMP = '&'
+        COMMA = ','
+        NUMBER = 'regexp:\d+'
+        IDENTIFIER = 'regexp:\p{Alpha}\w*'
+        OPERATOR = "regexp:(>=|<=|>|<)"
+        VOP_LT='<'
+        VOP_GT='>'
+        VOP_LTE='<='
+        VOP_GTE='>='
+        WS = '<ws>'
+        CRLF = '<crlf>'
+        EQUAL = '='
+        COMMENT = 'regexp:#.+'
+
+     ]
+
+}
+NimbleFile ::= Required*
+Required ::= REQUIRES EQUAL PackageDeclaration (COMMA PackageDeclaration)* {pin =1 recoverWhile=recover_required}
+private recover_required ::= !(REQUIRES)
+PackageDeclaration ::= D_QUOTE Package D_QUOTE
+Package ::= IDENTIFIER PackageVersion?
+PackageVersion ::= VersionOperator VersionNumber AdditionalVersionConstraint? //{pin=1 recoverWhile=recover_PackageVersion}
+AdditionalVersionConstraint ::= AMP VersionOperator VersionNumber
+VersionOperator ::= VOP_GTE | VOP_LTE | VOP_GT | VOP_LT {
+    implements=['org.nim.nimble.psi.ext.VersionOperator']
+    mixin='org.nim.nimble.psi.mixin.NimbleVersionOperatorMixin'
+}
+private recover_PackageVersion ::= !(OPERATOR )
+
+
+VersionNumber ::= VersionNumberPart (DOT VersionNumberPart (DOT VersionNumberPart)? )?{
+    methods=[versionNumberParts="VersionNumberPart"]
+}
+
+VersionNumberPart ::= NUMBER

@@ -1,0 +1,10 @@
+# Package
+
+version     = "${data.version}"
+author      = "${data.author}"
+description = "${data.description}"
+license     = "${data.license}"
+
+# Dependencies
+
+requires "nim >= ${data.nimVersion}"

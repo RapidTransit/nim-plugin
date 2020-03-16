@@ -6,28 +6,29 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.util.io.StringRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.nim.psi.extension.NimNamedElement;
 
 public abstract class NimNamedStub<T extends NimNamedElement> extends NamedStubBase<T> {
 
-    private final boolean _public;
+    private final boolean exported;
 
     protected NimNamedStub(StubElement parent,
                            @NotNull IStubElementType elementType,
                            @Nullable StringRef name,
-                           boolean _public) {
+                           boolean exported) {
         super(parent, elementType, name);
-        this._public = _public;
+        this.exported = exported;
     }
 
     protected NimNamedStub(StubElement parent,
                            @NotNull IStubElementType elementType,
                            @Nullable String name,
-                           boolean _public) {
+                           boolean exported) {
         super(parent, elementType, name);
-        this._public = _public;
+        this.exported = exported;
     }
 
-    public boolean isPublic() {
-        return _public;
+    public boolean isExported() {
+        return exported;
     }
 }

@@ -1,188 +1,189 @@
 {
-  parserClass="org.nim.grammar.NimParser"
+    parserClass="org.nim.grammar.NimParser"
 
-  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
 
-  psiClassPrefix="Nim"
-  psiImplClassSuffix="Impl"
-  psiPackage="org.nim.psi"
-  psiImplPackage="org.nim.psi.impl"
-
-  elementTypeHolderClass="org.nim.psi.NimTokenTypes"
-  elementTypeClass="org.nim.psi.NimElementType"
-  tokenTypeClass="org.nim.psi.NimTokenType"
-  psiImplUtilClass="org.nim.grammar.NimPsiImplUtil"
+    psiClassPrefix="Nim"
+    psiImplClassSuffix="Impl"
+    psiPackage="org.nim.psi"
+    psiImplPackage="org.nim.psi.impl"
+    parserImports=[
+        'org.nim.grammar.VariableType'
+    ]
+    elementTypeHolderClass="org.nim.psi.NimTokenTypes"
+    elementTypeClass="org.nim.psi.NimElementType"
+    tokenTypeClass="org.nim.psi.NimTokenType"
+    psiImplUtilClass="org.nim.grammar.NimPsiImplUtil"
     parserUtilClass="org.nim.grammar.NimParserUtil"
-  tokens = [
-    BLOCK_COMMENT_START="#["
-    BLOCK_COMMENT_END="]#"
-    ADDR = 'addr'
-    AND = 'and'
-    AS = 'as'
-    ASM = 'asm'
-    BIND = 'bind'
-    BLOCK = 'block'
-    BREAK = 'break'
-    CASE = 'case'
-    CAST = 'cast'
-    CONCEPT ='concept'
-    CONSY = 'const'
-    CONTINUE = 'continue'
-    CONVERTER='converter'
-    DEFER='defer'
-    DISCARD='discard'
-    DISTINCT='distinct'
-    DIV='div'
-    DO='do'
-    ELIF='elif'
-    ELSE='else'
-    END='end'
-    ENUM='enum'
-    EXCEPT='except'
-    EXPORT='export'
-    FINALLY='finally'
-    FOR='for'
-    FROM='from'
-    FUNC='func'
-    IF='if'
-    IMPORT='import'
-    IN='in'
-    INCLUDE='include'
-    INTERFACE='interface'
-    IS='is'
-    ISNOT='isnot'
-    ITERATOR='iterator'
-    LET='let'
-    MACRO='macro'
-    METHOD='method'
-    MIXIN='mixin'
-    MOD='mod'
-    NIL='nil'
-    NOT='not'
-    NOTIN='notin'
-    OBJECT='object'
-    OF='of'
-    OR='or'
-    OUT='out'
-    PROC='proc'
-    PTR='ptr'
-    RAISE='raise'
-    REF='ref'
-    RETURN='return'
-    SHL='shl'
-    SHR='shr'
-    STATIC='static'
-    TEMPLATE='template'
-    TRY='try'
-    TUPLE='tuple'
-    TYPE='type'
-    USING='using'
-    VAR='var'
-    WHEN='when'
-    WHILE='while'
-    XOR='xor'
-    YIELD='yield'
-    PARAN_DOT_OPEN ='(.'
-    PARAN_DOT_CLOSE='.)'
-    BRACKET_DOT_OPEN='[.'
-    BRACKET_DOT_CLOSE='.]'
-    CURLY_DOT_OPEN='{.'
-    CURLY_DOT_CLOSE='.}'
-    PARAN_OPEN='('
-    PARAN_CLOSE=')'
-    BRACKET_OPEN='['
-    BRACKET_CLOSE=']'
-    CURLY_OPEN='{'
-    CURLY_CLOSE='}'
-    COMMA=','
-    SEMI_COLON=';'
-    DOUBLE_COLON='::'
-    SINGLE_COLON=':'
-    EQUAL='='
-    DOUBLE_DOT='..'
-    DOT='.'
-    BRACKET_COLON='[:'
-    BACK_TICK='`'
-    WHITE_SPACE=' '
-    PLUS='+'
-    MINUS='-'
-    STAR='*'
-    FORWAR_SLASH='/'
-    BACK_SLASH='\\'
-    LESS_THAN='<'
-    GREATER_THAN='>'
-    EXCLAMATION = '!'
-    QUSTION ='?'
-    CARET='^'
-    OP_OR='|'
-    PERCENT='%'
-    AMP='&'
-    DOLLAR='$'
-    AT='@'
-    TILDE='~'
-    TILDE_IDENTIFIER='<tilde_identifier>'
-    CRLF='<crlf>'
-    RAW_STRING='<raw_string>'
-    COMMENT = '<comment>'
-    INDENT= 'INDENT'
-    DOC_RUNNABLE = '<doc_runnable>'
-    EXAMPLE = '<example>'
-    SINGLE_LINE_COMMENT='<single_line_comment>'
-  ]
-    implements("DeclarationColonEquals")="org.nim.stubs.NimNamedElement"
-    extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
-    //elementTypeFactory("DeclarationColonEquals")="org.nim.stubs.StubAdapter.adapt"
+
+//    implements("DeclarationColonEquals")="org.nim.psi.extension.NimNamedElement"
+//    extends("DeclarationColonEquals")="org.nim.stubs.NimNamedElementImpl<?>"
+    elementTypeFactory("TypeStructureDeclaration|MethodLikeDeclaration")="org.nim.stubs.NimStubFactory.build"
     extends("(Or|And|Add|At|Conversion|Mul|Selector|Paran|Conditional|If|KW|Spread|Proc)Expression")=BinaryExpression
+    extends(".*(StringLiteral)")=StringLiteral
     extends(".*(Expression|OperandName|Literal)")=Expression
+    //extends(".*(Method)")=MethodLike
     extends(".*Statement")=Statement
     generateTokenAccessors=true
     consumeTokenMethod("(.*_recover)|(.*Expression)|BinAssignOp") = "consumeTokenFast"
+    tokens = [
+        BLOCK_COMMENT_START="#["
+        BLOCK_COMMENT_END="]#"
+        ADDR = 'addr'
+        AND = 'and'
+        AS = 'as'
+        ASM = 'asm'
+        BIND = 'bind'
+        BLOCK = 'block'
+        BREAK = 'break'
+        CASE = 'case'
+        CAST = 'cast'
+        CONCEPT ='concept'
+        CONSY = 'const'
+        CONTINUE = 'continue'
+        CONVERTER='converter'
+        DEFER='defer'
+        DISCARD='discard'
+        DISTINCT='distinct'
+        DIV='div'
+        DO='do'
+        ELIF='elif'
+        ELSE='else'
+        END='end'
+        ENUM='enum'
+        EXCEPT='except'
+        EXPORT='export'
+        FINALLY='finally'
+        FOR='for'
+        FROM='from'
+        FUNC='func'
+        IF='if'
+        IMPORT='import'
+        IN='in'
+        INCLUDE='include'
+        INTERFACE='interface'
+        IS='is'
+        ISNOT='isnot'
+        ITERATOR='iterator'
+        LET='let'
+        MACRO='macro'
+        METHOD='method'
+        MIXIN='mixin'
+        MOD='mod'
+        NIL='nil'
+        NOT='not'
+        NOTIN='notin'
+        OBJECT='object'
+        OF='of'
+        OR='or'
+        OUT='out'
+        PROC='proc'
+        PTR='ptr'
+        RAISE='raise'
+        REF='ref'
+        RETURN='return'
+        SHL='shl'
+        SHR='shr'
+        STATIC='static'
+        TEMPLATE='template'
+        TRY='try'
+        TUPLE='tuple'
+        TYPE='type'
+        USING='using'
+        VAR='var'
+        WHEN='when'
+        WHILE='while'
+        XOR='xor'
+        YIELD='yield'
+        PARAN_DOT_OPEN ='(.'
+        PARAN_DOT_CLOSE='.)'
+        BRACKET_DOT_OPEN='[.'
+        BRACKET_DOT_CLOSE='.]'
+        CURLY_DOT_OPEN='{.'
+        CURLY_DOT_CLOSE='.}'
+        PARAN_OPEN='('
+        PARAN_CLOSE=')'
+        BRACKET_OPEN='['
+        BRACKET_CLOSE=']'
+        CURLY_OPEN='{'
+        CURLY_CLOSE='}'
+        COMMA=','
+        SEMI_COLON=';'
+        DOUBLE_COLON='::'
+        SINGLE_COLON=':'
+        EQUAL='='
+        DOUBLE_DOT='..'
+        DOT='.'
+        BRACKET_COLON='[:'
+        BACK_TICK='`'
+        WHITE_SPACE=' '
+        PLUS='+'
+        MINUS='-'
+        STAR='*'
+        FORWAR_SLASH='/'
+        BACK_SLASH='\\'
+        LESS_THAN='<'
+        GREATER_THAN='>'
+        EXCLAMATION = '!'
+        QUSTION ='?'
+        CARET='^'
+        OP_OR='|'
+        PERCENT='%'
+        AMP='&'
+        DOLLAR='$'
+        AT='@'
+        TILDE='~'
+        TILDE_IDENTIFIER='<tilde_identifier>'
+        CRLF='<crlf>'
+        RAW_STRING='<raw_string>'
+        COMMENT = '<comment>'
+        INDENT= 'INDENT'
+        DOC_RUNNABLE = '<doc_runnable>'
+        EXAMPLE = '<example>'
+        SINGLE_LINE_COMMENT='<single_line_comment>'
+        TRUE = 'true'
+        FALSE = 'false'
+      ]
 }
 
+//Module ::= File+
 
-
-
-
-
-
-
-
-
-
-File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>?
+File ::= <<beginParsing>> (!<<eof>> Statement)* <<eof>>? <<debug>>
 
 Statement ::=
     ImportSection
     | TypeBlock
-    | VarDeclaration
+    | VariableDeclaration
     | ReturnStatement
     | SimpleStatement
     | NewStatement
-    | TypeFieldStatement
+    | TypeFieldStatements
     | WhileStatement
     | IfStatement
     | ForStatement
     | CaseStatement
-    | MethodTypes
+    | MethodLikeDeclaration
+    | BlockStatement
     | WhenDeclaration
-
-
 
 private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
 
 Symbol ::=
     BACK_TICK BACK_TICK_IDENTIFIER BACK_TICK
     | IDENTIFIER
-SymbolWithPragma ::= Symbol STAR? Pragma?
+
+SymbolWithPragma ::= Symbol STAR? PragmaDeclarationsBlock?
+
 //@todo: Should do Simple Expression
-DeclarationColonEquals ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?{
-    stubClass="org.nim.stubs.DeclarationColonEqualsStub"
+// I forgot what this is :/
+TypeField ::=  <<Commas SymbolWithPragma>> (SINGLE_COLON <<OptionalIndent Expression>>)? (EQUAL <<OptionalIndent Expression>>)?{
+    stubClass="org.nim.stubs.impl.NimTypeFieldStatementStub"
     methods=[]
 }
 
 
-private ImportSymbol ::=
+ImportSymbol ::=
     Symbol (PathSeparator Symbol)*
     | StringLiteral
 
@@ -190,6 +191,7 @@ private ImportOrImportAs ::= ImportSymbol [AS IDENTIFIER]
 
 ImportSection ::=
     IMPORT <<Commas ImportOrImportAs>>
+    | IMPORT ImportSymbol PathSeparator BRACKET_OPEN <<Commas IDENTIFIER >> BRACKET_CLOSE
     | IMPORT ImportOrImportAs EXCEPT <<Commas ImportSymbol>>
     | FROM ImportOrImportAs IMPORT <<Commas ImportSymbol>>
 
@@ -197,37 +199,54 @@ Indentation ::= INDENT <<increaseIndent>>
 Dedentation ::= DEDENT <<decreaseIndent>>
 
 NewStatement ::= NEW PARAN_OPEN Expression PARAN_CLOSE
-ReturnStatement ::= RETURN SimpleStatement? | SimpleStatement <<isLast>>
-VarDeclaration ::=
-    VAR Vars
-    | LET Vars
-    | CONST Vars
-
-private Vars ::=
-    (Indentation  VarAssignment+   Dedentation)
-    | ( VarAssignment+  )
+ReturnStatement ::= RETURN SimpleStatement? //| SimpleStatement <<isLast>>
 
 
+/**
+Variable Declaration
+ */
 
-VarAssignment ::= VarDefinitionList  VarDec
+//private VariableDeclaration ::= EnclosedVariableDeclaration | TopLevelVariableDeclaration
+
+ VariableDeclaration ::= (VAR | LET | CONST) <<enterVar>> <<OptionalIndent VarAssignment+ >> <<exitVariable>>
+
+/**
+    Does not Get Stubbed or Exported
+ */
+//EnclosedVariableDeclaration ::= <<isInMethodLike>> VariableDeclarationDefinition
+//
+///**
+//This Gets Stubbed and/or Exported
+// */
+//TopLevelVariableDeclaration ::= !<<isInMethodLike>> VariableDeclarationDefinition
+
+VarAssignment ::= <<Commas VarName >>  VarTypeAndOrAssignment {
+    implements=['org.nim.psi.extension.NimVarAssignmentEx']
+    mixin='org.nim.psi.mixin.NimVarAssignmentMixin'
+}
 ExpColonEqExpression ::= Expression [(SINGLE_COLON|EQUAL) Expression ]
 SetOrTableLiteral ::= CURLY_OPEN (<<Commas ExpColonEqExpression >> | SINGLE_COLON) CURLY_CLOSE
 
-private VarDec ::=
+private VarTypeAndOrAssignment ::=
 
-     (SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
+        //Not sure why this one is optional and others or not, leave as is for now
+    (SINGLE_COLON  REF? IDENTIFIER Generics [EQUAL ExpressionList])
     | (SINGLE_COLON REF? TupleType [EQUAL ExpressionList])
     | (SINGLE_COLON REF? IDENTIFIER EQUAL ExpressionList )
     | (SINGLE_COLON REF? IDENTIFIER)
     | EQUAL ExpressionList
 
-private VarDefinitionList ::= <<Commas VarDefinition >>
+
+
+VarName ::= IDENTIFIER PragmaDeclarationsBlock? STAR?  {
+    implements=['org.nim.psi.extension.NimVarNameExt']
+    mixin='org.nim.psi.mixin.NimVarNameMixin'
+
+}
 
 
 
 
-
-VarDefinition ::= IDENTIFIER Pragma? STAR?
 
 WhileStatement ::= WHILE Expression SINGLE_COLON Indentation Statement* Dedentation
 ForStatement ::= FOR Expression [COMMA Expression] SINGLE_COLON Indentation Statement* Dedentation
@@ -235,7 +254,7 @@ IfStatement ::= Ifs
 private Ifs ::= IfBlockStatement
 
 
-TupleType ::= TUPLE BRACKET_OPEN (Parameter (S_or_C Parameter | &BRACKET_CLOSE)*)  BRACKET_CLOSE
+TupleType ::= TUPLE BRACKET_OPEN (ParameterDeclaration (S_or_C ParameterDeclaration | &BRACKET_CLOSE)*)  BRACKET_CLOSE
 
 CaseStatement ::= CASE Expression SINGLE_COLON? OfBranch+ ElseBranch?
 
@@ -252,17 +271,118 @@ ElseIfStatement ::= ELIF Expression SINGLE_COLON ConditionalStatementOrBlock
 ElseStatement ::= ELSE SINGLE_COLON ConditionalStatementOrBlock
 Literal ::=  ArrayLiteral | Integer | StringLiteral | CharacterLiteral | Float | SetOrTableLiteral | NIL
 
-BlockDeclaration ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
+BlockStatement ::= BLOCK IDENTIFIER SINGLE_COLON MethodBody
 WhenDeclaration ::= WHEN IDENTIFIER SINGLE_COLON Statement+
 
-TypeBlock ::=TYPE <<beginTypeBlock>>  Indentation TypeDeclaration+ Dedentation <<endTypeBlock>>
-
-private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockDeclaration)* (<<inProcExpression>> <<hasTrailingParanthesis>> | Dedentation))
 
 
+private MethodBody ::= Expression |( Indentation (Statement|WhileStatement|IfStatement|BlockStatement)* (<<inProcExpression>> <<hasTrailingParanthesis>> | Dedentation))
 
-TypeFieldStatement ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName
 
+
+TypeFieldStatements ::=<<Commas ObjectField>> SINGLE_COLON REF? OperandName {
+    implements=['org.nim.psi.extension.NimNamedElement']
+    mixin='org.nim.psi.mixin.NimTypeFieldStatementMixin'
+}
+
+
+private Parameters ::=
+(PARAN_OPEN PARAN_CLOSE)
+| PARAN_OPEN (ParameterDeclaration (S_or_C ParameterDeclaration )*) PARAN_CLOSE
+
+ParameterDefault ::= EQUAL? Expression
+
+MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
+
+
+
+PragmaDeclarationsBlock ::= CURLY_DOT_OPEN PragmaDeclaration (COMMA PragmaDeclaration)* CURLY_DOT_CLOSE
+PragmaDeclaration ::= IDENTIFIER (SINGLE_COLON (StringLiteral | Integer | Float ))?
+
+// For this: template sortedByIt*(seq1, op: untyped)
+/**
+    Because Nim allows parameters like this
+    ```
+    proc someMethod(a,b: SomeType)
+    ```
+    - `a,b: Sometype` Is the `ParameterDeclaration`
+    - `a,b` Is the `ParameterNames`
+    - `a` and `b` are the actual Parameters, this means to get the type you have to go up 2 levels to get the type
+      and other information
+ */
+
+ParameterNames ::= <<Commas Parameter>>
+Parameter ::= IDENTIFIER {
+    implements=[
+        'com.intellij.psi.PsiNamedElement'
+        'org.nim.psi.extension.TypeAssignable'
+
+    ]
+    mixin='org.nim.psi.mixin.NimParameterMixin'
+}
+ParameterDeclaration ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? PragmaDeclarationsBlock? ParameterDefault?)? {
+    implements=[
+
+        'org.nim.psi.extension.TypeAssignable'
+    ]
+
+    mixin='org.nim.psi.mixin.NimParameterDeclarationMixin'
+}
+
+
+private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
+
+Closure ::= PROC Parameters  MemberTypeAssignment? PragmaDeclarationsBlock?
+
+
+
+
+private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? PragmaDeclarationsBlock? EQUAL
+
+MethodLikeDeclaration ::= (PROC | FUNC | TEMPLATE | METHOD) Signature MethodBody? {
+    implements=[
+        'org.nim.psi.extension.NimNamedElement'
+        'org.nim.psi.extension.MethodLikeType'
+    ]
+    mixin='org.nim.psi.mixin.NimMethodLikeDeclarationMixin'
+    stubClass='org.nim.stubs.impl.NimMethodLikeDeclarationStub'
+}
+
+
+Generics ::= BRACKET_OPEN  GenericParam ((COMMA GenericParam) )*  BRACKET_CLOSE
+GenericInner ::= Expression Generics
+GenericParam ::= GenericInner| Generics | Expression
+
+// Types
+
+TypeBlock ::=TYPE  <<beginTypeBlock>> Indentation  TypeStructureDeclaration+ Dedentation <<endTypeBlock>> {
+  //  pin=2 // Ensures endTypeBlock is called
+}
+
+/**
+  Renaming this to `TypeStructureDeclaration` even though Nim isn't strongly OOP and refers to objects/structures as types the
+  reasoning is to match the semantics of Java/JVM (which this IDE runs on) so to take a page from java:
+  - The Actual Definition is the TypeStructure
+  - The Type refers to the actual usage with generics
+
+ */
+TypeStructureDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
+    implements = [
+        "org.nim.psi.extension.NimNamedElement"
+        "org.nim.psi.types.NimType"
+    ]
+    mixin = "org.nim.psi.mixin.NimTypeStructureDeclarationMixin"
+    stubClass = "org.nim.stubs.impl.NimTypeStructureStub"
+}
+
+
+private ObjectOrEnum ::=  ObjectType | EnumType
+
+private ObjectType ::= REF? ((OBJECT [OfAsNonOp OperandName]) | OperandName) [Indentation ObjectFields* Dedentation]
+
+ObjectFields ::= ObjectPart | (<<Commas ObjectField>> SINGLE_COLON REF? OperandName)
+
+ObjectField ::= IDENTIFIER STAR?
 /**
 Deals with Things Like this:
   type
@@ -282,63 +402,14 @@ ObjectCase ::= CASE SymbolWithPragma SINGLE_COLON Symbol SINGLE_COLON? <<Optiona
 
 ObjectWhen ::= WHEN Expression SINGLE_COLON  ObjectPart (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
 
-ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | DeclarationColonEquals
+ObjectPart ::= (Indentation ObjectPart+ Dedentation) | ObjectWhen | ObjectCase | NIL | DISCARD | TypeField
 ObjectBranch ::= OfAsNonOp Expression SINGLE_COLON ObjectPart
 ObjectBranches ::= ObjectBranch+ (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
 
-Parameters ::= PParameters
 
-private PParameters ::=
-(PARAN_OPEN PARAN_CLOSE)
-| PARAN_OPEN (Parameter (S_or_C Parameter )*) PARAN_CLOSE
+private EnumType ::= ENUM Indentation <<Commas OperandName>> Dedentation
 
-ParameterDefault ::= EQUAL? Expression
-
-MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
-
-private OptionalPragma ::= Pragma?
-Pragma ::= CURLY_DOT_OPEN IDENTIFIER (COMMA IDENTIFIER)* CURLY_DOT_CLOSE
-
-// For this: template sortedByIt*(seq1, op: untyped)
-ParameterNames ::= <<Commas IDENTIFIER>>
-
-Parameter ::= ParameterNames (SINGLE_COLON? VAR? ParameterType? Generics? OptionalPragma ParameterDefault?)?
-
-
-private ParameterType ::= Closure | <<inProcExpression>> Expression |  IDENTIFIER
-
-Closure ::= PROC Parameters  MemberTypeAssignment? Pragma?
-
-private MethodTypes ::=
-    ProcedureMethod
-    | TemplateMethod
-    | FuncMethod
-
-
-
-private Signature ::= Symbol? STAR? Generics? Parameters MemberTypeAssignment? Pragma? EQUAL
-
-meta MethodLike ::= <<p>>  Signature MethodBody?
-ProcedureMethod ::= <<MethodLike PROC>>
-FuncMethod ::= <<MethodLike FUNC>>
-TemplateMethod ::= <<MethodLike TEMPLATE>>
-
-Generics ::= BRACKET_OPEN <<enterMode "GEN">> GenericParam ((COMMA GenericParam) )* <<exitModeSafe "GEN">> BRACKET_CLOSE
-GenericInner ::= Expression Generics
-GenericParam ::= GenericInner| Generics | Expression
-
-TypeDeclaration ::=  <<isInType>> OperandName OptionalPragma STAR? EQUAL Types
-
-private Types ::=  ObjectDeclaration | EnumDeclaration
-
-ObjectDeclaration ::= REF? ((OBJECT  OfAsNonOp OperandName)| OBJECT | OperandName) [Indentation ObjectFields* Dedentation]
-
-ObjectField ::= IDENTIFIER STAR?
-ObjectFields ::=
- ObjectPart
-| (<<Commas ObjectField>> SINGLE_COLON REF? OperandName)
-
-EnumDeclaration ::= ENUM Indentation <<Commas OperandName>> Dedentation
+// Literals
 
 Integer ::= (SignedInteger|UnsignedInteger)
 Float ::= FLOAT_LIT | FLOAT32_LIT| FLOAT64_LIT
@@ -363,16 +434,13 @@ fake BinaryExpression ::= Expression+ {
 }
 UnaryExpression ::= UnaryOp Expression
 UnaryOp ::= MINUS
-SimpleStatement ::= UMethodExpressionOrLeftHand
+SimpleStatement ::= ExpressionList (AssignmentStatement | SimpleStatement)?
 
-private UMethodExpressionOrLeftHand ::= LeftHandExprList [AssignmentStatement | SimpleStatement]
+
 
 AssignmentStatement ::= AssignmentOp ExpressionList
 
 private AssignmentOp ::= MINUS_ASSIGN | PLUS_ASSIGN | EQUAL
-
-LeftHandExprList ::=  ExpressionList
-
 
 
 private ExpressionList ::=  <<Commas Expression>>
@@ -401,7 +469,7 @@ Expression ::=
     //| IfExpression
     | ParanExpression
 
-ProcExpression ::= PROC <<startProcExpression>> Parameters MemberTypeAssignment? Pragma? EQUAL MethodBody <<endProcExpression>>
+ProcExpression ::= PROC <<startProcExpression>> Parameters MemberTypeAssignment? PragmaDeclarationsBlock? EQUAL MethodBody <<endProcExpression>>
 
 private MaxGroup ::= OperandName
 | IndexOrSliceExpression
@@ -410,7 +478,7 @@ private MaxGroup ::= OperandName
 | Literal
 | SymbolExpression
 
-TupleExpression ::= PARAN_OPEN <<enterMode "PAR">>  Expression ((COMMA &PARAN_CLOSE) | (COMMA Expression)+) <<exitModeSafe "PAR">> PARAN_CLOSE
+TupleExpression ::= PARAN_OPEN  Expression ((COMMA &PARAN_CLOSE) | (COMMA Expression)+)  PARAN_CLOSE
 StringJoinExpression ::= Expression AMP Expression
 BracketExpression ::= Expression BRACKET_OPEN BRACKET_CLOSE
 ChainedExpression ::= Expression (DOT Expression)+
@@ -423,18 +491,19 @@ UranaryConditionalExpression ::= NOT Expression
 ConditionalExpression ::=  Expression OP5 Expression
 MultiplyExpression ::= Expression OP1 Expression
 AddExpression ::= Expression OP2 Expression
-ParanExpression ::=  PARAN_OPEN <<enterMode "PAR">>  Expression  <<exitModeSafe "PAR">> PARAN_CLOSE
+ParanExpression ::=  PARAN_OPEN  Expression   PARAN_CLOSE
 Op7Expression ::= Expression OP7 Expression
 IndexOrSliceExpression ::= Expression BRACKET_OPEN IndexExprBody BRACKET_CLOSE
 private IndexExprBody ::= Expression
-//external CallExpression ::= parseCall
-CallExpression ::= Expression  Generics? <<noWhiteSpace>> ArgumentList
-TypeExpression ::= TYPE ArgumentList
-ArgumentList ::= PARAN_OPEN <<enterMode "CALL">>  ExpressionList? <<exitModeSafe "CALL">> PARAN_CLOSE
 
-meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
+CallExpression ::=   Expression  Generics? <<noWhiteSpace>>  PARAN_OPEN <<beginCall>> ExpressionList?  (<<callIndent>> PARAN_CLOSE Dedentation |  PARAN_CLOSE) <<endCall>> {
+  pin=3 // Ensures <<endCall>> is called
+}
+TypeExpression ::= TYPE ArgumentList
+ArgumentList ::= PARAN_OPEN  ExpressionList?  (<<callIndent>> PARAN_CLOSE Dedentation | PARAN_CLOSE)
+private meta OptionalIndent ::= (Indentation <<p>> Dedentation) | <<p>>
 meta OptionalIndentWithEnd ::= (Indentation <<p1>> ((<<p2>> Dedentation)| (Dedentation <<p2>>)) | <<p1>>  <<p2>>)
-meta Commas ::= <<p>> (COMMA <<p>>)*
+private meta Commas ::= <<p>> (COMMA <<p>>)*
 private S_or_C ::= SEMI_COLON | COMMA
 private OfAsNonOp ::= <<isNotOperator>> OF
 Operator ::=
