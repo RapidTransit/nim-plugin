@@ -9,6 +9,8 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileSystem;
 import jodd.util.StringUtil;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -18,9 +20,11 @@ import java.util.Optional;
  * Acts similar to IntelliJ's SDK related but Intellij is tied to JDK implementations this should work better across
  * IDEs
  */
-@CustomLog
+//@CustomLog
 public class NimSdk {
 
+    @Getter
+    @Setter
     private String name;
 
     private String homePath;
@@ -29,7 +33,7 @@ public class NimSdk {
 
     public String getVersionString(String sdkHome) {
         if(StringUtil.isNotEmpty(sdkHome)) {
-            log.info("SDK Home was empty");
+            //log.info("SDK Home was empty");
             VirtualFileSystem fileSystem = VirtualFileManager.getInstance().getFileSystem("file");
             if (fileSystem != null) {
                 var path = sdkHome + File.pathSeparator + "system.nim";
@@ -39,12 +43,12 @@ public class NimSdk {
                             .map(x->x.toCompactString())
                             .orElse(null);
                 } else {
-                    log.error("Path `" + path + "` did not contain the system.nim file");
+                  //  log.error("Path `" + path + "` did not contain the system.nim file");
                 }
 
             } else {
                 // For Debug Purposes
-                log.error("File system with the key: `file` does not exist in the VirtualFileManager");
+              //  log.error("File system with the key: `file` does not exist in the VirtualFileManager");
             }
         }
         return null;
