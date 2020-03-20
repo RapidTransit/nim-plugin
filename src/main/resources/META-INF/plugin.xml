@@ -34,7 +34,7 @@
         <lang.syntaxHighlighterFactory language="Nim" implementationClass="org.nim.color.NimSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.nim.color.NimColorSettingsPage"/>
         <annotator language="Nim" implementationClass="org.nim.color.HighlightingAnnotator" />
-<!--        <sdkType implementation="org.nim.sdk.NimSdkType" />-->
+<!--       <sdkType implementation="org.nim.sdk.NimSdkTypeImpl" />-->
         <additionalLibraryRootsProvider implementation="org.nim.nimble.library.NimbleAdditionalLibraryRootsProvider" />
         <projectService serviceImplementation="org.nim.psi.NimPsiService" />
         <applicationConfigurable id="Settings.Nim" bundle="messages.ProjectBundle"
@@ -42,6 +42,27 @@
                                  key="nim.settings.name"
                                  groupId="language"
                              instance="org.nim.settings.NimSettings" />
+        <projectService serviceImplementation="org.nim.sdk.roots.NimSdkListConfigurable" />
+        <projectService serviceImplementation="org.nim.sdk.roots.NimSdkProjectStructureConfigurable" />
+        <applicationService serviceImplementation="org.nim.sdk.roots.NimProjectSdkTableImpl" serviceInterface="org.nim.sdk.NimProjectSdkTable"/>
+    </extensions>
+
+    <project-components>
+        <component>
+            <interface-class>org.nim.sdk.roots.NimSdkProjectRootManager</interface-class>
+            <implementation-class>org.nim.sdk.roots.NimProjectRootManagerImpl</implementation-class>
+            <loadForDefaultProject/>
+        </component>
+    </project-components>
+
+    <extensionPoints >
+        <extensionPoint name="nimSdkType" interface="org.nim.sdk.NimSdkType" />
+
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="org.nim.nim-plugin">
+        <nimSdkType implementation="org.nim.sdk.NimSdkTypeImpl" />
+
     </extensions>
 
     <actions>

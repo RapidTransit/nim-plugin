@@ -10,9 +10,6 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectBundle;
-import com.intellij.openapi.projectRoots.*;
-import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
-import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.MasterDetailsComponent;
 import com.intellij.openapi.ui.Messages;
@@ -23,25 +20,23 @@ import com.intellij.util.Consumer;
 import com.intellij.util.EventDispatcher;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.nim.sdk.roots.NimSdkValidatableSdkAdditionalData;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author anna
  */
-public class NimSdksModel implements SdkModel {
-  private static final Logger LOG = Logger.getInstance(NimSdksModel.class);
+public class NimProjectSdksModel implements NimSdkModel {
+  private static final Logger LOG = Logger.getInstance(NimProjectSdksModel.class);
 
   private final Map<NimSdk, NimSdk> myProjectSdks = new HashMap<NimSdk, NimSdk>();
   private final EventDispatcher<Listener> mySdkEventsDispatcher = EventDispatcher.create(Listener.class);
 
   private boolean myModified;
 
-  private Sdk myProjectSdk;
+  private NimSdk myProjectSdk;
   private boolean myInitialized;
 
   @NotNull
@@ -52,13 +47,13 @@ public class NimSdksModel implements SdkModel {
 
   @NotNull
   @Override
-  public Sdk[] getSdks() {
-    return myProjectSdks.values().toArray(new Sdk[0]);
+  public NimSdk[] getSdks() {
+    return myProjectSdks.values().toArray(new NimSdk[0]);
   }
 
   @Override
   @Nullable
-  public Sdk findSdk(@NotNull String sdkName) {
+  public NimSdk findSdk(@NotNull String sdkName) {
     for (NimSdk projectJdk : myProjectSdks.values()) {
       if (sdkName.equals(projectJdk.getName())) return projectJdk;
     }
@@ -77,10 +72,10 @@ public class NimSdksModel implements SdkModel {
 
   public void reset(@Nullable Project project) {
     myProjectSdks.clear();
-    final NimSdk[] projectSdks = ProjectJdkTable.getInstance().getAllJdks();
+    final NimSdk[] projectSdks = NimProjectSdkTable.getInstance().getAllJdks();
     for (NimSdk sdk : projectSdks) {
       try {
-        myProjectSdks.put(sdk, (Sdk)sdk.clone());
+        myProjectSdks.put(sdk, (NimSdk)sdk.clone());
       }
       catch (CloneNotSupportedException e) {
         LOG.error(e);
@@ -100,7 +95,7 @@ public class NimSdksModel implements SdkModel {
   }
 
   @NotNull
-  public HashMap<NimSdk, NimSdk> getProjectSdks() {
+  public Map<NimSdk, NimSdk> getProjectSdks() {
     return myProjectSdks;
   }
 
@@ -128,12 +123,12 @@ public class NimSdksModel implements SdkModel {
 
   private void doApply() {
     ApplicationManager.getApplication().runWriteAction(() -> {
-      final ArrayList<Sdk> itemsInTable = new ArrayList<>();
-      final ProjectJdkTable jdkTable = ProjectJdkTable.getInstance();
-      final Sdk[] allFromTable = jdkTable.getAllJdks();
+      final ArrayList<NimSdk> itemsInTable = new ArrayList<>();
+      final NimProjectSdkTable jdkTable = NimProjectSdkTable.getInstance();
+      final NimSdk[] allFromTable = jdkTable.getAllJdks();
 
       // Delete removed and fill itemsInTable
-      for (final Sdk tableItem : allFromTable) {
+      for (final NimSdk tableItem : allFromTable) {
         if (myProjectSdks.containsKey(tableItem)) {
           itemsInTable.add(tableItem);
         }
@@ -143,14 +138,14 @@ public class NimSdksModel implements SdkModel {
       }
 
       // Now all removed items are deleted from table, itemsInTable contains all items in table
-      for (Sdk originalJdk : itemsInTable) {
+      for (NimSdk originalJdk : itemsInTable) {
         final NimSdk modifiedJdk = myProjectSdks.get(originalJdk);
         LOG.assertTrue(modifiedJdk != null);
         LOG.assertTrue(originalJdk != modifiedJdk);
         jdkTable.updateJdk(originalJdk, modifiedJdk);
       }
       // Add new items to table
-      final Sdk[] allJdks = jdkTable.getAllJdks();
+      final NimSdk[] allJdks = jdkTable.getAllJdks();
       for (final NimSdk projectJdk : myProjectSdks.keySet()) {
         LOG.assertTrue(projectJdk != null);
         if (ArrayUtilRt.find(allJdks, projectJdk) == -1) {
@@ -162,16 +157,16 @@ public class NimSdksModel implements SdkModel {
   }
 
   private boolean canApply(@NotNull String[] errorString, @Nullable MasterDetailsComponent rootConfigurable, boolean addedOnly) throws ConfigurationException {
-    Map<Sdk, Sdk> sdks = new LinkedHashMap<>(myProjectSdks);
+    Map<NimSdk, NimSdk> sdks = new LinkedHashMap<>(myProjectSdks);
     if (addedOnly) {
-      Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-      for (Sdk jdk : allJdks) {
+      NimSdk[] allJdks = NimProjectSdkTable.getInstance().getAllJdks();
+      for (NimSdk jdk : allJdks) {
         sdks.remove(jdk);
       }
     }
     ArrayList<String> allNames = new ArrayList<>();
-    Sdk itemWithError = null;
-    for (Sdk currItem : sdks.values()) {
+    NimSdk itemWithError = null;
+    for (NimSdk currItem : sdks.values()) {
       String currName = currItem.getName();
       if (currName.isEmpty()) {
         itemWithError = currItem;
@@ -183,16 +178,16 @@ public class NimSdksModel implements SdkModel {
         errorString[0] = ProjectBundle.message("sdk.list.unique.name.required.error");
         break;
       }
-      final SdkAdditionalData sdkAdditionalData = currItem.getSdkAdditionalData();
-      if (sdkAdditionalData instanceof ValidatableSdkAdditionalData) {
+      final NimSdkAdditionalData sdkAdditionalData = currItem.getSdkAdditionalData();
+      if (sdkAdditionalData instanceof NimSdkValidatableSdkAdditionalData) {
         try {
-          ((ValidatableSdkAdditionalData)sdkAdditionalData).checkValid(this);
+          ((NimSdkValidatableSdkAdditionalData)sdkAdditionalData).checkValid(this);
         }
         catch (ConfigurationException e) {
           if (rootConfigurable != null) {
             final Object projectJdk = rootConfigurable.getSelectedObject();
-            if (!(projectJdk instanceof Sdk) ||
-                !Comparing.strEqual(((Sdk)projectJdk).getName(), currName)) { //do not leave current item with current name
+            if (!(projectJdk instanceof NimSdk) ||
+                !Comparing.strEqual(((NimSdk)projectJdk).getName(), currName)) { //do not leave current item with current name
               rootConfigurable.selectNodeInTree(currName);
             }
           }
@@ -208,7 +203,7 @@ public class NimSdksModel implements SdkModel {
     return false;
   }
 
-  public void removeSdk(@NotNull Sdk editableObject) {
+  public void removeSdk(@NotNull NimSdk editableObject) {
     NimSdk projectJdk = null;
     for (NimSdk jdk : myProjectSdks.keySet()) {
       if (myProjectSdks.get(jdk) == editableObject) {
@@ -230,17 +225,17 @@ public class NimSdksModel implements SdkModel {
   public void createAddActions(@NotNull DefaultActionGroup group,
                                @NotNull final JComponent parent,
                                @NotNull final Consumer<NimSdk> updateTree,
-                               @Nullable Condition<? super SdkTypeId> filter) {
+                               @Nullable Condition<? super NimSdkTypeId> filter) {
     createAddActions(group, parent, null, updateTree, filter);
   }
 
   public void createAddActions(@NotNull DefaultActionGroup group,
                                @NotNull final JComponent parent,
-                               @Nullable final Sdk selectedSdk,
+                               @Nullable final NimSdk selectedSdk,
                                @NotNull final Consumer<NimSdk> updateTree,
-                               @Nullable Condition<? super SdkTypeId> filter) {
-    final SdkType[] types = SdkType.getAllTypes();
-    for (final SdkType type : types) {
+                               @Nullable Condition<? super NimSdkTypeId> filter) {
+    final NimSdkType[] types = NimSdkType.getAllTypes();
+    for (final NimSdkType type : types) {
       if (!type.allowCreationByUser()) continue;
       if (filter != null && !filter.value(type)) continue;
       final AnAction addAction = new DumbAwareAction(type.getPresentableName(), null, type.getIconForAddAction()) {
@@ -253,30 +248,30 @@ public class NimSdksModel implements SdkModel {
     }
   }
 
-  public void doAdd(@NotNull JComponent parent, @NotNull final SdkType type, @NotNull final Consumer<NimSdk> callback) {
+  public void doAdd(@NotNull JComponent parent, @NotNull final NimSdkType type, @NotNull final Consumer<NimSdk> callback) {
     doAdd(parent, null, type, callback);
   }
 
-  public void doAdd(@NotNull JComponent parent, @Nullable final Sdk selectedSdk, @NotNull final SdkType type, @NotNull final Consumer<NimSdk> callback) {
+  public void doAdd(@NotNull JComponent parent, @Nullable final NimSdk selectedSdk, @NotNull final NimSdkType type, @NotNull final Consumer<NimSdk> callback) {
     myModified = true;
     if (type.supportsCustomCreateUI()) {
       type.showCustomCreateUI(this, parent, selectedSdk, sdk -> setupSdk(sdk, callback));
     }
     else {
-      SdkConfigurationUtil.selectSdkHome(type, home -> addSdk(type, home, callback));
+      NimSdkConfigurationUtil.selectSdkHome(type, home -> addSdk(type, home, callback));
     }
   }
 
-  public void addSdk(@NotNull SdkType type, @NotNull String home, @Nullable Consumer<NimSdk> callback) {
-    String newSdkName = SdkConfigurationUtil.createUniqueSdkName(type, home, myProjectSdks.values());
-    final NimSdk newJdk = new ProjectJdkImpl(newSdkName, type);
+  public void addSdk(@NotNull NimSdkType type, @NotNull String home, @Nullable Consumer<NimSdk> callback) {
+    String newSdkName = NimSdkConfigurationUtil.createUniqueSdkName(type, home, myProjectSdks.values());
+    final NimProjectSdkImpl newJdk = new NimProjectSdkImpl(newSdkName, type);
     newJdk.setHomePath(home);
     setupSdk(newJdk, callback);
   }
 
   private void setupSdk(@NotNull NimSdk newJdk, @Nullable Consumer<NimSdk> callback) {
     String home = newJdk.getHomePath();
-    SdkType sdkType = (SdkType)newJdk.getSdkType();
+    NimSdkType sdkType = (NimSdkType)newJdk.getSdkType();
     if (!sdkType.setupSdkPaths(newJdk, this)) return;
 
     if (newJdk.getVersionString() == null) {
@@ -288,14 +283,14 @@ public class NimSdksModel implements SdkModel {
   }
 
   @Override
-  public void addSdk(@NotNull Sdk sdk) {
+  public void addSdk(@NotNull NimSdk sdk) {
     doAdd(sdk, null);
   }
 
   public void doAdd(@NotNull NimSdk newSdk, @Nullable Consumer<NimSdk> updateTree) {
     myModified = true;
     try {
-      NimSdk editableCopy = (Sdk)newSdk.clone();
+      NimSdk editableCopy = (NimSdk)newSdk.clone();
       myProjectSdks.put(newSdk, editableCopy);
       if (updateTree != null) {
         updateTree.consume(editableCopy);
@@ -319,16 +314,18 @@ public class NimSdksModel implements SdkModel {
   }
 
   @Nullable
-  public Sdk getProjectSdk() {
+  public NimSdk getProjectSdk() {
     if (!myProjectSdks.containsValue(myProjectSdk)) return null;
     return myProjectSdk;
   }
 
-  public void setProjectSdk(final Sdk projectSdk) {
+  public void setProjectSdk(final NimSdk projectSdk) {
     myProjectSdk = projectSdk;
   }
 
   public boolean isInitialized() {
     return myInitialized;
   }
+
+
 }

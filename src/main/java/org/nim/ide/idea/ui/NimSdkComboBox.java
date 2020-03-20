@@ -19,15 +19,11 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectBundle;
-import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkType;
-import com.intellij.openapi.projectRoots.SdkTypeId;
+import com.intellij.openapi.projectRoots.SimpleJavaSdkType;
 import com.intellij.openapi.roots.ui.CellAppearanceEx;
 import com.intellij.openapi.roots.ui.FileAppearanceService;
-import com.intellij.openapi.roots.ui.OrderEntryAppearanceService;
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable;
-import com.intellij.openapi.roots.ui.configuration.projectRoot.JdkListConfigurable;
-import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.roots.ui.util.CompositeAppearance;
 import com.intellij.openapi.ui.ComboBoxWithWidePopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -44,8 +40,9 @@ import com.intellij.util.ui.EmptyIcon;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.nim.sdk.NimSdk;
-import org.nim.sdk.NimSdksModel;
+import org.nim.sdk.*;
+import org.nim.sdk.roots.NimSdkProjectStructureConfigurable;
+import org.nim.sdk.roots.NimSdkListConfigurable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,25 +61,25 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
   private static final Icon EMPTY_ICON = JBUI.scale(EmptyIcon.create(1, 16));
 
   @Nullable
-  private final Condition<? super Sdk> myFilter;
+  private final Condition<? super NimSdk> myFilter;
   @Nullable
-  private final Condition<SdkTypeId> myCreationFilter;
+  private final Condition<NimSdkTypeId> myCreationFilter;
   private JButton mySetUpButton;
-  private final Condition<? super SdkTypeId> mySdkTypeFilter;
+  private final Condition<? super NimSdkTypeId> mySdkTypeFilter;
 
-  public NimSdkComboBox(@NotNull final NimSdksModel jdkModel) {
+  public NimSdkComboBox(@NotNull final NimProjectSdksModel jdkModel) {
     this(jdkModel, null);
   }
 
-  public NimSdkComboBox(@NotNull final NimSdksModel jdkModel,
-                        @Nullable Condition<? super SdkTypeId> filter) {
+  public NimSdkComboBox(@NotNull final NimProjectSdksModel jdkModel,
+                        @Nullable Condition<? super NimSdkTypeId> filter) {
     this(jdkModel, filter, getSdkFilter(filter), filter, false);
   }
 
-  public NimSdkComboBox(@NotNull final NimSdksModel jdkModel,
-                        @Nullable Condition<? super SdkTypeId> sdkTypeFilter,
-                        @Nullable Condition<? super Sdk> filter,
-                        @Nullable Condition<? super SdkTypeId> creationFilter,
+  public NimSdkComboBox(@NotNull final NimProjectSdksModel jdkModel,
+                        @Nullable Condition<? super NimSdkTypeId> sdkTypeFilter,
+                        @Nullable Condition<? super NimSdk> filter,
+                        @Nullable Condition<? super NimSdkTypeId> creationFilter,
                         boolean addSuggestedItems) {
     super(new JdkComboBoxModel(jdkModel, sdkTypeFilter, filter, addSuggestedItems));
     myFilter = filter;
@@ -103,7 +100,7 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
             append(str, SimpleTextAttributes.ERROR_ATTRIBUTES);
           }
           else if (value instanceof ProjectJdkComboBoxItem) {
-            final Sdk jdk = jdkModel.getProjectSdk();
+            final NimSdk jdk = jdkModel.getProjectSdk();
             if (jdk != null) {
               setIcon(((SdkType)jdk.getSdkType()).getIcon());
               append(ProjectBundle.message("project.roots.project.jdk.inherited"), SimpleTextAttributes.REGULAR_ATTRIBUTES);
@@ -115,7 +112,7 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
             }
           }
           else if (value instanceof SuggestedJdkItem) {
-            SdkType type = ((SuggestedJdkItem)value).getSdkType();
+            NimSdkType type = ((SuggestedJdkItem)value).getSdkType();
             String home = ((SuggestedJdkItem)value).getPath();
             setIcon(type.getIconForAddAction());
             String version = type.getVersionString(home);
@@ -134,10 +131,18 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
   }
 
   @NotNull
-  private static Condition<SdkTypeId> getCreationFilter(@Nullable Condition<? super SdkTypeId> creationFilter) {
+  private static Condition<NimSdkTypeId> getCreationFilter(@Nullable Condition<? super NimSdkTypeId> creationFilter) {
     return notSimpleJavaSdkType(creationFilter);
   }
+  @NotNull
+  public static Condition<NimSdkTypeId> notSimpleJavaSdkType() {
+    return sdkTypeId -> !(sdkTypeId instanceof SimpleJavaSdkType);
+  }
 
+  @NotNull
+  public static Condition<NimSdkTypeId> notSimpleJavaSdkType(@Nullable Condition<? super NimSdkTypeId> condition) {
+    return sdkTypeId -> notSimpleJavaSdkType().value(sdkTypeId) && (condition == null || condition.value(sdkTypeId));
+  }
   @Override
   public Dimension getPreferredSize() {
     final Rectangle rec = ScreenUtil.getScreenRectangle(0, 0);
@@ -161,9 +166,9 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
 
   public void setSetupButton(final JButton setUpButton,
                                 @Nullable final Project project,
-                                final ProjectSdksModel jdksModel,
+                                final NimProjectSdksModel jdksModel,
                                 final SdkComboBoxItem firstItem,
-                                @Nullable final Condition<? super Sdk> additionalSetup,
+                                @Nullable final Condition<? super NimSdk> additionalSetup,
                                 final boolean moduleJdkSetup) {
     setSetupButton(setUpButton, project, jdksModel, firstItem, additionalSetup,
                    ProjectBundle.message("project.roots.set.up.jdk.title", moduleJdkSetup ? 1 : 2));
@@ -171,9 +176,9 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
 
   public void setSetupButton(final JButton setUpButton,
                                 @Nullable final Project project,
-                                final ProjectSdksModel jdksModel,
+                                final NimProjectSdksModel jdksModel,
                                 final SdkComboBoxItem firstItem,
-                                @Nullable final Condition<? super Sdk> additionalSetup,
+                                @Nullable final Condition<? super NimSdk> additionalSetup,
                                 final String actionGroupTitle) {
 
     mySetUpButton = setUpButton;
@@ -181,7 +186,7 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
       DefaultActionGroup group = new DefaultActionGroup();
       jdksModel.createAddActions(group, this, getSelectedJdk(), jdk -> {
         if (project != null) {
-          final JdkListConfigurable configurable = JdkListConfigurable.getInstance(project);
+          final NimSdkListConfigurable configurable = NimSdkListConfigurable.getInstance(project);
           configurable.addJdkNode(jdk, false);
         }
         reloadModel(new ActualSdkComboBoxItem(jdk), project);
@@ -206,11 +211,11 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
     });
   }
 
-  public void setEditButton(final JButton editButton, final Project project, final Computable<? extends Sdk> retrieveJDK){
+  public void setEditButton(final JButton editButton, final Project project, final Computable<? extends NimSdk> retrieveJDK){
     editButton.addActionListener(e -> {
-      final Sdk projectJdk = retrieveJDK.compute();
+      final NimSdk projectJdk = retrieveJDK.compute();
       if (projectJdk != null) {
-        ProjectStructureConfigurable.getInstance(project).select(projectJdk, true);
+        NimSdkProjectStructureConfigurable.getInstance(project).select(projectJdk, true);
       }
     });
     addActionListener(e -> {
@@ -290,25 +295,25 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
       model.addElement(firstItem);
       return;
     }
-    model.reload(firstItem, ProjectStructureConfigurable.getInstance(project).getProjectJdksModel(), mySdkTypeFilter, myFilter, false);
+    model.reload(firstItem, NimSdkProjectStructureConfigurable.getInstance(project).getProjectJdksModel(), mySdkTypeFilter, myFilter, false);
   }
 
   private static class JdkComboBoxModel extends DefaultComboBoxModel<SdkComboBoxItem> {
-    JdkComboBoxModel(@NotNull final ProjectSdksModel jdksModel, @Nullable Condition<? super SdkTypeId> sdkTypeFilter,
-                     @Nullable Condition<? super Sdk> sdkFilter, boolean addSuggested) {
+    JdkComboBoxModel(@NotNull final NimSdkModel jdksModel, @Nullable Condition<? super NimSdkTypeId> sdkTypeFilter,
+                     @Nullable Condition<? super NimSdk> sdkFilter, boolean addSuggested) {
       reload(null, jdksModel, sdkTypeFilter, sdkFilter, addSuggested);
     }
 
     void reload(@Nullable final SdkComboBoxItem firstItem,
-                @NotNull final ProjectSdksModel jdksModel,
-                @Nullable Condition<? super SdkTypeId> sdkTypeFilter,
-                @Nullable Condition<? super Sdk> sdkFilter,
+                @NotNull final NimSdkModel jdksModel,
+                @Nullable Condition<? super NimSdkTypeId> sdkTypeFilter,
+                @Nullable Condition<? super NimSdk> sdkFilter,
                 boolean addSuggested) {
       removeAllElements();
       if (firstItem != null) addElement(firstItem);
 
-      Sdk[] jdks = sortSdks(jdksModel.getSdks());
-      for (Sdk jdk : jdks) {
+      NimSdk[] jdks = sortSdks(jdksModel.getSdks());
+      for (NimSdk jdk : jdks) {
         if (sdkFilter == null || sdkFilter.value(jdk)) {
           addElement(new ActualSdkComboBoxItem(jdk));
         }
@@ -319,20 +324,20 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
     }
 
     @NotNull
-    private static Sdk[] sortSdks(@NotNull final Sdk[] sdks) {
-      Sdk[] clone = sdks.clone();
+    private static NimSdk[] sortSdks(@NotNull final NimSdk[] sdks) {
+      NimSdk[] clone = sdks.clone();
       Arrays.sort(clone, (sdk1, sdk2) -> {
-        SdkType sdkType1 = (SdkType)sdk1.getSdkType();
-        SdkType sdkType2 = (SdkType)sdk2.getSdkType();
+        NimSdkType sdkType1 = (NimSdkType)sdk1.getSdkType();
+        NimSdkType sdkType2 = (NimSdkType)sdk2.getSdkType();
         if (!sdkType1.getComparator().equals(sdkType2.getComparator())) return StringUtil.compare(sdkType1.getPresentableName(), sdkType2.getPresentableName(), true);
         return sdkType1.getComparator().compare(sdk1, sdk2);
       });
       return clone;
     }
 
-    void addSuggestedItems(@Nullable Condition<? super SdkTypeId> sdkTypeFilter, Sdk[] jdks) {
-      SdkType[] types = SdkType.getAllTypes();
-      for (SdkType type : types) {
+    void addSuggestedItems(@Nullable Condition<? super NimSdkTypeId> sdkTypeFilter, NimSdk[] jdks) {
+      NimSdkType[] types = NimSdkType.getAllTypes();
+      for (NimSdkType type : types) {
         if (sdkTypeFilter == null || sdkTypeFilter.value(type) && ContainerUtil.find(jdks, sdk -> sdk.getSdkType() == type) == null) {
           Collection<String> paths = type.suggestHomePaths();
           for (String path : paths) {
@@ -345,7 +350,7 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
     }
   }
 
-  public static Condition<Sdk> getSdkFilter(@Nullable final Condition<? super SdkTypeId> filter) {
+  public static Condition<NimSdk> getSdkFilter(@Nullable final Condition<? super NimSdkTypeId> filter) {
     return filter == null ? Conditions.alwaysTrue() : sdk -> filter.value(sdk.getSdkType());
   }
 
@@ -416,16 +421,16 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
   }
 
   public static class SuggestedJdkItem extends SdkComboBoxItem {
-    private final SdkType mySdkType;
+    private final NimSdkType mySdkType;
     private final String myPath;
 
-    SuggestedJdkItem(@NotNull SdkType sdkType, @NotNull String path) {
+    SuggestedJdkItem(@NotNull NimSdkType sdkType, @NotNull String path) {
       mySdkType = sdkType;
       myPath = path;
     }
 
     @NotNull
-    public SdkType getSdkType() {
+    public NimSdkType getSdkType() {
       return mySdkType;
     }
 
@@ -450,7 +455,7 @@ public class NimSdkComboBox extends ComboBoxWithWidePopup<NimSdkComboBox.SdkComb
 
     String name = jdk.getName();
     CompositeAppearance appearance = new CompositeAppearance();
-    SdkType sdkType = (SdkType)jdk.getSdkType();
+    NimSdkType sdkType = (NimSdkType)jdk.getSdkType();
     appearance.setIcon(sdkType.getIcon());
     SimpleTextAttributes attributes = getTextAttributes(sdkType.sdkHasValidPath(jdk), selected);
     CompositeAppearance.DequeEnd ending = appearance.getEnding();
