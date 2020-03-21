@@ -37,13 +37,14 @@
 <!--       <sdkType implementation="org.nim.sdk.NimSdkTypeImpl" />-->
         <additionalLibraryRootsProvider implementation="org.nim.nimble.library.NimbleAdditionalLibraryRootsProvider" />
         <projectService serviceImplementation="org.nim.psi.NimPsiService" />
-        <applicationConfigurable id="Settings.Nim" bundle="messages.ProjectBundle"
-                                 nonDefaultProject="true"
-                                 key="nim.settings.name"
+        <projectConfigurable id="Settings.Nim"
+
+                                 displayName="Nim"
                                  groupId="language"
                              instance="org.nim.settings.NimSettings" />
         <projectService serviceImplementation="org.nim.sdk.roots.NimSdkListConfigurable" />
         <projectService serviceImplementation="org.nim.sdk.roots.NimSdkProjectStructureConfigurable" />
+        <projectService serviceImplementation="org.nim.nimble.library.NimbleProjectServiceImpl" />
         <applicationService serviceImplementation="org.nim.sdk.roots.NimProjectSdkTableImpl" serviceInterface="org.nim.sdk.NimProjectSdkTable"/>
     </extensions>
 

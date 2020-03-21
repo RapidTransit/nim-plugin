@@ -35,12 +35,14 @@ import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Key;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nim.ide.idea.ui.NimSdkComboBox;
+import org.nim.module.NimModuleBuilder;
 import org.nim.sdk.*;
 import org.nim.sdk.roots.NimSdkProjectRootManager;
 
@@ -56,6 +58,9 @@ import static java.awt.GridBagConstraints.*;
  * @author Dmitry Avdeev
  */
 public class NimSdkSettingsStep extends ModuleWizardStep {
+
+  public static final Key<NimSdk> NIM_SDK_KEY = Key.create("NIM_SDK");
+
   protected final NimSdkComboBox myJdkComboBox;
   protected final WizardContext myWizardContext;
   protected final NimProjectSdksModel myModel;
@@ -132,8 +137,8 @@ public class NimSdkSettingsStep extends ModuleWizardStep {
 
   private NimSdk getPreselectedSdk(Project project, String lastUsedSdk, Condition<? super NimSdkTypeId> sdkFilter) {
     if (project != null) {
-      Sdk sdk = ProjectRootManager.getInstance(project).getProjectSdk();
-      if (sdk != null && myModuleBuilder.isSuitableSdkType(sdk.getSdkType())) {
+      NimSdk sdk = NimSdkProjectRootManager.getInstance(project).getProjectSdk();
+      if (sdk != null /**&& myModuleBuilder.isSuitableSdkType(sdk.getSdkType())**/) {
         // use project SDK
         myJdkComboBox.insertItemAt(new NimSdkComboBox.ProjectJdkComboBoxItem(), 0);
         return null;
@@ -171,16 +176,15 @@ public class NimSdkSettingsStep extends ModuleWizardStep {
     return myJdkPanel;
   }
 
-  //@todo: fix
   @Override
   public void updateDataModel() {
     Project project = myWizardContext.getProject();
     NimSdk jdk = myJdkComboBox.getSelectedJdk();
     if (project == null) {
-     // myWizardContext.setProjectJdk(jdk);
+      myWizardContext.putUserData(NIM_SDK_KEY, jdk);
     }
     else {
-     // myModuleBuilder.setModuleJdk(jdk);
+      ((NimModuleBuilder) myModuleBuilder).setNimSdk(jdk);
     }
   }
 
