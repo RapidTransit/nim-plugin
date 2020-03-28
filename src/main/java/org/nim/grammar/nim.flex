@@ -64,7 +64,7 @@ import static org.nim.psi.NimTokenTypes.*;
     TRIPLE_DOUBLE_QUOTED_CONTENT = {DOUBLE_QUOTED_CONTENT} | {STRING_NL} | \"(\")?[^\"\\$]
     TRIPLE_DOUBLE_QUOTED_LITERAL = \"\"\" {TRIPLE_DOUBLE_QUOTED_CONTENT}* ~"\"\"\""
     RAW_STRING = "r\"" ({DOUBLE_QUOTED_CONTENT}|"\\"| "\"\"")* ~"\""
-    IDENTIFIER= {_LETTER} ( _? {_LETTER} | {DEC_DIGIT} )*
+    IDENTIFIER= {_LETTER} ( _| {_LETTER} | {DEC_DIGIT} )*
     _VALID_CHARS = "\\"[0-9]+|"\\"{HEX_DIGIT}{2}|[^\\\']|"\\"[rcnlftv\'\"abe]
     CHAR_LITERAL=\'{_VALID_CHARS}\'
 // Eventually push the number stuff to the parser so we can add error inspections?
@@ -210,7 +210,7 @@ import static org.nim.psi.NimTokenTypes.*;
     DOUBLE_COLON="::"
     SINGLE_COLON=":"
     EQUAL="="
-    COMPARISON=[>|<]=?
+    COMPARISON=[>|<]{OP_SYMBOLS}*
     DOUBLE_DOT=".."
     DOT="."
 
@@ -415,6 +415,7 @@ import static org.nim.psi.NimTokenTypes.*;
     "$" {return DOLLAR;}
     "@" {return AT;}
     "`" {yybegin(NON_CALLABLE_BACK_TICK); return BACK_TICK;}
+      {COMPARISON} {return LT_EQUAL;}
     "<=" {return LT_EQUAL;}
     ">=" {return GT_EQUAL;}
     "true" {return TRUE;}
@@ -436,12 +437,15 @@ import static org.nim.psi.NimTokenTypes.*;
     "]" {return BRACKET_CLOSE;}
     "(" {parenthesisBalance++; yybegin(CALLABLE_ARGUMENTS); return PARAN_OPEN; }
     ")" {return PARAN_CLOSE; }
+      ";" {return SEMI_COLON;}
     ":" {return SINGLE_COLON;}
       "," {return COMMA;}
     "*" {return STAR;}
     "{." {return CURLY_DOT_OPEN; }
     ".}" {return CURLY_DOT_CLOSE; }
     "=" { yybegin(START); return EQUAL;}
+        {SINGLE_LINE_COMMENT} {return SINGLE_LINE_COMMENT;}
+          {DOUBLE_QUOTED_LITERAL} {return DOUBLE_QUOTED_LITERAL;}
     {WHITE_SPACE} {return WHITE_SPACE;}
 }
 <CALLABLE_ARGUMENTS>{

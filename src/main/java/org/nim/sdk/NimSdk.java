@@ -1,78 +1,58 @@
+/*
+ * Copyright 2000-2012 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.nim.sdk;
 
-import com.intellij.openapi.project.ProjectBundle;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.StandardFileSystems;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.RootProvider;
+import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VirtualFileSystem;
-import jodd.util.StringUtil;
-import lombok.CustomLog;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.util.Optional;
-
 /**
- * Acts similar to IntelliJ's SDK related but Intellij is tied to JDK implementations this should work better across
- * IDEs
+ * @author Eugene Zhuravlev
+ * @see ProjectJdkTable
+ * @see ProjectRootManager#getProjectSdk()
  */
-@CustomLog
-public class NimSdk {
+public interface NimSdk extends UserDataHolder {
+  @NotNull
+  NimSdkTypeId getSdkType();
 
-    private String name;
+  @NotNull
+  String getName();
 
-    private String homePath;
+  @Nullable
+  String getVersionString();
 
-    private String version;
+  @Nullable
+  String getHomePath();
 
-    public String getVersionString(String sdkHome) {
-        if(StringUtil.isNotEmpty(sdkHome)) {
-            log.info("SDK Home was empty");
-            VirtualFileSystem fileSystem = VirtualFileManager.getInstance().getFileSystem("file");
-            if (fileSystem != null) {
-                var path = sdkHome + File.pathSeparator + "system.nim";
-                VirtualFile fileByPath = fileSystem.findFileByPath(path);
-                if(fileByPath != null && fileByPath.exists()){
-                    return Optional.ofNullable(NimVersionUtil.findVersion(fileByPath))
-                            .map(x->x.toCompactString())
-                            .orElse(null);
-                } else {
-                    log.error("Path `" + path + "` did not contain the system.nim file");
-                }
+  @Nullable
+  VirtualFile getHomeDirectory();
 
-            } else {
-                // For Debug Purposes
-                log.error("File system with the key: `file` does not exist in the VirtualFileManager");
-            }
-        }
-        return null;
-    }
-    public boolean isValidSdkHome(String path) {
-        if(path != null){
-            File root = new File(FileUtil.toSystemDependentName(path));
-            return new File(root, "system.nim").isFile() && new File(root, "stdlib.nim").isFile();
-        }
-        return false;
-    }
+  @NotNull
+  RootProvider getRootProvider();
 
-    public String suggestHomePath() {
-        return SystemInfo.isLinux ? "/usr/lib/nim" : null;
-    }
+  @NotNull
+  NimSdkModificator getSdkModificator();
 
-    public String suggestSdkName(@Nullable String currentSdkName, String sdkHome) {
-        return "NimSDK";
-    }
+  @Nullable
+  NimSdkAdditionalData getSdkAdditionalData();
 
-    public String getPresentableName() {
-        return ProjectBundle.message("nim.sdk.name");
-    }
-
-    public VirtualFile getHomeDirectory() {
-        if (homePath == null) {
-            return null;
-        }
-        return StandardFileSystems.local().findFileByPath(homePath);
-    }
+  @NotNull
+  Object clone() throws CloneNotSupportedException;
 }

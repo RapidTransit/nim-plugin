@@ -21,6 +21,15 @@ public class GrammarTest extends ParsingTestCase {
         super("grammar", "nim", true, new NimParserDefinition());
     }
 
+    public void testSystem1(){
+        doTest(true);
+    }
+    public void testSystem(){
+        doTest(true);
+    }
+    public void testNimhcr(){
+        doTest(true);
+    }
     public void testAlgorithm(){
         doTest(true);
     }

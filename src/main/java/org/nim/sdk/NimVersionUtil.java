@@ -27,9 +27,9 @@ public class NimVersionUtil {
      */
     private static final String START = "  NimMajor";
     private static final String BASE_PATTERN = "\\* \\{\\.intdefine\\.\\}: int = (\\d+)";
-    private static final Pattern MAJOR = Pattern.compile("NimMajor" + BASE_PATTERN);
-    private static final Pattern MINOR = Pattern.compile("NimMinor" + BASE_PATTERN);
-    private static final Pattern PATCH = Pattern.compile("NimPatch" + BASE_PATTERN);
+    private static final Pattern MAJOR = Pattern.compile("\\s*NimMajor" + BASE_PATTERN);
+    private static final Pattern MINOR = Pattern.compile("\\s*NimMinor" + BASE_PATTERN);
+    private static final Pattern PATCH = Pattern.compile("\\s*NimPatch" + BASE_PATTERN);
 
 
     @Nullable
@@ -53,7 +53,7 @@ public class NimVersionUtil {
                 Matcher matcher = MAJOR.matcher(line);
                 Integer major = null;
                 if (matcher.matches()) {
-                    major = Integer.valueOf(matcher.group(0));
+                    major = Integer.valueOf(matcher.group(1));
                 } else {
                     return null;
                 }
@@ -74,7 +74,7 @@ public class NimVersionUtil {
         while(line != null){
             Matcher matcher = pattern.matcher(line);
             if(matcher.matches()){
-                return Optional.of(Integer.valueOf(matcher.group(0)));
+                return Optional.of(Integer.valueOf(matcher.group(1)));
             } else {
                 line = reader.readLine();
             }
