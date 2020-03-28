@@ -166,6 +166,7 @@ Statement ::=
     | MethodLikeDeclaration
     | BlockStatement
     | WhenDeclaration
+    | PragmaDeclarationsBlock
 
 private PathSeparator ::= FORWAR_SLASH | BACK_SLASH
 
@@ -294,10 +295,10 @@ ParameterDefault ::= EQUAL? Expression
 
 MemberTypeAssignment ::= SINGLE_COLON IDENTIFIER Generics?
 
-
+PragmaIdent ::= IDENTIFIER
 
 PragmaDeclarationsBlock ::= CURLY_DOT_OPEN PragmaDeclaration (COMMA PragmaDeclaration)* CURLY_DOT_CLOSE
-PragmaDeclaration ::= IDENTIFIER (SINGLE_COLON (StringLiteral | Integer | Float ))?
+PragmaDeclaration ::= IDENTIFIER (SINGLE_COLON (StringLiteral | Integer | Float|  PragmaIdent))?
 
 // For this: template sortedByIt*(seq1, op: untyped)
 /**
@@ -366,7 +367,7 @@ TypeBlock ::=TYPE  <<beginTypeBlock>> Indentation  TypeStructureDeclaration+ Ded
   - The Type refers to the actual usage with generics
 
  */
-TypeStructureDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? EQUAL ObjectOrEnum {
+TypeStructureDeclaration ::=  <<isInType>> IDENTIFIER PragmaDeclarationsBlock? STAR? PragmaDeclarationsBlock? [EQUAL ObjectOrEnum] {
     implements = [
         "org.nim.psi.extension.NimNamedElement"
         "org.nim.psi.types.NimType"
@@ -407,7 +408,9 @@ ObjectBranch ::= OfAsNonOp Expression SINGLE_COLON ObjectPart
 ObjectBranches ::= ObjectBranch+ (ELIF Expression SINGLE_COLON ObjectPart)* (ELSE SINGLE_COLON ObjectPart)?
 
 
-private EnumType ::= ENUM Indentation <<Commas OperandName>> Dedentation
+private EnumType ::= ENUM Indentation <<Commas EnumTypeDecl>> Dedentation
+
+private EnumTypeDecl ::= OperandName [EQUAL Literal]
 
 // Literals
 
@@ -461,6 +464,7 @@ Expression ::=
     | UnaryExpression
     | ProcExpression
     | MaxGroup
+    | TrueFalseExpression
     | Op7Expression
     | ChainedExpression
     | BracketExpression
@@ -478,6 +482,7 @@ private MaxGroup ::= OperandName
 | Literal
 | SymbolExpression
 
+TrueFalseExpression::= TRUE | FALSE
 TupleExpression ::= PARAN_OPEN  Expression ((COMMA &PARAN_CLOSE) | (COMMA Expression)+)  PARAN_CLOSE
 StringJoinExpression ::= Expression AMP Expression
 BracketExpression ::= Expression BRACKET_OPEN BRACKET_CLOSE

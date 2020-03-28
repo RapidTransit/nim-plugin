@@ -176,12 +176,14 @@ public class NimSdkSettingsStep extends ModuleWizardStep {
     return myJdkPanel;
   }
 
+
   @Override
   public void updateDataModel() {
     Project project = myWizardContext.getProject();
     NimSdk jdk = myJdkComboBox.getSelectedJdk();
     if (project == null) {
-      myWizardContext.putUserData(NIM_SDK_KEY, jdk);
+      ((NimModuleBuilder) myModuleBuilder).setNimSdk(jdk);
+      //myWizardContext.putUserData(NIM_SDK_KEY, jdk);
     }
     else {
       ((NimModuleBuilder) myModuleBuilder).setNimSdk(jdk);

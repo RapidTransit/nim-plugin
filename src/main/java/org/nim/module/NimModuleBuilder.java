@@ -7,19 +7,17 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.ModuleTypeManager;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.projectRoots.SdkTypeId;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nim.ide.idea.NimSdkSettingsStep;
-import org.nim.ide.idea.NimbleConfigurationWizardStep;
 import org.nim.nimble.library.NimbleProjectServiceImpl;
 import org.nim.sdk.NimSdk;
 import org.nim.sdk.NimSdkTypeId;
+import org.nim.sdk.roots.NimSdkProjectRootManager;
+
 
 public class NimModuleBuilder extends ModuleBuilder {
 
@@ -51,6 +49,7 @@ public class NimModuleBuilder extends ModuleBuilder {
     @Override
     public void setupRootModel(@NotNull ModifiableRootModel modifiableRootModel) throws ConfigurationException {
         modifiableRootModel.getProject().getComponent(NimbleProjectServiceImpl.class).setSdk(nimSdk);
+        NimSdkProjectRootManager.getInstance(modifiableRootModel.getModule().getProject()).setProjectSdk(nimSdk);
         ContentEntry contentEntry = doAddContentEntry(modifiableRootModel);
     }
 

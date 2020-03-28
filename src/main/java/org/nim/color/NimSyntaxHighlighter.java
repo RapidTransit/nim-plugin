@@ -53,10 +53,11 @@ public class NimSyntaxHighlighter extends SyntaxHighlighterBase {
             tokenType.equals(NimTokenTypes.OF) ||
             tokenType.equals(NimTokenTypes.BREAK) ||
             tokenType.equals(NimTokenTypes.NIL) ||
-//            tokenType.equals(NimTokenTypes.) ||
-//            tokenType.equals(NimTokenTypes.FALSE) ||
+            tokenType.equals(NimTokenTypes.WHEN) ||
+            tokenType.equals(NimTokenTypes.FALSE) ||
             tokenType.equals(NimTokenTypes.BLOCK) ||
             tokenType.equals(NimTokenTypes.DISCARD) ||
+            tokenType.equals(NimTokenTypes.TYPE) ||
             tokenType.equals(NimTokenTypes.RETURN)
            ) {
             return KEYWORD_KEYS;

@@ -234,7 +234,7 @@ public class NimProjectRootManagerImpl extends NimProjectRootManagerEx implement
     NimSdk sdk = getProjectSdk();
     for (ProjectExtension extension : ProjectExtension.EP_NAME.getExtensions(myProject)) {
       //@todo: Fix
-     // extension.projectSdkChanged(sdk);
+     //extension.projectSdkChanged(sdk);
     }
   }
 

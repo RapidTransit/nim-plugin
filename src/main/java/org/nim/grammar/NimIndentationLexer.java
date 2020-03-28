@@ -6,6 +6,7 @@ import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerBase;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.tree.IElementType;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.coverage.gnu.trove.TIntStack;
 
@@ -20,6 +21,7 @@ import static org.nim.psi.NimTokenTypes.*;
 /**
  * Should I do this in a lexer? ANTLR is a lot more flexible in the lexing and parsing ASFAIK I can't rewrite tokens
  */
+@ToString
 public class NimIndentationLexer extends LexerBase {
 
     private static final Logger logger = Logger.getInstance(NimIndentationLexer.class);
@@ -60,7 +62,8 @@ public class NimIndentationLexer extends LexerBase {
 
     private void tryToAddToStack() {
         delegate.advance();
-        if(delegate.getTokenType() == CRLF && delegate.getState() != NimLexer.CALLABLE_ARGUMENTS) {
+        IElementType tokenType = delegate.getTokenType();
+        if(tokenType == CRLF && delegate.getState() != NimLexer.CALLABLE_ARGUMENTS) {
             StackElement holder = new StackElement(delegate);
 
             List<StackElement> nonSignificantTokens = new ArrayList<>();
